@@ -24,8 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__ . '/../../config.php'); // Ensure $CFG is defined
-
 use local_geniai\core_hook_output;
 
 /**
