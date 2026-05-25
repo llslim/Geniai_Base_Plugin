@@ -191,6 +191,30 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                 }]);
             });
 
+            $("#geniai-persona-select").change(function() {
+                var selected = $(this).val();
+                if (selected) {
+                    geniaiareamensagens.html("");
+                    startChat();
+
+                    var methodname = "local_geniai_history_3";
+                    if (release >= 4.2) {
+                        methodname = "local_geniai_history_4";
+                    }
+
+                    ajax.call([{
+                        methodname: methodname,
+                        args: {
+                            courseid: courseid,
+                            action: "clear"
+                        }
+                    }])[0].done(function() {
+                        geniaitextarea.val("$$persona=" + selected + "$$");
+                        sendMessage();
+                    });
+                }
+            });
+
             function startChat() {
                 var message_01 = $("#local_geniai_message_01").val();
                 geniaiareamensagens.append(`<div class="geniai-message geniai-server format-text">${message_01}</div>`);
