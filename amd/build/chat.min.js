@@ -215,6 +215,202 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                 }
             });
 
+            $("#geniai-generate-pdf").click(function() {
+                var popup = $("#geniai-mod-popup");
+                var studentName = popup.attr("data-student-name") || "Student";
+                var courseName = popup.attr("data-course-name") || "Course";
+                var currentDate = new Date().toLocaleDateString(undefined, { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+
+                var transcriptHtml = `
+                <html>
+                <head>
+                    <title>EDURA Dialogue Transcript - ${studentName}</title>
+                    <style>
+                        body {
+                            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+                            color: #1e293b;
+                            line-height: 1.5;
+                            padding: 40px;
+                            background-color: #ffffff;
+                        }
+                        .header {
+                            border-bottom: 2px solid #e2e8f0;
+                            padding-bottom: 20px;
+                            margin-bottom: 30px;
+                        }
+                        .title-bar {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                        }
+                        .title {
+                            font-size: 24px;
+                            font-weight: 800;
+                            color: #4f46e5;
+                            margin: 0;
+                        }
+                        .badge {
+                            background-color: #e0e7ff;
+                            color: #4338ca;
+                            padding: 4px 12px;
+                            border-radius: 9999px;
+                            font-size: 12px;
+                            font-weight: 600;
+                        }
+                        .metadata-grid {
+                            display: grid;
+                            grid-template-columns: repeat(2, 1fr);
+                            gap: 12px;
+                            margin-top: 20px;
+                            font-size: 14px;
+                            color: #475569;
+                            background: #f8fafc;
+                            padding: 16px;
+                            border-radius: 8px;
+                        }
+                        .metadata-item span {
+                            font-weight: 600;
+                            color: #1e293b;
+                        }
+                        .dialogue-container {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 16px;
+                            margin-top: 30px;
+                        }
+                        .message-wrapper {
+                            display: flex;
+                            flex-direction: column;
+                            margin-bottom: 12px;
+                        }
+                        .message-sender {
+                            font-size: 11px;
+                            font-weight: 700;
+                            color: #64748b;
+                            margin-bottom: 4px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.05em;
+                        }
+                        .message-bubble {
+                            padding: 14px 18px;
+                            border-radius: 12px;
+                            font-size: 14px;
+                            max-width: 90%;
+                            box-sizing: border-box;
+                        }
+                        .message-user {
+                            align-self: flex-end;
+                            background-color: #f1f5f9;
+                            border-left: 4px solid #6366f1;
+                        }
+                        .message-user .message-bubble {
+                            color: #0f172a;
+                        }
+                        .message-parent {
+                            align-self: flex-start;
+                            background-color: #fcfcfc;
+                            border: 1px solid #e2e8f0;
+                            border-left: 4px solid #475569;
+                        }
+                        .message-feedback {
+                            background: #f5f3ff;
+                            border: 1px solid #ddd6fe;
+                            border-left: 4px solid #7c3aed;
+                            border-radius: 12px;
+                            padding: 20px;
+                            margin-top: 20px;
+                        }
+                        .message-feedback h2 {
+                            color: #6d28d9;
+                            font-size: 18px;
+                            margin-top: 0;
+                            margin-bottom: 12px;
+                        }
+                        .footer {
+                            margin-top: 50px;
+                            border-top: 1px solid #e2e8f0;
+                            padding-top: 16px;
+                            font-size: 12px;
+                            color: #94a3b8;
+                            text-align: center;
+                        }
+                        @media print {
+                            body {
+                                padding: 0;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div class="title-bar">
+                            <h1 class="title">EDURA Dialogue Transcript</h1>
+                            <span class="badge">AAC-RERC Simulation</span>
+                        </div>
+                        <div class="metadata-grid">
+                            <div class="metadata-item"><span>Student Name:</span> ${studentName}</div>
+                            <div class="metadata-item"><span>Date Generated:</span> ${currentDate}</div>
+                            <div class="metadata-item"><span>Course:</span> ${courseName}</div>
+                            <div class="metadata-item"><span>Tool:</span> Augmentative and Alternative Communication (AAC) Tutor</div>
+                        </div>
+                    </div>
+
+                    <div class="dialogue-container">
+                `;
+
+                $("#geniai-area-mensagens .geniai-message").each(function() {
+                    var el = $(this);
+                    var text = el.html().trim();
+                    
+                    if (el.is("input")) return;
+
+                    var isFeedback = el.hasClass("geniai-server") && (text.indexOf("Grade -") !== -1 || text.indexOf("Grade:") !== -1 || text.indexOf("Grade ") !== -1);
+
+                    if (isFeedback) {
+                        transcriptHtml += `
+                            <div class="message-feedback">
+                                <h2>Evaluation & Performance Feedback</h2>
+                                <div>${text}</div>
+                            </div>
+                        `;
+                    } else {
+                        var isUser = !el.hasClass("geniai-server");
+                        var senderName = isUser ? "You (Teacher)" : "Parent Persona";
+                        var bubbleClass = isUser ? "message-user" : "message-parent";
+
+                        transcriptHtml += `
+                            <div class="message-wrapper ${bubbleClass}">
+                                <span class="message-sender">${senderName}</span>
+                                <div class="message-bubble">${text}</div>
+                            </div>
+                        `;
+                    }
+                });
+
+                transcriptHtml += `
+                    </div>
+                    <div class="footer">
+                        Generated programmatically by the AAC-RERC Moodle Chatbot plugin. All simulation records are stored in Moodle Gradebook.
+                    </div>
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                        }
+                    <\/script>
+                </body>
+                </html>
+                `;
+
+                var printWindow = window.open('', '_blank');
+                printWindow.document.open();
+                printWindow.document.write(transcriptHtml);
+                printWindow.document.close();
+            });
+
             function startChat() {
                 var message_01 = $("#local_geniai_message_01").val();
                 geniaiareamensagens.append(`<div class="geniai-message geniai-server format-text">${message_01}</div>`);
