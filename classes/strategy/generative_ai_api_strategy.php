@@ -75,6 +75,10 @@ class generative_ai_api_strategy implements response_strategy {
                 $decision = strtolower(trim($response["choices"][0]["message"]["content"]));
                 return (strpos($decision, 'yes') !== false);
             }
+            if (isset($response['error']['message'])) {
+                throw new \Exception($response['error']['message']);
+            }
+            throw new \Exception("External API returned no choices");
         } catch (\Exception $e) {
             // Fallback to pattern matcher if external API fails
             $fallback = new regex_matcher_strategy();
@@ -110,11 +114,13 @@ class generative_ai_api_strategy implements response_strategy {
             ["role" => "system", "content" => $systeminstruction]
         ];
 
-        // Format and interleave conversation history
+        // Format and interleave conversation history safely supporting both arrays and stdClass objects
         foreach ($messages as $message) {
+            $sender = is_object($message) ? $message->sender : $message['sender'];
+            $text = is_object($message) ? $message->message_text : $message['message_text'];
             $fullcontext[] = [
-                "role" => ($message['sender'] === 'user') ? 'user' : 'system',
-                "content" => strip_tags($message['message_text'])
+                "role" => ($sender === 'user') ? 'user' : 'system',
+                "content" => strip_tags($text)
             ];
         }
 
@@ -123,6 +129,10 @@ class generative_ai_api_strategy implements response_strategy {
             if (isset($response["choices"][0]["message"]["content"])) {
                 return trim($response["choices"][0]["message"]["content"]);
             }
+            if (isset($response['error']['message'])) {
+                throw new \Exception($response['error']['message']);
+            }
+            throw new \Exception("External API returned no choices");
         } catch (\Exception $e) {
             // Fallback to static prompt if cURL errors out
             return $stateprompt;

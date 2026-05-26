@@ -216,8 +216,17 @@ class api {
     public static function chat_completions($messages, $ignoremaxtoken = false) {
         global $DB;
 
-        $apikey = get_config("local_geniai", "apikey");
-        $model = get_config("local_geniai", "model");
+        $strategy = get_config("local_geniai", "engine_strategy");
+        if ($strategy === 'external_llm') {
+            $apikey = get_config("local_geniai", "api_bearer_token");
+            $model = get_config("local_geniai", "model_identifier");
+            $api_base_url = get_config("local_geniai", "api_base_url");
+        } else {
+            $apikey = get_config("local_geniai", "apikey");
+            $model = get_config("local_geniai", "model");
+            $api_base_url = "https://api.openai.com/v1";
+        }
+
         $maxtokens = get_config("local_geniai", "max_tokens");
         $frequencypenalty = get_config("local_geniai", "frequency_penalty");
         $presencepenalty = get_config("local_geniai", "presence_penalty");
@@ -275,11 +284,15 @@ class api {
             $post->max_tokens = intval($maxtokens);
         }
 
+        $baseurl = rtrim($api_base_url, '/');
+        $url = $baseurl . '/chat/completions';
+
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "https://api.openai.com/v1/chat/completions");
+        curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post));
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
 
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             "Content-Type: application/json",

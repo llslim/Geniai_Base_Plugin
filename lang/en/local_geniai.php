@@ -155,3 +155,15 @@ $string['talk_geniai'] = 'Talk to {$a} here';
 $string['url_moodle'] = 'The Moodle URL is "{$a->wwwroot}" and the Moodle name is "{$a->fullname}"';
 $string['voice'] = 'Voice used in the audio response';
 $string['write_message'] = 'Write a message...';
+
+$string['engine_strategy'] = 'LLM Engine Strategy';
+$string['engine_strategy_desc'] = 'Select the global operational strategy for evaluating responses and dialogue. Select Local JSON/Regex Fallback for static evaluations or External LLM Cloud API for generative completions.';
+$string['engine_strategy_local'] = 'Local JSON/Regex Fallback';
+$string['engine_strategy_external'] = 'External LLM Cloud API';
+$string['api_base_url'] = 'API Endpoint Base URL';
+$string['api_base_url_desc'] = 'Sanitized base URL for specifying the target server. Defaults to Google Gemini Cloud API but can be configured to an internal university Gemma instance.';
+$string['api_bearer_token'] = 'API Bearer Token / Secret Key';
+$string['api_bearer_token_desc'] = 'Masked authorization secret token needed to process external LLM inference requests.';
+$string['model_identifier'] = 'Model Variant Identifier';
+$string['model_identifier_desc'] = 'The exact model variant string (e.g. gemini-1.5-pro, gemma-7b).';
+

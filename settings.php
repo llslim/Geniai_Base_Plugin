@@ -45,6 +45,44 @@ if ($hassiteconfig) {
     );
     $settings->add($setting);
 
+    // LLM Strategy and Endpoint settings for AAC-RERC Chatbot Upgrade.
+    $strategies = [
+        "local" => get_string("engine_strategy_local", "local_geniai"),
+        "external_llm" => get_string("engine_strategy_external", "local_geniai"),
+    ];
+    $setting = new admin_setting_configselect(
+        "local_geniai/engine_strategy",
+        get_string("engine_strategy", "local_geniai"),
+        get_string("engine_strategy_desc", "local_geniai"),
+        "local", $strategies
+    );
+    $settings->add($setting);
+
+    $setting = new admin_setting_configtext(
+        "local_geniai/api_base_url",
+        get_string("api_base_url", "local_geniai"),
+        get_string("api_base_url_desc", "local_geniai"),
+        "https://generativelanguage.googleapis.com/v1beta/openai", PARAM_RAW
+    );
+    $settings->add($setting);
+
+    $setting = new admin_setting_configpasswordunmask(
+        "local_geniai/api_bearer_token",
+        get_string("api_bearer_token", "local_geniai"),
+        get_string("api_bearer_token_desc", "local_geniai"),
+        ""
+    );
+    $settings->add($setting);
+
+    $setting = new admin_setting_configtext(
+        "local_geniai/model_identifier",
+        get_string("model_identifier", "local_geniai"),
+        get_string("model_identifier_desc", "local_geniai"),
+        "gemini-1.5-pro", PARAM_RAW
+    );
+    $settings->add($setting);
+
+
 
     $apikey = get_config("local_geniai", "apikey");
     if (isset($apikey[12])) {

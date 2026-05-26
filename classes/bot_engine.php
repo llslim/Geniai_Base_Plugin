@@ -66,10 +66,10 @@ class bot_engine {
      * @return response_strategy
      */
     private function resolve_strategy(): response_strategy {
-        $mode = get_config('local_geniai', 'mode');
-        $apikey = get_config('local_geniai', 'apikey');
-        
-        if ($mode !== 'none' && !empty($apikey)) {
+        $strategy = get_config('local_geniai', 'engine_strategy');
+        $bearer = get_config('local_geniai', 'api_bearer_token');
+
+        if ($strategy === 'external_llm' && !empty($bearer)) {
             return new generative_ai_api_strategy();
         }
         return new deterministic_tree_strategy();
@@ -388,10 +388,10 @@ class bot_engine {
             if (isset($response["choices"][0]["message"]["content"])) {
                 return trim($response["choices"][0]["message"]["content"]);
             }
+            return "<h3>Simulation Complete!</h3><p>Your responses have been saved and sent to Gradebook.</p>" .
+                   "<p><em>Note: Automated rubric feedback is temporarily unavailable (API connection timeout).</em></p>";
         } catch (\Exception $e) {
             return "<h3>Simulation Complete!</h3><p>Your responses have been saved and sent to Gradebook.</p>";
         }
-
-        return "<h3>Simulation Complete!</h3><p>Your responses have been saved and sent to Gradebook.</p>";
     }
 }
