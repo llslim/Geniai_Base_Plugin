@@ -50,7 +50,12 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                 var text = e.clipboardData.getData("text/plain");
                 document.execCommand("insertHTML", false, text);
             });
-            $("#geniai-icon-send").click(sendMessage);
+            $("#geniai-icon-send").on("click", sendMessage).on("keydown", function(e) {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
 
             geniaisendarea.click(function() {
                 document.getElementById("geniai-textarea").focus();
@@ -458,8 +463,18 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
             let chunks = []; // will be used later to record audio
             let mediaRecorder = null; // will be used later to record audio
 
-            $("#geniai-icon-mic").click(record);
-            $("#geniai-icon-stop").click(chat.reset_recording);
+            $("#geniai-icon-mic").on("click", record).on("keydown", function(e) {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    record();
+                }
+            });
+            $("#geniai-icon-stop").on("click", chat.reset_recording).on("keydown", function(e) {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    chat.reset_recording();
+                }
+            });
 
             function record() {
                 chat.reset_recording();
