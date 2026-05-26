@@ -113,5 +113,52 @@ function xmldb_local_geniai_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025011400, "local", "geniai");
     }
 
+    if ($oldversion < 2026052500) {
+        // Table local_geniai_sessions.
+        $table1 = new xmldb_table('local_geniai_sessions');
+        $table1->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table1->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table1->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table1->add_field('cmid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table1->add_field('scenariocode', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+        $table1->add_field('current_state', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, 'START');
+        $table1->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table1->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table1->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        if (!$dbman->table_exists($table1)) {
+            $dbman->create_table($table1);
+        }
+
+        // Table local_geniai_messages.
+        $table2 = new xmldb_table('local_geniai_messages');
+        $table2->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table2->add_field('sessionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table2->add_field('sender', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, 'user');
+        $table2->add_field('message_text', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table2->add_field('timestamp', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table2->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table2->add_key('session_fk', XMLDB_KEY_FOREIGN, array('sessionid'), 'local_geniai_sessions', array('id'));
+
+        if (!$dbman->table_exists($table2)) {
+            $dbman->create_table($table2);
+        }
+
+        // Table local_geniai_analytics.
+        $table3 = new xmldb_table('local_geniai_analytics');
+        $table3->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table3->add_field('sessionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table3->add_field('metric_type', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, null);
+        $table3->add_field('metric_value', XMLDB_TYPE_NUMBER, '10,2', null, XMLDB_NOTNULL, null, '0.00');
+        $table3->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table3->add_key('session_fk', XMLDB_KEY_FOREIGN, array('sessionid'), 'local_geniai_sessions', array('id'));
+
+        if (!$dbman->table_exists($table3)) {
+            $dbman->create_table($table3);
+        }
+
+        upgrade_plugin_savepoint(true, 2026052500, 'local', 'geniai');
+    }
+
     return true;
 }

@@ -6,7 +6,7 @@
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,
+// Moodle is distributed in the hope that it? will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
@@ -14,18 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * version file.
- *
- * @package   local_geniai
- * @copyright 2024 Eduardo Kraus {@link http://eduardokraus.com}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace local_geniai\state;
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version = 2026052500;
-$plugin->requires = 2020110900;
-$plugin->release = "2.4.0";
-$plugin->maturity = MATURITY_STABLE;
-$plugin->component = "local_geniai";
+/**
+ * FAIL_STATE state class.
+ *
+ * @package   local_geniai
+ * @copyright 2026 Antigravity
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class state_fail_state extends bot_state {
+    /**
+     * Returns key for this state.
+     *
+     * @return string
+     */
+    public function get_key(): string {
+        return 'FAIL_STATE';
+    }
+}

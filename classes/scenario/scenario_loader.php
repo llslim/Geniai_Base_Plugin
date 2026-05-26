@@ -1,0 +1,223 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+namespace local_geniai\scenario;
+
+defined('MOODLE_INTERNAL') || die;
+
+/**
+ * Class handles loading and validating scenario JSON configurations.
+ *
+ * @package   local_geniai
+ * @copyright 2026 Antigravity
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class scenario_loader {
+    /**
+     * Loads a scenario definition by ID, either from Moodle File Storage (if custom)
+     * or from fallback static standard profiles.
+     *
+     * @param string $scenarioid Unique scenario code or ID
+     * @param int $cmid Optional course module ID to search uploaded files
+     * @return scenario_definition
+     * @throws \moodle_exception
+     */
+    public static function load(string $scenarioid, int $cmid = 0): scenario_definition {
+        global $DB;
+
+        // 1. Try to load from course module context file storage first
+        if ($cmid > 0) {
+            $context = \context_module::instance($cmid, MUST_EXIST);
+            $fs = get_file_storage();
+            $files = $fs->get_area_files($context->id, 'mod_geniai', 'scenariofile', 0, 'id DESC', false);
+            
+            if (!empty($files)) {
+                /** @var \stored_file $file */
+                $file = reset($files);
+                $content = $file->get_content();
+                
+                $data = json_decode($content, true);
+                if (json_last_error() === JSON_ERROR_NONE && !empty($data)) {
+                    return self::parse_and_validate($data);
+                }
+            }
+        }
+
+        // 2. Fall back to standard profiles (Anna, Brianna, Cathy)
+        switch ($scenarioid) {
+            case 'anna':
+                return self::get_anna_profile();
+            case 'brianna':
+                return self::get_brianna_profile();
+            case 'cathy':
+                return self::get_cathy_profile();
+            default:
+                // Return default fallback
+                return self::get_default_profile($scenarioid);
+        }
+    }
+
+    /**
+     * Parses and validates raw JSON array structure.
+     *
+     * @param array $data
+     * @return scenario_definition
+     * @throws \moodle_exception
+     */
+    private static function parse_and_validate(array $data): scenario_definition {
+        $id = $data['scenario_id'] ?? 'unknown_scenario';
+        $persona = $data['persona'] ?? [];
+        $learningobjectives = $data['learning_objectives'] ?? [];
+        $states = $data['states'] ?? [];
+
+        if (empty($persona['name']) || empty($persona['backstory'])) {
+            throw new \moodle_exception('error_invalid_persona', 'local_geniai', '', null, 'Persona metadata name and backstory are required.');
+        }
+
+        if (empty($states) || !is_array($states)) {
+            throw new \moodle_exception('error_invalid_states', 'local_geniai', '', null, 'Scenario must define at least one valid dialogue state node.');
+        }
+
+        return new scenario_definition($id, $persona, $learningobjectives, $states);
+    }
+
+    /**
+     * Static helper returning default profile for Anna.
+     *
+     * @return scenario_definition
+     */
+    private static function get_anna_profile(): scenario_definition {
+        return new scenario_definition(
+            'anna',
+            [
+                'name' => 'Anna Charles (Parent)',
+                'backstory' => 'Your name is Anna Charles and your daughter, Sarah, is 4 years old and has a diagnosis of Autism. Sarah is just starting pre-kindergarten at a new school. She received her diagnosis within the last year. She has been receiving speech therapy since 1-year of age. She currently uses a communication app on an iPad. You are a single mother of Sarah. You work two jobs and Sarah spends a lot of time with her grandparents. You feel guilty because you want to spend more time with Sarah, but it is difficult with your current employment. You are very overwhelmed with Sarah’s diagnosis and her lack of communication. You believe that the iPad is not working for Sarah and you don’t know how to help her. You’re frustrated and are meeting with your daughter Sarah’s teacher and want to figure out better alternatives for Sarah to communicate effectively using the iPad and with her grandparents who have difficulty with technology.',
+                'initial_mood' => 'overwhelmed',
+                'communication_style' => 'Frustrated, defensive, guilt-ridden, and uses blunt vocabulary.'
+            ],
+            ['active_listening', 'empathy_check', 'note_permission'],
+            self::get_default_dialogue_states()
+        );
+    }
+
+    /**
+     * Static helper returning default profile for Brianna.
+     *
+     * @return scenario_definition
+     */
+    private static function get_brianna_profile(): scenario_definition {
+        return new scenario_definition(
+            'brianna',
+            [
+                'name' => 'Brianna Mitchell (Parent)',
+                'backstory' => 'Your name is Brianna Mitchell and your son, Wesley, in 8-years old. Wesley has severe apraxia. His speech is extremely difficult to understand. He currently uses a small handheld AAC device. Wesley has been receiving AAC services from an outpatient pediatric hospital for the past 2 years. He also receives 30 minutes of therapy from his school-based SLP. You are the mother of Wesley. You are married and Wesley is your only son. You emailed your son’s outpatient SLP and asked to meet. You are frustrated because you have tried to contact the school-SLP but you haven’t received a response. You are concerned that your son is socially isolated and is having difficulty making friends. Recently, you attended an event at Wesley’s school. While in his classroom, you were able to observe Wesley and his classmates. You noticed that Wesley was often alone and rarely interacted with his peers. At one point, you saw him laugh at a classmate’s joke and try to communicate to his classmates with no success. You’re worried and are meeting with your son’s teacher and want to figure out how Wesley could be more social in making friends, how to encourage him to use his device without being embarrassed, and if he will ever be able to use his speech.',
+                'initial_mood' => 'anxious',
+                'communication_style' => 'Highly concerned, worried, speaking rapidly about Wesley’s isolation.'
+            ],
+            ['de_escalation', 'active_listening', 'jargon_free_explanation'],
+            self::get_default_dialogue_states()
+        );
+    }
+
+    /**
+     * Static helper returning default profile for Cathy.
+     *
+     * @return scenario_definition
+     */
+    private static function get_cathy_profile(): scenario_definition {
+        return new scenario_definition(
+            'cathy',
+            [
+                'name' => 'Cathy Fratner (Parent)',
+                'backstory' => 'Your name is Cathy Fratner and your son, Charlie, is a 2-year old boy with Down Syndrome. Charlie is not yet talking. He has an iPad with a communication app that his SLP recommended for him to use about 6 months ago. Charlie has been receiving speech and language services through early intervention. Once a week, his SLP goes to his daycare to provide therapy. You are the mother of Charlie. You are newly married and Charlie is your first child. You met with Charlie’s SLP about 6 months ago. She spent 2 hours with you and your husband. She introduced a communication app to you and showed you how to work the app. It seemed to make sense when the SLP used it with Charlie, but you always feel lost and frustrated when using the app. Your husband doesn’t think that Charlie should be using his iPad to communicate and that he will talk when he is ready. Now you are worried that Charlie won’t learn how to talk if he keeps using the app in therapy and at home. You’re worried and are meeting with your son’s teacher and want to figure out how Charlie could be use the iPad more regularly, if using the iPad consistently will prevent him in the future, and if you should be concerned that Charlie isn’t talking yet.',
+                'initial_mood' => 'confused',
+                'communication_style' => 'Doubtful, feeling lost about technology, highly eager to learn.'
+            ],
+            ['clarification_check', 'jargon_free_explanation', 'empathy_check'],
+            self::get_default_dialogue_states()
+        );
+    }
+
+    /**
+     * Default profile generator for generic configuration.
+     *
+     * @param string $id
+     * @return scenario_definition
+     */
+    private static function get_default_profile(string $id): scenario_definition {
+        return new scenario_definition(
+            $id,
+            [
+                'name' => 'Mary (Parent)',
+                'backstory' => 'Parent of a non-verbal 6-year-old child. Feels overwhelmed and defensive about school accommodations.',
+                'initial_mood' => 'defensive',
+                'communication_style' => 'Blunt, highly emotional, protective of child.'
+            ],
+            ['active_listening', 'de_escalation'],
+            self::get_default_dialogue_states()
+        );
+    }
+
+    /**
+     * Returns standard, compliant dialog states corresponding to the PRD directed graph.
+     *
+     * @return array
+     */
+    private static function get_default_dialogue_states(): array {
+        return [
+            'START' => [
+                'bot_prompt' => 'I don\'t understand why we are changing the communication system again. Every time he gets used to something, you switch it!',
+                'expected_criteria' => [
+                    'validation_type' => 'empathy_check',
+                    'pass_route' => 'EXPLORATION',
+                    'fail_route' => 'ESCALATION'
+                ]
+            ],
+            'EXPLORATION' => [
+                'bot_prompt' => 'Well, yes, I suppose it\'s frustrating for him too. What makes this new approach so much better?',
+                'expected_criteria' => [
+                    'validation_type' => 'jargon_check',
+                    'pass_route' => 'RESOLUTION',
+                    'fail_route' => 'CONFUSION'
+                ]
+            ],
+            'ESCALATION' => [
+                'bot_prompt' => 'You specialists always think you know what\'s best without living our daily lives! I want to speak to the principal.',
+                'expected_criteria' => [
+                    'validation_type' => 'de_escalation_check',
+                    'pass_route' => 'EXPLORATION',
+                    'fail_route' => 'FAIL_STATE'
+                ]
+            ],
+            'CONFUSION' => [
+                'bot_prompt' => 'Wait, what does SGD and high-tech gaze-select mean? You\'re using letters and words I don\'t understand.',
+                'expected_criteria' => [
+                    'validation_type' => 'clarification_check',
+                    'pass_route' => 'EXPLORATION',
+                    'fail_route' => 'ESCALATION'
+                ]
+            ],
+            'RESOLUTION' => [
+                'bot_prompt' => 'Okay, that actually makes sense. Thank you for walking me through this. Let\'s try it.',
+                'expected_criteria' => null
+            ],
+            'FAIL_STATE' => [
+                'bot_prompt' => 'This session is complete. The parent has requested formal administrative review.',
+                'expected_criteria' => null
+            ]
+        ];
+    }
+}
