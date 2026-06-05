@@ -69,7 +69,6 @@ function xmldb_local_geniai_upgrade($oldversion) {
     }
 
     if ($oldversion < 2025011400) {
-
         // Criação da tabela local_geniai_h5p.
         $table = new xmldb_table("local_geniai_h5p");
 
@@ -124,7 +123,7 @@ function xmldb_local_geniai_upgrade($oldversion) {
         $table1->add_field('current_state', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, 'START');
         $table1->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
         $table1->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table1->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table1->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         if (!$dbman->table_exists($table1)) {
             $dbman->create_table($table1);
@@ -137,8 +136,8 @@ function xmldb_local_geniai_upgrade($oldversion) {
         $table2->add_field('sender', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, 'user');
         $table2->add_field('message_text', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
         $table2->add_field('timestamp', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table2->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table2->add_key('session_fk', XMLDB_KEY_FOREIGN, array('sessionid'), 'local_geniai_sessions', array('id'));
+        $table2->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table2->add_key('session_fk', XMLDB_KEY_FOREIGN, ['sessionid'], 'local_geniai_sessions', ['id']);
 
         if (!$dbman->table_exists($table2)) {
             $dbman->create_table($table2);
@@ -150,8 +149,8 @@ function xmldb_local_geniai_upgrade($oldversion) {
         $table3->add_field('sessionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
         $table3->add_field('metric_type', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, null);
         $table3->add_field('metric_value', XMLDB_TYPE_NUMBER, '10,2', null, XMLDB_NOTNULL, null, '0.00');
-        $table3->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table3->add_key('session_fk', XMLDB_KEY_FOREIGN, array('sessionid'), 'local_geniai_sessions', array('id'));
+        $table3->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table3->add_key('session_fk', XMLDB_KEY_FOREIGN, ['sessionid'], 'local_geniai_sessions', ['id']);
 
         if (!$dbman->table_exists($table3)) {
             $dbman->create_table($table3);

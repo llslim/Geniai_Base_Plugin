@@ -75,11 +75,11 @@ class api {
             if (strpos($content, "<audio") === false) {
                 $content = $parsemarkdown->markdown_text($content);
             }
-            
+
             $returnmessage[] = [
                 "role" => ($message->sender === 'user') ? 'user' : 'system',
                 "content" => $content,
-                "format" => "html"
+                "format" => "html",
             ];
         }
 
@@ -118,7 +118,7 @@ class api {
                 return [
                     "result" => false,
                     "format" => "text",
-                    "content" => "Error... Audio file is too large. Please upload audio under 1 KB."
+                    "content" => "Error... Audio file is too large. Please upload audio under 1 KB.",
                 ];
             }
             $transcription = self::transcriptions($audio, $lang);
@@ -140,7 +140,7 @@ class api {
             $selected = $matches[1];
             $engine = new \local_geniai\bot_engine($USER->id, $courseid, $cmid, $selected);
             $engine->reset_session();
-            
+
             $session = $engine->get_session_record();
             $session->scenariocode = $selected;
             $session->current_state = 'START';
@@ -150,16 +150,16 @@ class api {
             return [
                 "result" => true,
                 "format" => "text",
-                "content" => "You are talking to <strong>" . ucfirst(strtolower($selected)) . "</strong>."
+                "content" => "You are talking to <strong>" . ucfirst(strtolower($selected)) . "</strong>.",
             ];
         }
 
         // Moderate inappropriate content
         $moderationPrompt = [
             ["role" => "system", "content" => "You're a moderation AI. Decide if the following message contains profanity, foul language, mild insults words like dumb, etc. , or inappropriate content. Reply with only 'yes' or 'no'."],
-            ["role" => "user", "content" => $cleanedMessage]
+            ["role" => "user", "content" => $cleanedMessage],
         ];
-        
+
         $check = self::chat_completions($moderationPrompt);
         $decision = strtolower(trim($check["choices"][0]["message"]["content"] ?? "no"));
 
@@ -169,7 +169,7 @@ class api {
             return [
                 "result" => true,
                 "format" => "html",
-                "content" => "<strong>Grade - 0 out of 10</strong><br>Your message contains inappropriate language. This session is terminated."
+                "content" => "<strong>Grade - 0 out of 10</strong><br>Your message contains inappropriate language. This session is terminated.",
             ];
         }
 
@@ -191,7 +191,7 @@ class api {
             "result" => true,
             "format" => "html",
             "content" => $content,
-            "transcription" => $transcription ? $transcription["text"] : null
+            "transcription" => $transcription ? $transcription["text"] : null,
         ];
     }
 
@@ -207,11 +207,11 @@ class api {
      */
 
         /**
-     * Sends a message array to OpenAI's chat completions endpoint
-     *
-     * Adjusts parameters like temperature, top_p, penalties, etc.
-     * Stores response in database for auditing.
-     */
+         * Sends a message array to OpenAI's chat completions endpoint
+         *
+         * Adjusts parameters like temperature, top_p, penalties, etc.
+         * Stores response in database for auditing.
+         */
 
     public static function chat_completions($messages, $ignoremaxtoken = false) {
         global $DB;
@@ -339,8 +339,8 @@ class api {
      */
 
      /**
-     * Handles audio transcription using OpenAI's Whisper API
-     */
+      * Handles audio transcription using OpenAI's Whisper API
+      */
     private static function transcriptions($audio, $lang) {
         global $CFG;
 

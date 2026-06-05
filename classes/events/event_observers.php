@@ -30,7 +30,6 @@ namespace local_geniai\events;
  * @package local_geniai\events
  */
 class event_observers {
-
     /**
      * global courseid
      *

@@ -27,7 +27,6 @@ require_once("../../config.php");
 require_login();
 
 if ($action = optional_param("action", false, PARAM_INT)) {
-
     if ($action == 1) {
         header("Content-Type: text/csv");
         header("Content-Disposition: attachment; filename=\"usage.csv\"");
@@ -47,7 +46,6 @@ if ($action = optional_param("action", false, PARAM_INT)) {
         }
         fclose($output);
         die;
-
     } else if ($action == 2) {
         $audios = glob("{$CFG->dataroot}/temp/*.mp3");
 

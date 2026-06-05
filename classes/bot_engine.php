@@ -90,7 +90,7 @@ class bot_engine {
             'userid' => $userid,
             'courseid' => $courseid,
             'cmid' => $this->cmid,
-            'scenariocode' => $scenariocode
+            'scenariocode' => $scenariocode,
         ], '*', IGNORE_MULTIPLE);
 
         if (!$record) {
@@ -253,7 +253,7 @@ class bot_engine {
         if ($turncount >= 10 || $nextstatekey === 'RESOLUTION' || $nextstatekey === 'FAIL_STATE') {
             $feedback = $this->generate_rubric_evaluation();
             $this->log_message('system', $feedback);
-            
+
             // Sync performance metrics straight to Gradebook via trigger
             $this->trigger_gradebook_sync();
 
@@ -336,7 +336,7 @@ class bot_engine {
             "duration" => "1 point for asking 'how long has this been a problem?'.",
             "exception" => "1 point for asking 'was this ever not a problem?'.",
             "consultation" => "1 point for asking 'have you spoken to anyone else?'.",
-            "wrap_up" => "1 point for asking 'anything else to add?'."
+            "wrap_up" => "1 point for asking 'anything else to add?'.",
         ];
 
         $formattedrubric = implode("\n", array_map(
@@ -375,8 +375,8 @@ class bot_engine {
                              "- Total score: X out of 10\n" .
                              "- A warm thank-you message\n" .
                              "- Suggest to click **Clear Chat** button to restart if needed\n\n" .
-                             "Make the tone of the entire feedback response emoji-filled, kind and supportive."
-            ]
+                             "Make the tone of the entire feedback response emoji-filled, kind and supportive.",
+            ],
         ];
 
         foreach ($teacherreplies as $reply) {

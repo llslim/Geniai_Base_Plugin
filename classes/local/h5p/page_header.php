@@ -39,7 +39,6 @@ use navigation_node;
  * @package local_geniai\local\h5p
  */
 class page_header {
-
     /** @var string */
     private $title;
 

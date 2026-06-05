@@ -36,7 +36,6 @@ use moodle_exception;
  * @package local_geniai\local\h5p
  */
 class page_create {
-
     /** @var local_geniai_h5p */
     private $h5p;
 
@@ -148,7 +147,6 @@ class page_create {
             }
 
             $DB->update_record("local_geniai_h5p", $this->h5p);
-
         } else {
             $this->h5p->contextid = required_param("contextid", PARAM_INT);
             $this->h5p->title = required_param("title", PARAM_TEXT);
@@ -234,21 +232,25 @@ class page_create {
 
         $url = "https://app.ottflix.com.br/upload/h5ps/geniai/?download=1";
 
-        $h5p = (array)$DB->get_record("local_geniai_h5p",
-            ["id" => $this->h5p->id], "id, contextid, contentbanktid, title, type, data");
+        $h5p = (array)$DB->get_record(
+            "local_geniai_h5p",
+            ["id" => $this->h5p->id],
+            "id, contextid, contentbanktid, title, type, data"
+        );
         $data = json_decode($h5p["data"], true);
         $h5p["user_lang"] = isset($SESSION->lang) ? $SESSION->lang : $USER->lang;
         $h5p["config"] = $data["config"];
 
         $h5p["pages"] = [];
         if ($contentbankid) {
-            $h5ppages = $DB->get_records("local_geniai_h5ppages",
-                ["id" => $contentbankid]);
+            $h5ppages = $DB->get_records(
+                "local_geniai_h5ppages",
+                ["id" => $contentbankid]
+            );
             $h5ppages = array_values($h5ppages);
 
             $h5p["title"] = $h5p["title"] . " - " . $h5ppages[0]->title;
             $h5p["type"] = "Column";
-
         } else {
             $h5ppages = $DB->get_records("local_geniai_h5ppages", ["h5pid" => $this->h5p->id]);
         }

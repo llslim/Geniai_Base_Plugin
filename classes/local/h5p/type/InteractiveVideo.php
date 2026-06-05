@@ -30,5 +30,4 @@ namespace local_geniai\local\h5p\type;
  * @package local_geniai\local\h5p\type
  */
 class InteractiveVideo implements base {
-
 }

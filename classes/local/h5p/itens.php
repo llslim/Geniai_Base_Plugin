@@ -41,9 +41,12 @@ class itens {
     public static function get_itens($contextid) {
         global $DB;
 
-        $h5ps = $DB->get_records("local_geniai_h5p",
+        $h5ps = $DB->get_records(
+            "local_geniai_h5p",
             ["contextid" => $contextid],
-            "title ASC", "id, contextid, contentbanktid, title, type");
+            "title ASC",
+            "id, contextid, contentbanktid, title, type"
+        );
 
         $h5ps = array_values($h5ps);
 

@@ -61,12 +61,12 @@ class generative_ai_api_strategy implements response_strategy {
                 "role" => "system",
                 "content" => "You are an expert pedagogical evaluator. Your job is to analyze a teacher's message during a simulated parent-teacher roleplay meeting.\n\n" .
                              "Pedagogical Guideline to evaluate: " . $guideline . "\n\n" .
-                             "Respond with only 'yes' (if they passed/met the criteria) or 'no' (if they failed/missed the opportunity)."
+                             "Respond with only 'yes' (if they passed/met the criteria) or 'no' (if they failed/missed the opportunity).",
             ],
             [
                 "role" => "user",
-                "content" => "Teacher's statement to evaluate: \"" . strip_tags($input) . "\""
-            ]
+                "content" => "Teacher's statement to evaluate: \"" . strip_tags($input) . "\"",
+            ],
         ];
 
         try {
@@ -99,7 +99,7 @@ class generative_ai_api_strategy implements response_strategy {
     public function generate_response(array $messages, scenario_definition $scenario, string $statekey): string {
         $persona = $scenario->get_persona();
         $node = $scenario->get_state_node($statekey);
-        
+
         $stateprompt = $node['bot_prompt'] ?? '';
 
         // Overwrite system instructions with detailed context, backstory, and state directives
@@ -111,7 +111,7 @@ class generative_ai_api_strategy implements response_strategy {
                              "Stay perfectly in character as the parent. Do NOT say you are an AI or evaluator. Respond in at most 4 sentences. Speak directly as the parent.";
 
         $fullcontext = [
-            ["role" => "system", "content" => $systeminstruction]
+            ["role" => "system", "content" => $systeminstruction],
         ];
 
         // Format and interleave conversation history safely supporting both arrays and stdClass objects
@@ -120,7 +120,7 @@ class generative_ai_api_strategy implements response_strategy {
             $text = is_object($message) ? $message->message_text : $message['message_text'];
             $fullcontext[] = [
                 "role" => ($sender === 'user') ? 'user' : 'system',
-                "content" => strip_tags($text)
+                "content" => strip_tags($text),
             ];
         }
 

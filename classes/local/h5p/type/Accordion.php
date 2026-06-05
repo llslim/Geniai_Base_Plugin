@@ -33,7 +33,6 @@ use local_kopere_dashboard\html\inputs\input_checkbox;
  * @package local_geniai\local\h5p\type
  */
 class Accordion implements h5p_base {
-
     /**
      * Function form
      *
@@ -45,10 +44,10 @@ class Accordion implements h5p_base {
     public function form(form $form) {
         $form->add_input(
             input_checkbox::new_instance()
-                ->set_title( "Mostrar Glossário" )
-                ->set_name( "mostrar_glossario" )
-                ->set_value( 1 )
-                ->set_checked( 1 )
+                ->set_title("Mostrar Glossário")
+                ->set_name("mostrar_glossario")
+                ->set_value(1)
+                ->set_checked(1)
         );
     }
 }

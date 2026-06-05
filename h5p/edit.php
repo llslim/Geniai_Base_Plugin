@@ -79,8 +79,10 @@ if (optional_param("delete", false, PARAM_INT)) {
     require_sesskey();
 
     $page->delete();
-    redirect(new moodle_url("/local/geniai/h5p/index.php", ["contextid" => $page->get_h5p()->contextid]),
-        get_string("h5p-delete-success", "local_geniai"));
+    redirect(
+        new moodle_url("/local/geniai/h5p/index.php", ["contextid" => $page->get_h5p()->contextid]),
+        get_string("h5p-delete-success", "local_geniai")
+    );
     die;
 }
 

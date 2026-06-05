@@ -249,9 +249,7 @@ class parse_markdown {
         $currentmarkdownblock = null;
 
         foreach ($lines as $line) {
-
             if (chop($line) === "") {
-
                 if (isset($currentmarkdownblock)) {
                     $currentmarkdownblock["interrupted"] = true;
                 }
@@ -260,7 +258,6 @@ class parse_markdown {
             }
 
             if (strpos($line, "\t") !== false) {
-
                 $parts = explode("\t", $line);
 
                 $line = $parts[0];
@@ -286,18 +283,14 @@ class parse_markdown {
             $line = ["body" => $line, "indent" => $indent, "text" => $text];
 
             if (isset($currentmarkdownblock["continuable"])) {
-
                 $type = strtolower($currentmarkdownblock["type"]);
                 $markdownblock = $this->{"block_" . $type . "_continue"}($line, $currentmarkdownblock);
 
                 if (isset($markdownblock)) {
-
                     $currentmarkdownblock = $markdownblock;
 
                     continue;
-
                 } else {
-
                     if ($this->ismarkdown_block_completable($currentmarkdownblock["type"])) {
                         $type = strtolower($currentmarkdownblock["type"]);
                         $currentmarkdownblock = $this->{"block_" . $type . "_complete"}($currentmarkdownblock);
@@ -337,12 +330,12 @@ class parse_markdown {
                 }
             }
 
-            if (isset($currentmarkdownblock) &&
+            if (
+                isset($currentmarkdownblock) &&
                 !isset($currentmarkdownblock["type"]) &&
-                !isset($currentmarkdownblock["interrupted"])) {
-
+                !isset($currentmarkdownblock["interrupted"])
+            ) {
                 $currentmarkdownblock["element"]["text"] .= "\n" . $text;
-
             } else {
                 $markdownblocks[] = $currentmarkdownblock;
 
@@ -413,7 +406,6 @@ class parse_markdown {
         }
 
         if ($line["indent"] >= 4) {
-
             $text = substr($line["body"], 4);
 
             $markdownblock = [
@@ -443,7 +435,6 @@ class parse_markdown {
      */
     protected function block_code_continue(array $line, array $markdownblock) {
         if ($line["indent"] >= 4) {
-
             if (isset($markdownblock["interrupted"])) {
                 $markdownblock["element"]["text"]["text"] .= "\n";
 
@@ -495,7 +486,6 @@ class parse_markdown {
             $line["text"][2] === "-" &&
             $line["text"][1] === "!"
         ) {
-
             $markdownblock = [
                 "markup" => $line["body"],
             ];
@@ -541,7 +531,6 @@ class parse_markdown {
      */
     protected function block_fencedcode(array $line) {
         if (preg_match('/^[' . $line["text"][0] . ']{3,}[ ]*([^`]+)?[ ]*$/', $line["text"], $matches)) {
-
             $markdownelement = [
                 "name" => "code",
                 "text" => "",
@@ -801,7 +790,6 @@ class parse_markdown {
      */
     protected function block_quote(array $line) {
         if (preg_match('/^>[ ]?(.*)/', $line["text"], $matches)) {
-
             $markdownblock = [
                 "element" => [
                     "name" => "blockquote",
@@ -826,9 +814,7 @@ class parse_markdown {
      */
     protected function block_quote_continue(array $line, array $markdownblock) {
         if ($line["text"][0] === '>' && preg_match('/^>[ ]?(.*)/', $line["text"], $matches)) {
-
             if (isset($markdownblock["interrupted"])) {
-
                 $markdownblock["element"]["text"][] = "";
 
                 unset($markdownblock["interrupted"]);
@@ -840,7 +826,6 @@ class parse_markdown {
         }
 
         if (!isset($markdownblock["interrupted"])) {
-
             $markdownblock["element"]["text"][] = $line["text"];
 
             return $markdownblock;
@@ -858,7 +843,6 @@ class parse_markdown {
      */
     protected function block_rule(array $line) {
         if (preg_match('/^([' . $line["text"][0] . '])([ ]*\1){2,}[ ]*$/', $line["text"])) {
-
             $markdownblock = [
                 "element" => [
                     "name" => "hr",
@@ -885,7 +869,6 @@ class parse_markdown {
         }
 
         if (chop($line["text"], $line["text"][0]) === "") {
-
             $markdownblock["element"]["name"] = $line["text"][0] === '=' ? "h1" : "h2";
 
             return $markdownblock;
@@ -907,7 +890,6 @@ class parse_markdown {
         }
 
         if (preg_match('/^<(\w[\w-]*)(?:[ ]*' . $this->regexhtmlattribute . ')*[ ]*(\/)?>/', $line["text"], $matches)) {
-
             $element = strtolower($matches[1]);
 
             if (in_array($element, $this->textlevelmarkdownelements)) {
@@ -925,13 +907,11 @@ class parse_markdown {
             $remainder = substr($line["text"], $length);
 
             if (trim($remainder) === "") {
-
                 if (isset($matches[2]) || in_array($matches[1], $this->voidmarkdownelements)) {
                     $markdownblock["closed"] = true;
 
                     $markdownblock["void"] = true;
                 }
-
             } else {
                 if (isset($matches[2]) || in_array($matches[1], $this->voidmarkdownelements)) {
                     return null;
@@ -995,7 +975,6 @@ class parse_markdown {
      */
     protected function block_reference(array $line) {
         if (preg_match('/^\[(.+?)\]:[ ]*<?(\S+?)>?(?:[ ]+["\'(](.+)["\')])?[ ]*$/', $line["text"], $matches)) {
-
             $id = strtolower($matches[1]);
 
             $data = [
@@ -1211,7 +1190,6 @@ class parse_markdown {
         // Excerpt is based on the first occurrence of a marker.
 
         while ($excerpt = strpbrk($text, $this->inlinemarkerlist)) {
-
             $marker = $excerpt[0];
 
             $markerposition = strpos($text, $marker);
@@ -1651,9 +1629,7 @@ class parse_markdown {
      */
     protected function unmarked_text($text) {
         if ($this->breaksenabled) {
-
             $text = preg_replace('/[ ]*\n/', "<br />\n", $text);
-
         } else {
             $text = preg_replace('/(?:[ ][ ]+|[ ]*\\\\)\n/', "<br />\n", $text);
             $text = str_replace(" \n", "\n", $text);
@@ -1796,9 +1772,7 @@ class parse_markdown {
         }
 
         if (!empty($markdownelement["attributes"])) {
-
             foreach ($markdownelement["attributes"] as $att => $val) {
-
                 if (!preg_match($goodattribute, $att)) {
                     // Filter out badly parsed attribute.
                     unset($markdownelement["attributes"][$att]);
@@ -1822,7 +1796,6 @@ class parse_markdown {
      */
     protected function filter_unsafe_url_in_attribute(array $markdownelement, $attribute) {
         foreach ($this->safelinkswhitelist as $scheme) {
-
             if (self::stri_at_start($markdownelement["attributes"][$attribute], $scheme)) {
                 return $markdownelement;
             }

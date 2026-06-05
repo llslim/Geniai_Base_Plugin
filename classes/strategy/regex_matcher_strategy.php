@@ -60,7 +60,7 @@ class regex_matcher_strategy implements response_strategy {
                         break;
                     }
                 }
-                
+
                 // If they used jargon, check if they offered a definition or explanation
                 if ($usedjargon) {
                     $explanationwords = ['stand', 'mean', 'explain', 'device', 'which is', 'is a', 'program', 'refer to'];

@@ -30,7 +30,6 @@ namespace local_geniai\local\vo;
  * @package local_geniai\local\vo
  */
 class local_geniai_h5ppages {
-
     /** @var int */
     public $id = 0;
 

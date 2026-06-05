@@ -166,4 +166,3 @@ $string['api_bearer_token'] = 'API Bearer Token / Secret Key';
 $string['api_bearer_token_desc'] = 'Masked authorization secret token needed to process external LLM inference requests.';
 $string['model_identifier'] = 'Model Variant Identifier';
 $string['model_identifier_desc'] = 'The exact model variant string (e.g. gemini-1.5-pro, gemma-7b).';
-

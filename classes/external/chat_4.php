@@ -74,7 +74,7 @@ class chat_4 extends external_api {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public static function api($message, $courseid, $audio = null, $lang=null) {
+    public static function api($message, $courseid, $audio = null, $lang = null) {
         return api::chat_api($message, $courseid, $audio, $lang);
     }
 }

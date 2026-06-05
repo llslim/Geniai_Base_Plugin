@@ -95,8 +95,11 @@ class core_hook_output {
         if (get_config("local_geniai", "mode") == "assistant") {
             if ($COURSE->id) {
                 $course = $DB->get_record("course", ["id" => $COURSE->id]);
-                $data["message_02"] = get_string("message_02_course", "local_geniai",
-                    ["geniainame" => $geniainame, "moodlename" => $SITE->fullname, "coursename" => $course->fullname]);
+                $data["message_02"] = get_string(
+                    "message_02_course",
+                    "local_geniai",
+                    ["geniainame" => $geniainame, "moodlename" => $SITE->fullname, "coursename" => $course->fullname]
+                );
             } else {
                 $data["message_02"] = get_string("message_02_home", "local_geniai", $geniainame);
             }
@@ -115,9 +118,10 @@ class core_hook_output {
         global $PAGE, $COURSE;
 
         if (isset($_SERVER["REQUEST_URI"])) {
-            if (strpos($_SERVER["REQUEST_URI"], "contentbank/") ||
-                strpos($_SERVER["REQUEST_URI"], "course/modedit.php")) {
-
+            if (
+                strpos($_SERVER["REQUEST_URI"], "contentbank/") ||
+                strpos($_SERVER["REQUEST_URI"], "course/modedit.php")
+            ) {
                 $contextid = \context_course::instance($COURSE->id)->id;
                 $PAGE->requires->strings_for_js(["h5p-manager", "h5p-manager-scorm"], "local_geniai");
                 $PAGE->requires->js_call_amd("local_geniai/h5p", "init", [$contextid]);

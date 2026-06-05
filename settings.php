@@ -25,7 +25,6 @@
 defined('MOODLE_INTERNAL') || die;
 
 if ($hassiteconfig) {
-
     global $CFG, $PAGE, $ADMIN;
 
     $settings = new admin_settingpage("local_geniai", get_string("pluginname", "local_geniai"));
@@ -41,7 +40,8 @@ if ($hassiteconfig) {
         "local_geniai/mode",
         get_string("mode", "local_geniai"),
         get_string("mode_desc", "local_geniai"),
-        "none", $models
+        "none",
+        $models
     );
     $settings->add($setting);
 
@@ -54,7 +54,8 @@ if ($hassiteconfig) {
         "local_geniai/engine_strategy",
         get_string("engine_strategy", "local_geniai"),
         get_string("engine_strategy_desc", "local_geniai"),
-        "local", $strategies
+        "local",
+        $strategies
     );
     $settings->add($setting);
 
@@ -62,7 +63,8 @@ if ($hassiteconfig) {
         "local_geniai/api_base_url",
         get_string("api_base_url", "local_geniai"),
         get_string("api_base_url_desc", "local_geniai"),
-        "https://generativelanguage.googleapis.com/v1beta/openai", PARAM_RAW
+        "https://generativelanguage.googleapis.com/v1beta/openai",
+        PARAM_RAW
     );
     $settings->add($setting);
 
@@ -78,7 +80,8 @@ if ($hassiteconfig) {
         "local_geniai/model_identifier",
         get_string("model_identifier", "local_geniai"),
         get_string("model_identifier_desc", "local_geniai"),
-        "gemini-1.5-pro", PARAM_RAW
+        "gemini-1.5-pro",
+        PARAM_RAW
     );
     $settings->add($setting);
 
@@ -90,14 +93,16 @@ if ($hassiteconfig) {
             "local_geniai/apikey",
             get_string("apikey", "local_geniai"),
             get_string("apikey_desc", "local_geniai"),
-            "");
+            ""
+        );
         $settings->add($setting);
     } else {
         $setting = new admin_setting_configtext(
             "local_geniai/apikey",
             get_string("apikey", "local_geniai"),
             get_string("apikey_desc", "local_geniai"),
-            "");
+            ""
+        );
         $settings->add($setting);
     }
 
@@ -109,7 +114,8 @@ if ($hassiteconfig) {
         "local_geniai/geniainame",
         get_string("geniainame", "local_geniai"),
         get_string("geniainame_desc", "local_geniai"),
-        "Tutor GeniAI");
+        "Tutor GeniAI"
+    );
     $settings->add($setting);
 
     $models = [
@@ -122,7 +128,8 @@ if ($hassiteconfig) {
         "local_geniai/model",
         get_string("model", "local_geniai"),
         get_string("model_desc", "local_geniai"),
-        "gpt-4o-mini", $models
+        "gpt-4o-mini",
+        $models
     );
     $settings->add($setting);
 
@@ -165,7 +172,8 @@ if ($hassiteconfig) {
         "local_geniai/voice",
         get_string("voice", "local_geniai"),
         $voicedesc,
-        "alloy", $voices
+        "alloy",
+        $voices
     );
     $settings->add($setting);
 
@@ -208,7 +216,9 @@ if ($hassiteconfig) {
         "local_geniai/max_tokens",
         get_string("max_tokens", "local_geniai"),
         get_string("max_tokens_desc", "local_geniai"),
-        200, PARAM_INT);
+        200,
+        PARAM_INT
+    );
     $settings->add($setting);
 
     $penalty = [
@@ -258,13 +268,17 @@ if ($hassiteconfig) {
         "local_geniai/frequency_penalty",
         get_string("frequency_penalty", "local_geniai"),
         get_string("frequency_penalty_desc", "local_geniai"),
-        "0.0", $penalty);
+        "0.0",
+        $penalty
+    );
     $settings->add($setting);
 
     $setting = new admin_setting_configselect(
         "local_geniai/presence_penalty",
         get_string("presence_penalty", "local_geniai"),
         get_string("presence_penalty_desc", "local_geniai"),
-        "0.0", $penalty);
+        "0.0",
+        $penalty
+    );
     $settings->add($setting);
 }
