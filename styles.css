@@ -106,10 +106,8 @@
   width: auto;
 }
 #geniai-chat .geniai-popup #geniai-scrollarea #geniai-area-mensagens {
-  float: left;
-  clear: both;
   width: 100%;
-  min-height: 200px;
+  min-height: 0 !important;
   box-sizing: border-box;
   padding-top: 70px;
   margin-top: 0;
@@ -179,23 +177,24 @@
 #geniai-chat .geniai-popup #geniai-sendarea #geniai-textarea {
   margin: 0;
   box-shadow: none;
-  border-radius: 4px;
+  border-radius: 20px;
   letter-spacing: 0.3px;
   width: 100%;
-  max-height: 100px;
-  font-size: 16px;
-  min-height: 0;
-  padding: 5px;
+  max-height: 120px !important;
+  font-size: 15px;
+  min-height: 42px !important;
+  height: 42px !important;
+  padding: 8px 16px;
   outline: none;
   text-align: left;
   font-weight: 400;
   resize: none;
-  border: none;
-  color: #566069;
-  background: #fff;
-  overflow-x: hidden;
-  display: block;
-  height: 34px;
+  border: 1px solid #cbd5e1 !important;
+  color: #1e293b !important;
+  background: #ffffff !important;
+  overflow-y: auto !important;
+  display: block !important;
+  box-sizing: border-box !important;
 }
 #geniai-chat .geniai-popup #geniai-sendarea #geniai-icon-stop img,
 #geniai-chat .geniai-popup #geniai-sendarea #geniai-icon-mic img,
