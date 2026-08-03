@@ -28,12 +28,12 @@
   transition: all 0.4s;
 }
 #geniai-chat .geniai-popup #geniai-scrollarea {
-  min-height: 450px;
-  max-height: 650px;
+  min-height: 0;
+  max-height: none;
   background-size: cover;
   margin: 0;
   overflow: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 #geniai-chat .geniai-popup #geniai-scrollarea .geniai-header {
   color: #fff;
