@@ -124,6 +124,7 @@
   position: relative !important;
   width: 100% !important;
   max-width: 800px !important;
+  height: 600px !important;
   height: 80vh !important;
   min-height: 450px !important;
   margin: 10px auto !important;
