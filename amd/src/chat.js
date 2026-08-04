@@ -179,6 +179,8 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
             }
 
             $("#geniai-clear-history").click(function() {
+                geniaiareamensagens.html("");
+
                 var methodname = "local_geniai_history_3";
                 if (release >= 4.2) {
                     methodname = "local_geniai_history_4";
