@@ -336,12 +336,11 @@
   display: flex !important;
   align-items: center !important;
   gap: 12px !important;
-  position: sticky !important;
-  bottom: 0 !important;
+  position: relative !important;
   box-sizing: border-box !important;
   visibility: visible !important;
   opacity: 1 !important;
-  z-index: 10000 !important;
+  z-index: 100 !important;
 }
 
 #geniai-textarea {
