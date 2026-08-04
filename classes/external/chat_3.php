@@ -76,6 +76,6 @@ class chat_3 extends external_api {
      * @throws \dml_exception
      */
     public static function api($message, $courseid, $audio = null, $lang = null) {
-        return api::chat_api($message, $courseid, $audio, $lang);
+        return \local_geniai\api::chat_api($message, $courseid, $audio, $lang);
     }
 }
