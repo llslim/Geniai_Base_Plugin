@@ -61,7 +61,7 @@ class api {
         if ($action == "clear") {
             $engine->reset_session();
             return [
-                "result" => true,
+                "result" => "true",
                 "content" => "[]",
             ];
         }
@@ -84,7 +84,7 @@ class api {
         }
 
         return [
-            "result" => true,
+            "result" => "true",
             "content" => json_encode($returnmessage),
         ];
     }
