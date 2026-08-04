@@ -23,18 +23,17 @@
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.06), 0 3px 32px rgba(0, 0, 0, 0.16);
   z-index: 99995;
   text-align: left;
-  flex-direction: column !important;
+  flex-direction: column;
   overflow: hidden;
   transition: all 0.4s;
 }
 #geniai-chat .geniai-popup #geniai-scrollarea {
-  flex: 1 1 auto !important;
-  height: auto !important;
-  min-height: 0 !important;
-  max-height: none !important;
+  min-height: 0;
+  max-height: none;
   background-size: cover;
   margin: 0;
-  overflow-y: auto !important;
+  overflow: hidden;
+  overflow-y: auto;
 }
 #geniai-chat .geniai-popup #geniai-scrollarea .geniai-header {
   color: #fff;
@@ -174,7 +173,6 @@
   padding: 10px 8px 10px 15px;
   border-top: 1px solid #dee5ec;
   align-items: center;
-  flex-shrink: 0 !important;
 }
 #geniai-chat .geniai-popup #geniai-sendarea #geniai-textarea {
   margin: 0;
