@@ -52,9 +52,26 @@ class api {
 
         if ($action == "clear") {
             $engine->reset_session();
+            $messages = $engine->get_messages();
+            $returnmessage = [];
+            $parsemarkdown = new parse_markdown();
+
+            foreach ($messages as $message) {
+                $content = $message->message_text;
+                if (strpos($content, "<audio") === false) {
+                    $content = $parsemarkdown->markdown_text($content);
+                }
+
+                $returnmessage[] = [
+                    "role" => ($message->sender === 'user') ? 'user' : 'system',
+                    "content" => $content,
+                    "format" => "html",
+                ];
+            }
+
             return [
                 "result" => "true",
-                "content" => "[]",
+                "content" => json_encode($returnmessage),
             ];
         }
 

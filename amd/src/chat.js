@@ -192,7 +192,7 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                     }
                 }])[0].done(function() {
                     geniaiareamensagens.html("");
-                    startChat();
+                    showHistory();
                 });
             });
 
