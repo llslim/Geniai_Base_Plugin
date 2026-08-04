@@ -20,6 +20,7 @@ use external_api;
 use external_value;
 use external_single_structure;
 use external_function_parameters;
+use local_geniai\external\api;
 
 defined('MOODLE_INTERNAL') || die;
 global $CFG;
