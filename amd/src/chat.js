@@ -134,13 +134,6 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
             }
 
             function resizeScrollarea() {
-                if (document.getElementById("geniai-mod-popup")) {
-                    $("#geniai-scrollarea").css({
-                        "max-height": "",
-                        "min-height": ""
-                    });
-                    return;
-                }
                 if ($("#geniai-chat").hasClass("mode-geniai")) {
                     var height1 = $(window).innerHeight() - 181;
                     $("#geniai-scrollarea").css({
