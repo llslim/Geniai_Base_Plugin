@@ -103,6 +103,17 @@ class bot_engine {
             $record->timecreated = time();
             $record->timemodified = time();
             $record->id = $DB->insert_record('local_geniai_sessions', $record);
+
+            // Seed initial bot prompt into messages if scenario defines START state prompt
+            $startnode = $this->scenario->get_state('START');
+            if ($startnode && !empty($startnode['bot_prompt'])) {
+                $msg = new \stdClass();
+                $msg->sessionid = $record->id;
+                $msg->sender = 'system';
+                $msg->message_text = $startnode['bot_prompt'];
+                $msg->timestamp = time();
+                $DB->insert_record('local_geniai_messages', $msg);
+            }
         }
 
         return $record;
@@ -216,6 +227,17 @@ class bot_engine {
         $this->sessionrecord->current_state = 'START';
         $this->sessionrecord->timemodified = time();
         $DB->update_record('local_geniai_sessions', $this->sessionrecord);
+
+        // Seed initial bot prompt into messages if scenario defines START state prompt
+        $startnode = $this->scenario->get_state('START');
+        if ($startnode && !empty($startnode['bot_prompt'])) {
+            $msg = new \stdClass();
+            $msg->sessionid = $this->sessionrecord->id;
+            $msg->sender = 'system';
+            $msg->message_text = $startnode['bot_prompt'];
+            $msg->timestamp = time();
+            $DB->insert_record('local_geniai_messages', $msg);
+        }
     }
 
     /**
