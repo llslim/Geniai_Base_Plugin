@@ -179,9 +179,6 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
             }
 
             $("#geniai-clear-history").click(function() {
-                geniaiareamensagens.html("");
-                startChat();
-
                 var methodname = "local_geniai_history_3";
                 if (release >= 4.2) {
                     methodname = "local_geniai_history_4";
@@ -193,7 +190,10 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                         courseid: courseid,
                         action: "clear"
                     }
-                }]);
+                }])[0].done(function() {
+                    geniaiareamensagens.html("");
+                    startChat();
+                });
             });
 
             $("#geniai-persona-select").change(function() {
@@ -437,20 +437,24 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                     }
                 }])[0].done(function(data) {
                     var history = JSON.parse(data.content);
-                    var iterate = $.each(history, function(id, message) {
-                        var html = null;
-                        if (message.role == "user") {
-                            html = $(`<div class="geniai-message geniai-history">${message.content}</div>`);
-                        } else if (message.role == "system") {
-                            html = $(`<div class="geniai-message geniai-history geniai-server">${message.content}</div>`);
-                        }
+                    if (!history || history.length === 0) {
+                        startChat();
+                    } else {
+                        var iterate = $.each(history, function(id, message) {
+                            var html = null;
+                            if (message.role == "user") {
+                                html = $(`<div class="geniai-message geniai-history">${message.content}</div>`);
+                            } else if (message.role == "system") {
+                                html = $(`<div class="geniai-message geniai-history geniai-server">${message.content}</div>`);
+                            }
 
-                        html.find("audio").removeAttr("autoplay");
-                        geniaiareamensagens.append(html);
-                    });
-                    $.when(iterate).done(function() {
-                        $(`#geniai-chat audio`).audioPlayer();
-                    });
+                            html.find("audio").removeAttr("autoplay");
+                            geniaiareamensagens.append(html);
+                        });
+                        $.when(iterate).done(function() {
+                            $(`#geniai-chat audio`).audioPlayer();
+                        });
+                    }
 
                     geniaiscrollarea.scrollTop = 10000000000000;
                 }).fail(notification.exception);
