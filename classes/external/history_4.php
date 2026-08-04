@@ -32,6 +32,7 @@ use core_external\external_function_parameters;
 defined('MOODLE_INTERNAL') || die;
 global $CFG;
 require_once("{$CFG->dirroot}/lib/externallib.php");
+require_once(__DIR__ . "/../api.php");
 
 /**
  * History_4 file.
