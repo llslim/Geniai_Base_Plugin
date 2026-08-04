@@ -179,6 +179,9 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
             }
 
             $("#geniai-clear-history").click(function() {
+                geniaiareamensagens.html("");
+                startChat();
+
                 var methodname = "local_geniai_history_3";
                 if (release >= 4.2) {
                     methodname = "local_geniai_history_4";
@@ -190,10 +193,7 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                         courseid: courseid,
                         action: "clear"
                     }
-                }])[0].done(function() {
-                    geniaiareamensagens.html("");
-                    startChat();
-                });
+                }]);
             });
 
             $("#geniai-persona-select").change(function() {
