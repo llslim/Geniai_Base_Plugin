@@ -19,6 +19,9 @@ This repository contains the **core backend logic** for the AAC Moodle Chatbot. 
 > 🔍 **Technical Validation Checks Execution Guide:**
 > For a detailed technical breakdown of how validation checks are evaluated via Generative AI (LLM) and Pattern Matcher (Regex) strategies, see **[validation_checks_execution_guide.md](validation_checks_execution_guide.md)**.
 
+> 🛠️ **Custom Scenario Builder Tool:**
+> Teachers and instructors can use the web-based **[Scenario Builder Form](scenario_builder.html)** (or access via Moodle at `/local/geniai/scenario_builder.php`) to visually construct custom scenarios and download compliant `.json` files.
+
 ---
 
 ## 📥 Installation Guide

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDURA - Custom Scenario Builder Form</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg-dark: #0F172A;
+            --card-bg: #1E293B;
+            --border: #334155;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --accent-green: #10B981;
+            --accent-blue: #38BDF8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .builder-container {
+            max-width: 900px;
+            width: 100%;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-bottom: 1.25rem;
+            margin-top: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-main);
+            margin-bottom: 0.4rem;
+        }
+
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            background-color: #0F172A;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.75rem;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--primary);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        .node-card {
+            background-color: #0F172A;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            position: relative;
+        }
+
+        .node-header {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent-green);
+            margin-bottom: 0.75rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .actions {
+            margin-top: 2.5rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.85rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: #334155;
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background-color: #475569;
+        }
+
+        .json-preview {
+            margin-top: 2rem;
+            background-color: #090D16;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            display: none;
+        }
+
+        .json-preview pre {
+            color: var(--accent-green);
+            font-family: monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="builder-container">
+    <div class="header">
+        <h1>💬 EDURA Custom Scenario Builder</h1>
+        <p>Fill out the form below to construct a custom roleplay scenario profile. Click <strong>Export & Download JSON</strong> to save the file for uploading directly into your Moodle Chatbot activity.</p>
+    </div>
+
+    <form id="scenario-form">
+        <!-- 1. Metadata -->
+        <div class="section-title">📋 1. Scenario Identification & Metadata</div>
+        <div class="grid-2">
+            <div class="form-group">
+                <label for="scenario_id">Scenario Unique Code (ID)</label>
+                <input type="text" id="scenario_id" value="custom_parent_01" placeholder="e.g., custom_parent_01" required>
+            </div>
+            <div class="form-group">
+                <label for="persona_name">Parent Full Name</label>
+                <input type="text" id="persona_name" value="Mary (Parent)" placeholder="e.g., Mary (Parent)" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="backstory">Parent Backstory & Child Context</label>
+            <textarea id="backstory" required placeholder="Describe child's diagnosis, age, communication history, and parent's emotional perspective...">Parent of a non-verbal 6-year-old child. Feels overwhelmed and defensive about school accommodations.</textarea>
+        </div>
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label for="initial_mood">Initial Mood</label>
+                <select id="initial_mood">
+                    <option value="defensive" selected>Defensive</option>
+                    <option value="overwhelmed">Overwhelmed</option>
+                    <option value="anxious">Anxious</option>
+                    <option value="confused">Confused</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="communication_style">Communication Style</label>
+                <input type="text" id="communication_style" value="Blunt, highly emotional, protective of child." placeholder="e.g., Blunt, speaks rapidly..." required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="learning_objectives">Pedagogical Learning Objectives (Comma separated)</label>
+            <input type="text" id="learning_objectives" value="active_listening, de_escalation" placeholder="e.g., active_listening, de_escalation, jargon_free_explanation" required>
+        </div>
+
+        <!-- 2. Directed Dialogue Graph -->
+        <div class="section-title">🔄 2. Directed Dialogue Graph Nodes</div>
+
+        <!-- START Node -->
+        <div class="node-card">
+            <div class="node-header">Node 1: START (Opening Parent Prompt)</div>
+            <div class="form-group">
+                <label for="prompt_start">Opening Bot Prompt</label>
+                <textarea id="prompt_start" required>I don't understand why we are changing the communication system again. Every time he gets used to something, you switch it!</textarea>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="val_start">Validation Check Type</label>
+                    <select id="val_start">
+                        <option value="empathy_check" selected>empathy_check (Listen & Empathize)</option>
+                        <option value="jargon_check">jargon_check (Don't Yack Jargon)</option>
+                        <option value="de_escalation_check">de_escalation_check (Don't React)</option>
+                        <option value="clarification_check">clarification_check (Ask & Focus)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Routes (Pass / Fail)</label>
+                    <input type="text" value="Pass: EXPLORATION | Fail: ESCALATION" disabled style="opacity: 0.6;">
+                </div>
+            </div>
+        </div>
+
+        <!-- EXPLORATION Node -->
+        <div class="node-card">
+            <div class="node-header">Node 2: EXPLORATION (Empathetic Response)</div>
+            <div class="form-group">
+                <label for="prompt_exploration">Bot Prompt</label>
+                <textarea id="prompt_exploration" required>Well, yes, I suppose it's frustrating for him too. What makes this new approach so much better?</textarea>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="val_exploration">Validation Check Type</label>
+                    <select id="val_exploration">
+                        <option value="jargon_check" selected>jargon_check (Don't Yack Jargon)</option>
+                        <option value="empathy_check">empathy_check (Listen & Empathize)</option>
+                        <option value="de_escalation_check">de_escalation_check (Don't React)</option>
+                        <option value="clarification_check">clarification_check (Ask & Focus)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Routes (Pass / Fail)</label>
+                    <input type="text" value="Pass: RESOLUTION | Fail: CONFUSION" disabled style="opacity: 0.6;">
+                </div>
+            </div>
+        </div>
+
+        <!-- ESCALATION Node -->
+        <div class="node-card">
+            <div class="node-header">Node 3: ESCALATION (Defensive Confrontation)</div>
+            <div class="form-group">
+                <label for="prompt_escalation">Bot Prompt</label>
+                <textarea id="prompt_escalation" required>You specialists always think you know what's best without living our daily lives! I want to speak to the principal.</textarea>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="val_escalation">Validation Check Type</label>
+                    <select id="val_escalation">
+                        <option value="de_escalation_check" selected>de_escalation_check (Don't React)</option>
+                        <option value="empathy_check">empathy_check (Listen & Empathize)</option>
+                        <option value="jargon_check">jargon_check (Don't Yack Jargon)</option>
+                        <option value="clarification_check">clarification_check (Ask & Focus)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Routes (Pass / Fail)</label>
+                    <input type="text" value="Pass: EXPLORATION | Fail: FAIL_STATE" disabled style="opacity: 0.6;">
+                </div>
+            </div>
+        </div>
+
+        <!-- CONFUSION Node -->
+        <div class="node-card">
+            <div class="node-header">Node 4: CONFUSION (Jargon Confusion)</div>
+            <div class="form-group">
+                <label for="prompt_confusion">Bot Prompt</label>
+                <textarea id="prompt_confusion" required>Wait, what does SGD and high-tech gaze-select mean? You're using terms I don't understand.</textarea>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="val_confusion">Validation Check Type</label>
+                    <select id="val_confusion">
+                        <option value="clarification_check" selected>clarification_check (Ask & Focus)</option>
+                        <option value="empathy_check">empathy_check (Listen & Empathize)</option>
+                        <option value="jargon_check">jargon_check (Don't Yack Jargon)</option>
+                        <option value="de_escalation_check">de_escalation_check (Don't React)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Routes (Pass / Fail)</label>
+                    <input type="text" value="Pass: EXPLORATION | Fail: ESCALATION" disabled style="opacity: 0.6;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Terminal Nodes -->
+        <div class="node-card">
+            <div class="node-header">Node 5: RESOLUTION (Successful End State)</div>
+            <div class="form-group">
+                <label for="prompt_resolution">Bot Prompt</label>
+                <textarea id="prompt_resolution" required>Okay, that actually makes sense. Thank you for walking me through this. Let's try it.</textarea>
+            </div>
+        </div>
+
+        <div class="node-card">
+            <div class="node-header">Node 6: FAIL_STATE (Failed End State)</div>
+            <div class="form-group">
+                <label for="prompt_fail">Bot Prompt</label>
+                <textarea id="prompt_fail" required>This session is complete. The parent has requested formal administrative review.</textarea>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="actions">
+            <button type="button" class="btn btn-secondary" onclick="generatePreview()">Preview JSON</button>
+            <button type="button" class="btn btn-primary" onclick="exportJSON()">📥 Export & Download JSON</button>
+        </div>
+    </form>
+
+    <!-- JSON Preview Modal Box -->
+    <div id="json-preview-container" class="json-preview">
+        <div style="font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-blue);">Generated JSON Output Preview:</div>
+        <pre id="json-preview-text"></pre>
+    </div>
+</div>
+
+<script>
+    function buildJsonObject() {
+        const objectivesStr = document.getElementById('learning_objectives').value;
+        const objectives = objectivesStr.split(',').map(item => item.trim()).filter(item => item.length > 0);
+
+        return {
+            "scenario_id": document.getElementById('scenario_id').value.trim(),
+            "persona": {
+                "name": document.getElementById('persona_name').value.trim(),
+                "backstory": document.getElementById('backstory').value.trim(),
+                "initial_mood": document.getElementById('initial_mood').value,
+                "communication_style": document.getElementById('communication_style').value.trim()
+            },
+            "learning_objectives": objectives,
+            "states": {
+                "START": {
+                    "bot_prompt": document.getElementById('prompt_start').value.trim(),
+                    "expected_criteria": {
+                        "validation_type": document.getElementById('val_start').value,
+                        "pass_route": "EXPLORATION",
+                        "fail_route": "ESCALATION"
+                    }
+                },
+                "EXPLORATION": {
+                    "bot_prompt": document.getElementById('prompt_exploration').value.trim(),
+                    "expected_criteria": {
+                        "validation_type": document.getElementById('val_exploration').value,
+                        "pass_route": "RESOLUTION",
+                        "fail_route": "CONFUSION"
+                    }
+                },
+                "ESCALATION": {
+                    "bot_prompt": document.getElementById('prompt_escalation').value.trim(),
+                    "expected_criteria": {
+                        "validation_type": document.getElementById('val_escalation').value,
+                        "pass_route": "EXPLORATION",
+                        "fail_route": "FAIL_STATE"
+                    }
+                },
+                "CONFUSION": {
+                    "bot_prompt": document.getElementById('prompt_confusion').value.trim(),
+                    "expected_criteria": {
+                        "validation_type": document.getElementById('val_confusion').value,
+                        "pass_route": "EXPLORATION",
+                        "fail_route": "ESCALATION"
+                    }
+                },
+                "RESOLUTION": {
+                    "bot_prompt": document.getElementById('prompt_resolution').value.trim(),
+                    "expected_criteria": null
+                },
+                "FAIL_STATE": {
+                    "bot_prompt": document.getElementById('prompt_fail').value.trim(),
+                    "expected_criteria": null
+                }
+            }
+        };
+    }
+
+    function generatePreview() {
+        const json = buildJsonObject();
+        const container = document.getElementById('json-preview-container');
+        const text = document.getElementById('json-preview-text');
+        text.textContent = JSON.stringify(json, null, 2);
+        container.style.display = 'block';
+    }
+
+    function exportJSON() {
+        const json = buildJsonObject();
+        const scenarioId = json.scenario_id || 'custom_scenario';
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", scenarioId + ".json");
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    }
+</script>
+
+</body>
+</html>
