@@ -177,7 +177,7 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                 setTimeout(showHistory, 0);
             }
 
-            $("#geniai-clear-history").click(function(e) {
+            $(document).on("click", "#geniai-clear-history", function(e) {
                 if (e) {
                     e.preventDefault();
                 }
