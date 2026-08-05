@@ -165,7 +165,7 @@ class api {
             $content = $parsemarkdown->markdown_text($prompt);
 
             return [
-                "result" => true,
+                "result" => "true",
                 "format" => "html",
                 "content" => $content,
             ];
@@ -184,7 +184,7 @@ class api {
             $engine = new \local_geniai\bot_engine($USER->id, $courseid, $cmid, 'anna');
             $engine->reset_session();
             return [
-                "result" => true,
+                "result" => "true",
                 "format" => "html",
                 "content" => "<strong>Grade - 0 out of 10</strong><br>Your message contains inappropriate language. This session is terminated.",
             ];
@@ -208,7 +208,7 @@ class api {
         $content = $parsemarkdown->markdown_text($botreply);
 
         return [
-            "result" => true,
+            "result" => "true",
             "format" => "html",
             "content" => $content,
             "transcription" => $transcription ? $transcription["text"] : null,
