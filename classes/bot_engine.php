@@ -90,8 +90,12 @@ class bot_engine {
             'userid' => $userid,
             'courseid' => $courseid,
             'cmid' => $this->cmid,
-            'scenariocode' => $scenariocode,
         ], '*', IGNORE_MULTIPLE);
+
+        if ($record && $record->scenariocode !== $scenariocode) {
+            $record->scenariocode = $scenariocode;
+            $DB->update_record('local_geniai_sessions', $record);
+        }
 
         if (!$record) {
             $record = new \stdClass();
