@@ -2,7 +2,10 @@
 
 This repository contains the **core backend logic** for the AAC Moodle Chatbot. All backend processing and integrations must be managed here.
 
-> ⚠️ **Note:** Do not mix frontend or UI activity code with this repository. All UI code should reside in the [moodle-chatbot](https://github.com/DrKat0m/EDURA) repository.
+> ℹ️ **Provenance & Ancestry Note:**
+> This repository is a customized fork derived from a previous version of [EduardoKrausME/moodle-local_geniai](https://github.com/EduardoKrausME/moodle-local_geniai).
+> 
+> **Important:** This plugin operates as a fully standalone core engine at `local/geniai`. There is **no runtime dependency** on the original `moodle-local_geniai` repository; installing `EduardoKrausME/moodle-local_geniai` alongside this plugin is neither required nor recommended.
 
 ---
 
