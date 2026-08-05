@@ -98,4 +98,14 @@ class scenario_definition {
     public function get_state_node(string $statekey): ?array {
         return $this->states[$statekey] ?? null;
     }
+
+    /**
+     * Alias for get_state_node to support state lookups.
+     *
+     * @param string $statekey
+     * @return array|null
+     */
+    public function get_state(string $statekey): ?array {
+        return $this->get_state_node($statekey);
+    }
 }
