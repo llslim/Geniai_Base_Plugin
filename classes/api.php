@@ -43,6 +43,9 @@ class api {
 
         // We can determine what is the current active scenario code
         $activescenariocode = 'anna'; // Default fallback
+        if ($geniai && !empty($geniai->scenariocode)) {
+            $activescenariocode = $geniai->scenariocode;
+        }
         $activesession = $DB->get_record('local_geniai_sessions', ['userid' => $USER->id, 'courseid' => $courseid, 'cmid' => $cmid], '*', IGNORE_MULTIPLE);
         if ($activesession) {
             $activescenariocode = $activesession->scenariocode;
@@ -184,6 +187,9 @@ class api {
 
         // Load active scenario from DB or fallback
         $activescenariocode = 'anna';
+        if ($geniai && !empty($geniai->scenariocode)) {
+            $activescenariocode = $geniai->scenariocode;
+        }
         $activesession = $DB->get_record('local_geniai_sessions', ['userid' => $USER->id, 'courseid' => $courseid, 'cmid' => $cmid], '*', IGNORE_MULTIPLE);
         if ($activesession) {
             $activescenariocode = $activesession->scenariocode;
