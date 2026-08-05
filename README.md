@@ -16,6 +16,9 @@ This repository contains the **core backend logic** for the AAC Moodle Chatbot. 
 > 💬 **LAFF Don't Cry Framework & Validation Guide:**
 > For a detailed explanation of the LAFF Don't Cry communication strategy, validation checks, and state routing graph, see **[laff_framework_guide.md](laff_framework_guide.md)**.
 
+> 🔍 **Technical Validation Checks Execution Guide:**
+> For a detailed technical breakdown of how validation checks are evaluated via Generative AI (LLM) and Pattern Matcher (Regex) strategies, see **[validation_checks_execution_guide.md](validation_checks_execution_guide.md)**.
+
 ---
 
 ## 📥 Installation Guide
