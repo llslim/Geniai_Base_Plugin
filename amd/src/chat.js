@@ -96,7 +96,8 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                     geniaiscrollarea.scrollTop = 10000000000000;
 
                     var methodname = "local_geniai_chat_3";
-                    if (release >= 4.2) {
+                    var relNum = parseFloat(release) || 0;
+                    if (relNum >= 4.2) {
                         methodname = "local_geniai_chat_4";
                     }
 
@@ -187,7 +188,8 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                 geniaiareamensagens.html("");
 
                 var methodname = "local_geniai_history_3";
-                if (release >= 4.2) {
+                var relNum = parseFloat(release) || 0;
+                if (relNum >= 4.2) {
                     methodname = "local_geniai_history_4";
                 }
 
@@ -432,7 +434,8 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
 
             function showHistory() {
                 var methodname = "local_geniai_history_3";
-                if (release >= 4.2) {
+                var relNum = parseFloat(release) || 0;
+                if (relNum >= 4.2) {
                     methodname = "local_geniai_history_4";
                 }
 
