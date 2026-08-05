@@ -438,9 +438,8 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                     }
                 }])[0].done(function(data) {
                     var history = JSON.parse(data.content);
-                    if (!history || history.length === 0) {
-                        startChat();
-                    } else {
+                    startChat();
+                    if (history && history.length > 0) {
                         var iterate = $.each(history, function(id, message) {
                             var html = null;
                             if (message.role == "user") {
