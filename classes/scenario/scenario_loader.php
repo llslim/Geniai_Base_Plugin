@@ -56,7 +56,7 @@ class scenario_loader {
             }
         }
 
-        // 2. Fall back to standard profiles (Anna, Brianna, Cathy)
+        // 2. Fall back to standard profiles (Anna, Brianna, Cathy, Mary)
         switch ($scenarioid) {
             case 'anna':
                 return self::get_anna_profile();
@@ -64,6 +64,8 @@ class scenario_loader {
                 return self::get_brianna_profile();
             case 'cathy':
                 return self::get_cathy_profile();
+            case 'mary':
+                return self::get_default_profile('mary');
             default:
                 // Return default fallback
                 return self::get_default_profile($scenarioid);

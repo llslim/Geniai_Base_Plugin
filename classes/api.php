@@ -148,7 +148,7 @@ class api {
         }
 
         // Intercept special persona change command
-        if (preg_match('/^\$\$persona=(anna|brianna|cathy)\$\$$/', $cleanedMessage, $matches)) {
+        if (preg_match('/^\$\$persona=(anna|brianna|cathy|mary)\$\$$/', $cleanedMessage, $matches)) {
             $selected = $matches[1];
             $engine = new \local_geniai\bot_engine($USER->id, $courseid, $cmid, $selected);
             $engine->reset_session();
