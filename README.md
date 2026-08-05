@@ -13,6 +13,9 @@ This repository contains the **core backend logic** for the AAC Moodle Chatbot. 
 > 📖 **Scenarios & Custom JSON Creation Guide:**
 > For details on the 4 preloaded parent scenarios and a step-by-step guide for creating custom JSON scenarios, see **[scenario_creation_guide.md](scenario_creation_guide.md)**.
 
+> 💬 **LAFF Don't Cry Framework & Validation Guide:**
+> For a detailed explanation of the LAFF Don't Cry communication strategy, validation checks, and state routing graph, see **[laff_framework_guide.md](laff_framework_guide.md)**.
+
 ---
 
 ## 📥 Installation Guide
