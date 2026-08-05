@@ -177,7 +177,10 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                 setTimeout(showHistory, 0);
             }
 
-            $("#geniai-clear-history").click(function() {
+            $("#geniai-clear-history").click(function(e) {
+                if (e) {
+                    e.preventDefault();
+                }
                 geniaiareamensagens.html("");
 
                 var methodname = "local_geniai_history_3";
