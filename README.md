@@ -7,6 +7,9 @@ This repository contains the **core backend logic** for the AAC Moodle Chatbot. 
 > 
 > **Important:** This plugin operates as a fully standalone core engine at `local/geniai`. There is **no runtime dependency** on the original `moodle-local_geniai` repository; installing `EduardoKrausME/moodle-local_geniai` alongside this plugin is neither required nor recommended.
 
+> 🧪 **Integration Test Suite Guide:**
+> For a detailed explanation of each automated PHP integration test case and pre-deployment verification steps, see **[test_suite_guide.md](test_suite_guide.md)**.
+
 ---
 
 ## 📥 Installation Guide
