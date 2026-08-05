@@ -444,12 +444,14 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                             var html = null;
                             if (message.role == "user") {
                                 html = $(`<div class="geniai-message geniai-history">${message.content}</div>`);
-                            } else if (message.role == "system") {
+                            } else {
                                 html = $(`<div class="geniai-message geniai-history geniai-server">${message.content}</div>`);
                             }
 
-                            html.find("audio").removeAttr("autoplay");
-                            geniaiareamensagens.append(html);
+                            if (html) {
+                                html.find("audio").removeAttr("autoplay");
+                                geniaiareamensagens.append(html);
+                            }
                         });
                         $.when(iterate).done(function() {
                             $(`#geniai-chat audio`).audioPlayer();
