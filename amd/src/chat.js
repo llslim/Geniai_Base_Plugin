@@ -175,7 +175,6 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
             function openChat() {
                 geniaiareamensagens.html("");
                 setTimeout(showHistory, 0);
-                startChat();
             }
 
             $("#geniai-clear-history").click(function() {
