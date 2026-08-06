@@ -2,6 +2,7 @@
   "scenario_id": "mary",
   "persona": {
     "name": "Mary (Parent)",
+    "child_preferred_pronoun": "he/him",
     "backstory": "Parent of a non-verbal 6-year-old child. Feels overwhelmed and defensive about school accommodations.",
     "initial_mood": "defensive",
     "communication_style": "Blunt, highly emotional, protective of child."
@@ -12,7 +13,7 @@
   ],
   "states": {
     "START": {
-      "bot_prompt": "I don't understand why we are changing the communication system again. Every time he gets used to something, you switch it!",
+      "bot_prompt": "I don't understand why we are changing my child's communication system again. Every time he gets used to something at school, you switch it! He is non-verbal and needs consistency.",
       "expected_criteria": {
         "validation_type": "empathy_check",
         "pass_route": "EXPLORATION",
