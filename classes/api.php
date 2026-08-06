@@ -276,9 +276,14 @@ class api {
             "messages" => $messagesok,
             "temperature" => $temperature,
             "top_p" => $topp,
-            "frequency_penalty" => floatval($frequencypenalty),
-            "presence_penalty" => floatval($presencepenalty),
         ];
+
+        if (floatval($frequencypenalty) != 0.0) {
+            $post->frequency_penalty = floatval($frequencypenalty);
+        }
+        if (floatval($presencepenalty) != 0.0) {
+            $post->presence_penalty = floatval($presencepenalty);
+        }
 
         if (!$ignoremaxtoken) {
             $post->max_tokens = intval($maxtokens);
