@@ -159,7 +159,6 @@ if ($hassiteconfig) {
                 bodyDiv.className = "aura-section-body";
                 bodyDiv.style.display = sec.active ? "block" : "none";
                 bodyDiv.style.padding = "10px 0";
-                bodyDiv.style.clear = "both";
 
                 siblings.forEach(function(s) {
                     bodyDiv.appendChild(s);
@@ -170,35 +169,25 @@ if ($hassiteconfig) {
                 var titleEl = headingEl.querySelector("h3, legend, .form-header") || headingEl;
                 titleEl.style.cursor = "pointer";
                 titleEl.style.userSelect = "none";
-                titleEl.style.display = "flex";
-                titleEl.style.justifyContent = "space-between";
-                titleEl.style.alignItems = "center";
-                titleEl.style.padding = "10px 14px";
-                titleEl.style.backgroundColor = "#e9ecef";
-                titleEl.style.border = "1px solid #ced4da";
-                titleEl.style.borderRadius = "6px";
-                titleEl.style.marginTop = "20px";
 
-                var toggleSpan = document.createElement("span");
-                toggleSpan.style.fontWeight = "bold";
-                toggleSpan.style.fontSize = "13px";
-                toggleSpan.style.padding = "2px 8px";
-                toggleSpan.style.backgroundColor = "#ffffff";
-                toggleSpan.style.border = "1px solid #adb5bd";
-                toggleSpan.style.borderRadius = "4px";
-                toggleSpan.textContent = sec.active ? "▼ Collapse" : "► Expand";
-                titleEl.appendChild(toggleSpan);
+                var state = sec.active;
+                function updateTitle() {
+                    var icon = state ? "▼ [COLLAPSE] " : "► [EXPAND] ";
+                    var cleanText = titleEl.innerHTML.replace(/^[▼►]\s*\[(COLLAPSE|EXPAND)\]\s*/, "");
+                    titleEl.innerHTML = icon + cleanText;
+                }
+                updateTitle();
 
                 titleEl.addEventListener("click", function(e) {
                     e.preventDefault();
-                    var isHidden = bodyDiv.style.display === "none";
-                    bodyDiv.style.display = isHidden ? "block" : "none";
-                    toggleSpan.textContent = isHidden ? "▼ Collapse" : "► Expand";
+                    state = !state;
+                    bodyDiv.style.display = state ? "block" : "none";
+                    updateTitle();
                 });
             });
         }
 
-        setTimeout(setupAccordions, 300);
+        setTimeout(setupAccordions, 400);
         if (document.readyState === "loading") {
             document.addEventListener("DOMContentLoaded", setupAccordions);
         } else {
