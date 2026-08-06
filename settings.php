@@ -109,139 +109,60 @@ if ($hassiteconfig) {
         $coreaiprovideroptions['aiprovider_openai'] = 'OpenAI Provider (aiprovider_openai)';
     }
 
-    // Embed standalone script that wraps setting fields into Bootstrap accordions on client render
-    $accordionscript = '<script>
-    (function() {
-        function setupAccordions() {
-            var activeStrat = ' . json_encode($activestratey) . ';
-
-            var config = [
-                {
-                    headingId: "admin-core_ai_section_heading",
-                    active: activeStrat === "moodle_core_ai"
-                },
-                {
-                    headingId: "admin-gemini_section_heading",
-                    active: activeStrat === "external_llm"
-                },
-                {
-                    headingId: "admin-chatgpt_section_heading",
-                    active: activeStrat === "local"
-                }
-            ];
-
-            config.forEach(function(sec) {
-                var headingEl = document.getElementById(sec.headingId);
-                if (!headingEl) {
-                    var allHeadings = document.querySelectorAll(".setting-heading, h3, legend");
-                    allHeadings.forEach(function(h) {
-                        if (h.id === sec.headingId || (h.closest && h.closest("#" + sec.headingId))) {
-                            headingEl = h.closest(".setting-heading, fieldset, .form-item, div[id^=admin-]");
-                        }
-                    });
-                }
-                if (!headingEl) return;
-
-                // Collect sibling form elements until next section heading
-                var siblings = [];
-                var next = headingEl.nextElementSibling;
-                while (next) {
-                    var isNextHeader = next.id && (next.id.includes("heading") || next.id.includes("section"));
-                    if (isNextHeader || (next.querySelector && next.querySelector("h3, legend, .form-header"))) {
-                        break;
-                    }
-                    siblings.push(next);
-                    next = next.nextElementSibling;
-                }
-
-                // Create section wrapper
-                var bodyDiv = document.createElement("div");
-                bodyDiv.className = "aura-section-body";
-                bodyDiv.style.display = sec.active ? "block" : "none";
-                bodyDiv.style.padding = "10px 0";
-
-                siblings.forEach(function(s) {
-                    bodyDiv.appendChild(s);
-                });
-                headingEl.parentNode.insertBefore(bodyDiv, headingEl.nextSibling);
-
-                // Title target element
-                var titleEl = headingEl.querySelector("h3, legend, .form-header") || headingEl;
-                titleEl.style.cursor = "pointer";
-                titleEl.style.userSelect = "none";
-
-                var state = sec.active;
-                function updateTitle() {
-                    var icon = state ? "▼ [COLLAPSE] " : "► [EXPAND] ";
-                    var cleanText = titleEl.innerHTML.replace(/^[▼►]\s*\[(COLLAPSE|EXPAND)\]\s*/, "");
-                    titleEl.innerHTML = icon + cleanText;
-                }
-                updateTitle();
-
-                titleEl.addEventListener("click", function(e) {
-                    e.preventDefault();
-                    state = !state;
-                    bodyDiv.style.display = state ? "block" : "none";
-                    updateTitle();
-                });
-            });
-        }
-
-        setTimeout(setupAccordions, 400);
-        if (document.readyState === "loading") {
-            document.addEventListener("DOMContentLoaded", setupAccordions);
-        } else {
-            setupAccordions();
-        }
-    })();
-    </script>';
-
-    // 1. Core AI Section Header
+    // 1. MOODLE CORE AI SUB-SYSTEM CONFIGURATION SECTION
     $settings->add(new admin_setting_heading(
         'core_ai_section_heading',
         '🔌 1. Moodle Core AI Framework' . $coreai_badge,
-        'Site-wide provider manager integration (\core_ai\manager).' . $accordionscript
+        'Site-wide provider manager integration (\core_ai\manager).'
     ));
 
-    $settings->add(new admin_setting_configselect(
+    $s_core_provider = new admin_setting_configselect(
         "local_geniai/core_ai_selected_provider",
         get_string("core_ai_selected_provider", "local_geniai"),
         get_string("core_ai_selected_provider_desc", "local_geniai"),
         "aiprovider_gemini",
         $coreaiprovideroptions
-    ));
+    );
+    $s_core_provider->add_dependent_on('local_geniai/engine_strategy', 'moodle_core_ai');
+    $settings->add($s_core_provider);
 
-    // 2. Gemini Section Header
+    // 2. GOOGLE GEMINI DIRECT REST CONFIGURATION SECTION
     $settings->add(new admin_setting_heading(
         'gemini_section_heading',
         '✨ 2. Google Gemini Direct REST API' . $gemini_badge,
         'Direct cURL REST API connection to Google Gemini models (gemini-3.5-flash).'
     ));
 
-    $settings->add(new admin_setting_configtext(
+    $s_gemini_url = new admin_setting_configtext(
         "local_geniai/api_base_url",
         get_string("api_base_url", "local_geniai"),
         get_string("api_base_url_desc", "local_geniai"),
         "https://generativelanguage.googleapis.com/v1beta/openai",
         PARAM_RAW
-    ));
+    );
+    $s_gemini_url->add_dependent_on('local_geniai/engine_strategy', 'external_llm');
+    $settings->add($s_gemini_url);
 
-    $settings->add(new admin_setting_configpasswordunmask(
+    $s_gemini_token = new admin_setting_configpasswordunmask(
         "local_geniai/api_bearer_token",
         get_string("api_bearer_token", "local_geniai"),
         get_string("api_bearer_token_desc", "local_geniai"),
         ""
-    ));
+    );
+    $s_gemini_token->add_dependent_on('local_geniai/engine_strategy', 'external_llm');
+    $settings->add($s_gemini_token);
 
-    $settings->add(new admin_setting_configtext(
+    $s_gemini_model = new admin_setting_configtext(
         "local_geniai/model_identifier",
         get_string("model_identifier", "local_geniai"),
         get_string("model_identifier_desc", "local_geniai"),
         "gemini-3.5-flash",
         PARAM_RAW
-    ));
+    );
+    $s_gemini_model->add_dependent_on('local_geniai/engine_strategy', 'external_llm');
+    $settings->add($s_gemini_model);
 
-    // 3. ChatGPT Section Header
+    // 3. CHATGPT (OPENAI) DIRECT API CONFIGURATION SECTION
     $settings->add(new admin_setting_heading(
         'chatgpt_section_heading',
         '🤖 3. ChatGPT (OpenAI Direct API)' . $chatgpt_badge,
@@ -250,20 +171,22 @@ if ($hassiteconfig) {
 
     $apikey = get_config("local_geniai", "apikey");
     if (isset($apikey[12])) {
-        $settings->add(new admin_setting_configpasswordunmask(
+        $s_gpt_key = new admin_setting_configpasswordunmask(
             "local_geniai/apikey",
             get_string("apikey", "local_geniai"),
             get_string("apikey_desc", "local_geniai"),
             ""
-        ));
+        );
     } else {
-        $settings->add(new admin_setting_configtext(
+        $s_gpt_key = new admin_setting_configtext(
             "local_geniai/apikey",
             get_string("apikey", "local_geniai"),
             get_string("apikey_desc", "local_geniai"),
             ""
-        ));
+        );
     }
+    $s_gpt_key->add_dependent_on('local_geniai/engine_strategy', 'local');
+    $settings->add($s_gpt_key);
 
     $models = [
         "gpt-4" => "gpt-4",
@@ -271,13 +194,15 @@ if ($hassiteconfig) {
         "gpt-4-32k" => "gpt-4-32k",
         "gpt-4-turbo" => "gpt-4-turbo",
     ];
-    $settings->add(new admin_setting_configselect(
+    $s_gpt_model = new admin_setting_configselect(
         "local_geniai/model",
         get_string("model", "local_geniai"),
         get_string("model_desc", "local_geniai"),
         "gpt-4o-mini",
         $models
-    ));
+    );
+    $s_gpt_model->add_dependent_on('local_geniai/engine_strategy', 'local');
+    $settings->add($s_gpt_model);
 
     $voices = [
         "alloy" => "Alloy",
@@ -314,13 +239,15 @@ if ($hassiteconfig) {
                     <td><audio src="https://cdn.openai.com/API/docs/audio/shimmer.wav" controls></audio></td>
                 </tr>
             </table>');
-    $settings->add(new admin_setting_configselect(
+    $s_gpt_voice = new admin_setting_configselect(
         "local_geniai/voice",
         get_string("voice", "local_geniai"),
         $voicedesc,
         "alloy",
         $voices
-    ));
+    );
+    $s_gpt_voice->add_dependent_on('local_geniai/engine_strategy', 'local');
+    $settings->add($s_gpt_voice);
 
     $cases = [
         "chatbot" => get_string("caseuse_chatbot", "local_geniai"),
@@ -332,13 +259,15 @@ if ($hassiteconfig) {
         "informal" => get_string("caseuse_informal", "local_geniai"),
     ];
     $casedesc = $OUTPUT->render_from_template("local_geniai/settings_casedesc", []);
-    $settings->add(new admin_setting_configselect(
+    $s_gpt_case = new admin_setting_configselect(
         "local_geniai/case",
         get_string("case", "local_geniai"),
         $casedesc,
         "chatbot",
         $cases
-    ));
+    );
+    $s_gpt_case->add_dependent_on('local_geniai/engine_strategy', 'local');
+    $settings->add($s_gpt_case);
 
     $modules = [];
     $records = $DB->get_records("modules", ["visible" => 1], "name", "name");
