@@ -86,9 +86,9 @@ if ($hassiteconfig) {
     // Determine current active strategy solution
     $activestratey = get_config("local_geniai", "engine_strategy") ?: "moodle_core_ai";
 
-    $coreai_badge = ($activestratey === 'moodle_core_ai') ? ' [✓ ACTIVELY IN USE]' : ' [INACTIVE]';
-    $gemini_badge = ($activestratey === 'external_llm') ? ' [✓ ACTIVELY IN USE]' : ' [INACTIVE]';
-    $chatgpt_badge = ($activestratey === 'local') ? ' [✓ ACTIVELY IN USE]' : ' [INACTIVE]';
+    $coreai_badge = ($activestratey === 'moodle_core_ai') ? ' <span style="background-color: #198754; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">[✓ ACTIVELY IN USE]</span>' : ' <span style="background-color: #6c757d; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">[INACTIVE]</span>';
+    $gemini_badge = ($activestratey === 'external_llm') ? ' <span style="background-color: #198754; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">[✓ ACTIVELY IN USE]</span>' : ' <span style="background-color: #6c757d; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">[INACTIVE]</span>';
+    $chatgpt_badge = ($activestratey === 'local') ? ' <span style="background-color: #198754; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">[✓ ACTIVELY IN USE]</span>' : ' <span style="background-color: #6c757d; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">[INACTIVE]</span>';
 
     // Core AI Provider records dropdown options
     $coreaiprovideroptions = [];
@@ -116,37 +116,34 @@ if ($hassiteconfig) {
 
         var sections = [
             {
-                headingId: "admin-core_ai_section_heading",
                 strategyVal: "moodle_core_ai",
+                matchText: "1. Moodle Core AI",
                 fields: ["s_local_geniai_core_ai_selected_provider"]
             },
             {
-                headingId: "admin-gemini_section_heading",
                 strategyVal: "external_llm",
+                matchText: "2. Google Gemini",
                 fields: ["s_local_geniai_api_base_url", "s_local_geniai_api_bearer_token", "s_local_geniai_model_identifier"]
             },
             {
-                headingId: "admin-chatgpt_section_heading",
                 strategyVal: "local",
+                matchText: "3. ChatGPT",
                 fields: ["s_local_geniai_apikey", "s_local_geniai_model", "s_local_geniai_voice", "s_local_geniai_case"]
             }
         ];
 
         sections.forEach(function(sec) {
-            // Find section heading element
-            var headingEl = document.getElementById(sec.headingId);
-            if (!headingEl) {
-                var headings = document.querySelectorAll(".setting-heading, h3, legend");
-                headings.forEach(function(h) {
-                    if (h.id === sec.headingId || (h.closest && h.closest("#" + sec.headingId))) {
-                        headingEl = h.closest(".setting-heading, fieldset, .form-item, div[id^=admin-]");
-                    }
-                });
+            // Find section header by heading title text
+            var titleEl = null;
+            var allHeadings = document.querySelectorAll("h3, legend, .form-header");
+            for (var i = 0; i < allHeadings.length; i++) {
+                if (allHeadings[i].textContent && allHeadings[i].textContent.indexOf(sec.matchText) !== -1) {
+                    titleEl = allHeadings[i];
+                    break;
+                }
             }
-            if (!headingEl) return;
+            if (!titleEl) return;
 
-            // Target header title text element
-            var titleEl = headingEl.querySelector("h3, legend, .form-header") || headingEl;
             titleEl.style.cursor = "pointer";
             titleEl.style.userSelect = "none";
             titleEl.style.display = "flex";
@@ -158,15 +155,13 @@ if ($hassiteconfig) {
             titleEl.style.borderRadius = "6px";
             titleEl.style.marginTop = "20px";
 
-            // State variable (defaults to active strategy open)
             var isOpen = (sec.strategyVal === activeStrat);
 
             var toggleSpan = document.createElement("span");
+            toggleSpan.className = "aura-toggle-badge";
             toggleSpan.style.fontWeight = "bold";
             toggleSpan.style.fontSize = "13px";
             toggleSpan.style.padding = "3px 10px";
-            toggleSpan.style.backgroundColor = "#ffffff";
-            toggleSpan.style.border = "1px solid #adb5bd";
             toggleSpan.style.borderRadius = "4px";
 
             titleEl.appendChild(toggleSpan);
@@ -174,7 +169,8 @@ if ($hassiteconfig) {
             function setVisibility(show) {
                 isOpen = show;
                 toggleSpan.textContent = isOpen ? "▼ Collapse" : "► Expand";
-                toggleSpan.style.backgroundColor = isOpen ? "#e2e3e5" : "#ffffff";
+                toggleSpan.style.backgroundColor = isOpen ? "#cbd5e1" : "#ffffff";
+                toggleSpan.style.border = "1px solid #94a3b8";
 
                 sec.fields.forEach(function(fieldName) {
                     var inputEl = document.querySelector("[name=\'" + fieldName + "\']");
@@ -187,31 +183,36 @@ if ($hassiteconfig) {
                 });
             }
 
-            // Initial visibility apply
             setVisibility(isOpen);
 
-            // Click header to toggle expand/collapse accordion card
             titleEl.addEventListener("click", function(e) {
                 e.preventDefault();
                 setVisibility(!isOpen);
             });
         });
 
-        // Also listen to Strategy dropdown change to expand selected strategy
+        // Dynamic change listener on strategy select dropdown
         var strategySelect = document.querySelector("select[name=\'s_local_geniai_engine_strategy\']") || document.querySelector("select[name*=\'engine_strategy\']");
         if (strategySelect) {
             strategySelect.addEventListener("change", function() {
                 var selectedVal = strategySelect.value;
                 sections.forEach(function(sec) {
-                    var headingEl = document.getElementById(sec.headingId);
-                    if (!headingEl) return;
-                    var titleEl = headingEl.querySelector("h3, legend, .form-header") || headingEl;
-                    var toggleSpan = titleEl.querySelector("span");
+                    var titleEl = null;
+                    var allHeadings = document.querySelectorAll("h3, legend, .form-header");
+                    for (var i = 0; i < allHeadings.length; i++) {
+                        if (allHeadings[i].textContent && allHeadings[i].textContent.indexOf(sec.matchText) !== -1) {
+                            titleEl = allHeadings[i];
+                            break;
+                        }
+                    }
+                    if (!titleEl) return;
+
+                    var toggleSpan = titleEl.querySelector(".aura-toggle-badge");
                     var shouldShow = (sec.strategyVal === selectedVal);
 
                     if (toggleSpan) {
                         toggleSpan.textContent = shouldShow ? "▼ Collapse" : "► Expand";
-                        toggleSpan.style.backgroundColor = shouldShow ? "#e2e3e5" : "#ffffff";
+                        toggleSpan.style.backgroundColor = shouldShow ? "#cbd5e1" : "#ffffff";
                     }
 
                     sec.fields.forEach(function(fieldName) {
