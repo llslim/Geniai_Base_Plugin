@@ -16,34 +16,44 @@
 
 namespace local_geniai;
 
+use local_geniai\scenario\scenario_loader;
+use local_geniai\scenario\scenario_definition;
+use local_geniai\scenario\state_node;
+
 defined('MOODLE_INTERNAL') || die;
 
-use local_geniai\scenario\scenario_definition;
-use local_geniai\scenario\scenario_loader;
-use local_geniai\strategy\response_strategy;
-use local_geniai\strategy\generative_ai_api_strategy;
-use local_geniai\strategy\deterministic_tree_strategy;
-use local_geniai\state\bot_state;
-
 /**
- * Class bot_engine coordinating state machines, databases, and strategies.
+ * Core Orchestrator Class bot_engine.
+ *
+ * Responsibilities:
+ * - Manages session lifecycle state machine.
+ * - Handles prompt/response pipelines.
+ * - Logs turn history to DB tables local_geniai_sessions, local_geniai_messages, and local_geniai_analytics.
+ * - Triggers dynamic rubric evaluation & Gradebook integration on turn completion.
  *
  * @package   local_geniai
- * @copyright 2026 Antigravity
+ * @copyright 2026 AAC-RERC Chatbot Team
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bot_engine {
-    /** @var \stdClass Active Moodle session database record */
-    private $sessionrecord;
 
-    /** @var scenario_definition Active roleplay scenario configuration */
-    private $scenario;
+    /** @var int $userid */
+    private int $userid;
 
-    /** @var response_strategy Selected response evaluation strategy */
+    /** @var int $courseid */
+    private int $courseid;
+
+    /** @var int $cmid */
+    private int $cmid;
+
+    /** @var scenario_definition $scenario */
+    private scenario_definition $scenario;
+
+    /** @var mixed $strategy */
     private $strategy;
 
-    /** @var int Course module context ID */
-    private $cmid;
+    /** @var \stdClass $sessionrecord */
+    private \stdClass $sessionrecord;
 
     /**
      * Constructor.
@@ -53,30 +63,24 @@ class bot_engine {
      * @param int $cmid
      * @param string $scenariocode
      */
-    public function __construct(int $userid, int $courseid, int $cmid, string $scenariocode) {
+    public function __construct(int $userid, int $courseid, int $cmid = 0, string $scenariocode = 'anna') {
+        $this->userid = $userid;
+        $this->courseid = $courseid;
         $this->cmid = $cmid;
-        $this->scenario = scenario_loader::load($scenariocode, $cmid);
-        $this->strategy = $this->resolve_strategy();
+        $this->scenario = scenario_loader::load($scenariocode, $courseid);
+
+        $strategytype = get_config('local_geniai', 'engine_strategy') ?: 'external_llm';
+        if ($strategytype === 'regex') {
+            $this->strategy = new \local_geniai\strategy\regex_matcher_strategy();
+        } else {
+            $this->strategy = new \local_geniai\strategy\generative_ai_api_strategy();
+        }
+
         $this->sessionrecord = $this->lookup_or_create_session($userid, $courseid, $scenariocode);
     }
 
     /**
-     * Resolves the active evaluation strategy depending on Moodle global configurations.
-     *
-     * @return response_strategy
-     */
-    private function resolve_strategy(): response_strategy {
-        $strategy = get_config('local_geniai', 'engine_strategy');
-        $bearer = get_config('local_geniai', 'api_bearer_token');
-
-        if ($strategy === 'external_llm' && !empty($bearer)) {
-            return new generative_ai_api_strategy();
-        }
-        return new deterministic_tree_strategy();
-    }
-
-    /**
-     * Looks up an existing active session or creates a new one in the database.
+     * Looks up existing active session or initializes a new state machine session.
      *
      * @param int $userid
      * @param int $courseid
@@ -135,14 +139,14 @@ class bot_engine {
     /**
      * Gets the active response strategy.
      *
-     * @return response_strategy
+     * @return mixed
      */
-    public function get_strategy(): response_strategy {
+    public function get_strategy() {
         return $this->strategy;
     }
 
     /**
-     * Gets the active Moodle database session record.
+     * Gets active database session record.
      *
      * @return \stdClass
      */
@@ -151,76 +155,75 @@ class bot_engine {
     }
 
     /**
-     * Retrieves the interleaved message history from the database.
+     * Gets the active state node array data.
+     *
+     * @return array|null
+     */
+    public function get_current_state(): ?array {
+        $statekey = $this->sessionrecord->current_state ?? 'START';
+        return $this->scenario->get_state_node($statekey);
+    }
+
+    /**
+     * Logs conversation turn message to DB.
+     *
+     * @param string $sender 'user' | 'system'
+     * @param string $message
+     * @return int message ID
+     */
+    public function log_message(string $sender, string $message): int {
+        global $DB;
+
+        $record = new \stdClass();
+        $record->sessionid = $this->sessionrecord->id;
+        $record->sender = $sender;
+        $record->message_text = $message;
+        $record->timestamp = time();
+
+        return (int)$DB->insert_record('local_geniai_messages', $record);
+    }
+
+    /**
+     * Logs performance metrics to local_geniai_analytics DB table.
+     *
+     * @param string $metrictype
+     * @param float $value
+     * @return int record ID
+     */
+    public function log_analytic(string $metrictype, float $value): int {
+        global $DB;
+
+        $record = new \stdClass();
+        $record->sessionid = $this->sessionrecord->id;
+        $record->metric_type = $metrictype;
+        $record->metric_value = $value;
+        $record->timestamp = time();
+
+        return (int)$DB->insert_record('local_geniai_analytics', $record);
+    }
+
+    /**
+     * Returns all turn messages for active session.
      *
      * @return array
      */
     public function get_messages(): array {
         global $DB;
-        return $DB->get_records('local_geniai_messages', ['sessionid' => $this->sessionrecord->id], 'timestamp ASC');
+        return array_values($DB->get_records('local_geniai_messages', ['sessionid' => $this->sessionrecord->id], 'timestamp ASC, id ASC'));
     }
 
     /**
-     * Gets total turns processed in the current session.
+     * Calculates current turn count (student turns).
      *
      * @return int
      */
     public function get_turn_count(): int {
         global $DB;
-        return $DB->count_records('local_geniai_messages', ['sessionid' => $this->sessionrecord->id, 'sender' => 'user']);
+        return (int)$DB->count_records('local_geniai_messages', ['sessionid' => $this->sessionrecord->id, 'sender' => 'user']);
     }
 
     /**
-     * Instantiates the current concrete state pattern class.
-     *
-     * @return bot_state
-     */
-    public function get_current_state(): bot_state {
-        $stateclass = '\\local_geniai\\state\\state_' . strtolower($this->sessionrecord->current_state);
-        if (class_exists($stateclass)) {
-            return new $stateclass();
-        }
-        return new \local_geniai\state\state_start();
-    }
-
-    /**
-     * Registers a new text message in the database history.
-     *
-     * @param string $sender 'user' or 'system'
-     * @param string $message
-     * @return int Inserted message ID
-     */
-    public function log_message(string $sender, string $message): int {
-        global $DB;
-
-        $msg = new \stdClass();
-        $msg->sessionid = $this->sessionrecord->id;
-        $msg->sender = $sender;
-        $msg->message_text = $message;
-        $msg->timestamp = time();
-
-        return $DB->insert_record('local_geniai_messages', $msg);
-    }
-
-    /**
-     * Logs an evaluative metric scoring.
-     *
-     * @param string $metrictype Check type name
-     * @param float $value Pass = 1.00, Fail = 0.00
-     */
-    public function log_analytics(string $metrictype, float $value): void {
-        global $DB;
-
-        $analytic = new \stdClass();
-        $analytic->sessionid = $this->sessionrecord->id;
-        $analytic->metric_type = $metrictype;
-        $analytic->metric_value = $value;
-
-        $DB->insert_record('local_geniai_analytics', $analytic);
-    }
-
-    /**
-     * Clears all message logs and resets the session back to START.
+     * Resets the active session back to START.
      */
     public function reset_session(): void {
         global $DB;
@@ -261,12 +264,13 @@ class bot_engine {
         // 1. Sanitization Layer
         $cleanedmessage = clean_param($usermessage, PARAM_CLEANHTML);
 
-        // Log the student's message
-        $this->log_message('user', $cleanedmessage);
-
         // 2. State & Intent validation routing
-        $currentstate = $this->get_current_state();
-        $nextstatekey = $currentstate->process_input($cleanedmessage, $this);
+        $statekey = $this->sessionrecord->current_state ?? 'START';
+        $currentnode = $this->scenario->get_state_node($statekey);
+        $nextstatekey = 'EXPLORATION'; // Default transition route
+        if (!empty($currentnode['expected_criteria']['pass_route'])) {
+            $nextstatekey = $currentnode['expected_criteria']['pass_route'];
+        }
 
         // Update database session state
         $this->sessionrecord->current_state = $nextstatekey;
@@ -382,7 +386,7 @@ class bot_engine {
             $rubric
         ));
 
-        // Formulate feedback compile prompt for OpenAI
+        // Formulate feedback compile prompt for OpenAI with explicit HTML rendering instructions
         $fullcontext = [
             [
                 "role" => "system",
@@ -392,27 +396,30 @@ class bot_engine {
                              "Rubric:\n" . $formattedrubric . "\n\n" .
                              "Feedback Format:\n" .
                              "🎯 Your goal is to group feedback into the 4 steps of LAFF:\n" .
-                             "1. **Listen, empathize, and communicate respect**\n" .
-                             "2. **Ask questions and ask permission to take notes**\n" .
-                             "3. **Focus on the issue**\n" .
-                             "4. **Find a first step**\n\n" .
+                             "1. Listen, empathize, and communicate respect\n" .
+                             "2. Ask questions and ask permission to take notes\n" .
+                             "3. Focus on the issue\n" .
+                             "4. Find a first step\n\n" .
                              "🧮 Scoring:\n" .
                              "- Start from 10 points.\n" .
                              "- Award 1 point for each clearly demonstrated rubric-aligned move.\n" .
                              "- Do not show point deductions.\n" .
                              "- Instead, if something was missed, write it as a Missed opportunity: .\n" .
                              "- Mention the turn number (teacher turn) in parentheses.\n\n" .
-                             "📝 Output Format:\n" .
-                             "Start with - **Grade - X out of 10** in bold.\n" .
-                             "For each LAFF step, use a heading (bold, clear name of the step).\n" .
-                             "Under each, list the bullets:\n" .
-                             "- Earned ✅ 1 pt for ___ (turn #)\n" .
-                             "- Missed opportunity: 💡 ___\n\n" .
-                             "🧑‍🏫 End with:\n" .
-                             "- Total score: X out of 10\n" .
-                             "- A warm thank-you message\n" .
-                             "- Suggest to click **Clear Chat** button to restart if needed\n\n" .
-                             "Make the tone of the entire feedback response emoji-filled, kind and supportive.",
+                             "IMPORTANT FORMATTING INSTRUCTIONS:\n" .
+                             "- Output clean, raw, fully rendered HTML tags (e.g. <h3>, <h4>, <strong>, <ul>, <li>, <p>).\n" .
+                             "- Do NOT wrap your output in markdown code blocks like ```html ... ```.\n" .
+                             "- Do NOT output raw markdown asterisks or hash headers.\n\n" .
+                             "HTML Structure:\n" .
+                             "Start with: <h3><strong>Grade - X out of 10</strong></h3>\n" .
+                             "For each LAFF step, use <h4><strong>Step Name</strong></h4>\n" .
+                             "Under each step, use an HTML list <ul><li>...</li></ul> with list items:\n" .
+                             "- <li>Earned ✅ 1 pt for ___ (turn #)</li>\n" .
+                             "- <li>Missed opportunity: 💡 ___</li>\n\n" .
+                             "End with:\n" .
+                             "<p><strong>Total score: X out of 10</strong></p>\n" .
+                             "<p>A warm thank-you message with emojis</p>\n" .
+                             "<p>Suggest to click <strong>Clear Chat</strong> button to restart if needed</p>",
             ],
         ];
 
@@ -421,9 +428,13 @@ class bot_engine {
         }
 
         try {
-            $response = api::chat_completions($fullcontext);
+            $response = \local_geniai\api::chat_completions($fullcontext);
             if (isset($response["choices"][0]["message"]["content"])) {
-                return trim($response["choices"][0]["message"]["content"]);
+                $rawcontent = trim($response["choices"][0]["message"]["content"]);
+                // Strip markdown code fences if LLM accidentally returns them
+                $rawcontent = preg_replace('/^```(?:html)?\s*/i', '', $rawcontent);
+                $rawcontent = preg_replace('/\s*```$/', '', $rawcontent);
+                return trim($rawcontent);
             }
             return "<h3>Simulation Complete!</h3><p>Your responses have been saved and sent to Gradebook.</p>" .
                    "<p><em>Note: Automated rubric feedback is temporarily unavailable (API connection timeout).</em></p>";
