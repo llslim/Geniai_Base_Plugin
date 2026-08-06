@@ -94,20 +94,11 @@ if ($hassiteconfig) {
     // Determine current active strategy solution
     $activestratey = get_config("local_geniai", "engine_strategy") ?: "moodle_core_ai";
 
-    $coreai_badge = ($activestratey === 'moodle_core_ai') 
-        ? '<span class="badge badge-success px-2 py-1 ml-2" style="background-color: #28a745; color: white;">✓ ACTIVELY IN USE</span>' 
-        : '<span class="badge badge-secondary px-2 py-1 ml-2" style="background-color: #6c757d; color: white;">INACTIVE</span>';
-    
-    $gemini_badge = ($activestratey === 'external_llm') 
-        ? '<span class="badge badge-success px-2 py-1 ml-2" style="background-color: #28a745; color: white;">✓ ACTIVELY IN USE</span>' 
-        : '<span class="badge badge-secondary px-2 py-1 ml-2" style="background-color: #6c757d; color: white;">INACTIVE</span>';
+    $coreai_badge = ($activestratey === 'moodle_core_ai') ? ' [✓ ACTIVELY IN USE]' : ' [INACTIVE]';
+    $gemini_badge = ($activestratey === 'external_llm') ? ' [✓ ACTIVELY IN USE]' : ' [INACTIVE]';
+    $chatgpt_badge = ($activestratey === 'local') ? ' [✓ ACTIVELY IN USE]' : ' [INACTIVE]';
 
-    $chatgpt_badge = ($activestratey === 'local') 
-        ? '<span class="badge badge-success px-2 py-1 ml-2" style="background-color: #28a745; color: white;">✓ ACTIVELY IN USE</span>' 
-        : '<span class="badge badge-secondary px-2 py-1 ml-2" style="background-color: #6c757d; color: white;">INACTIVE</span>';
-
-    // Render HTML Tab Navigation Headers
-    // TAB 1: MOODLE CORE AI SUB-SYSTEM CONFIGURATION
+    // 1. MOODLE CORE AI SUB-SYSTEM CONFIGURATION SECTION
     $coreaiprovideroptions = [];
     if (class_exists('\\core_ai\\manager')) {
         try {
@@ -126,17 +117,10 @@ if ($hassiteconfig) {
         $coreaiprovideroptions['aiprovider_openai'] = 'OpenAI Provider (aiprovider_openai)';
     }
 
-    // TAB 1: MOODLE CORE AI SUB-SYSTEM CONFIGURATION
-    $coreai_status_text = ($activestratey === 'moodle_core_ai') ? ' [ACTIVELY IN USE]' : ' [INACTIVE]';
-    $coreai_desc = '<div class="alert alert-info" style="margin-top: 10px;">' . 
-        '<strong>Status:</strong> ' . $coreai_badge . '<br><br>' . 
-        get_string("core_ai_providers_desc", "local_geniai") . 
-        '</div>';
-
     $settings->add(new admin_setting_heading(
         'core_ai_section_heading',
-        get_string("tab_core_ai", "local_geniai") . ' Configuration' . $coreai_status_text,
-        $coreai_desc
+        '🔌 1. ' . get_string("tab_core_ai", "local_geniai") . $coreai_badge,
+        get_string("core_ai_providers_desc", "local_geniai")
     ));
 
     $settings->add(new admin_setting_configselect(
@@ -147,16 +131,11 @@ if ($hassiteconfig) {
         $coreaiprovideroptions
     ));
 
-    // TAB 2: GOOGLE GEMINI DIRECT REST CONFIGURATION
-    $gemini_status_text = ($activestratey === 'external_llm') ? ' [ACTIVELY IN USE]' : ' [INACTIVE]';
-    $gemini_desc = '<div class="alert alert-secondary" style="margin-top: 10px;">' . 
-        '<strong>Status:</strong> ' . $gemini_badge . '<br><br>' . 
-        'Configure direct cURL API connection to Google Gemini REST endpoints.</div>';
-
+    // 2. GOOGLE GEMINI DIRECT REST CONFIGURATION SECTION
     $settings->add(new admin_setting_heading(
         'gemini_section_heading',
-        get_string("tab_gemini", "local_geniai") . ' Direct REST API' . $gemini_status_text,
-        $gemini_desc
+        '✨ 2. ' . get_string("tab_gemini", "local_geniai") . ' Direct REST API' . $gemini_badge,
+        'Configure direct cURL API connection to Google Gemini REST endpoints (gemini-3.5-flash).'
     ));
 
     $setting = new admin_setting_configtext(
@@ -185,16 +164,11 @@ if ($hassiteconfig) {
     );
     $settings->add($setting);
 
-    // TAB 3: CHATGPT (OPENAI) DIRECT CONFIGURATION
-    $chatgpt_status_text = ($activestratey === 'local') ? ' [ACTIVELY IN USE]' : ' [INACTIVE]';
-    $chatgpt_desc = '<div class="alert alert-secondary" style="margin-top: 10px;">' . 
-        '<strong>Status:</strong> ' . $chatgpt_badge . '<br><br>' . 
-        'Configure direct API connection to OpenAI ChatGPT endpoints.</div>';
-
+    // 3. CHATGPT (OPENAI) DIRECT CONFIGURATION SECTION
     $settings->add(new admin_setting_heading(
         'chatgpt_section_heading',
-        get_string("tab_chatgpt", "local_geniai") . ' API' . $chatgpt_status_text,
-        $chatgpt_desc
+        '🤖 3. ' . get_string("tab_chatgpt", "local_geniai") . ' API' . $chatgpt_badge,
+        'Configure direct API connection to OpenAI ChatGPT endpoints.'
     ));
 
     $apikey = get_config("local_geniai", "apikey");
