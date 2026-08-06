@@ -115,6 +115,7 @@ class scenario_loader {
             'anna',
             [
                 'name' => 'Anna Charles (Parent)',
+                'child_preferred_pronoun' => 'she/her',
                 'backstory' => 'Your name is Anna Charles and your daughter, Sarah, is 4 years old and has a diagnosis of Autism. Sarah is just starting pre-kindergarten at a new school. She received her diagnosis within the last year. She has been receiving speech therapy since 1-year of age. She currently uses a communication app on an iPad. You are a single mother of Sarah. You work two jobs and Sarah spends a lot of time with her grandparents. You feel guilty because you want to spend more time with Sarah, but it is difficult with your current employment. You are very overwhelmed with Sarah’s diagnosis and her lack of communication. You believe that the iPad is not working for Sarah and you don’t know how to help her. You’re frustrated and are meeting with your daughter Sarah’s teacher and want to figure out better alternatives for Sarah to communicate effectively using the iPad and with her grandparents who have difficulty with technology.',
                 'initial_mood' => 'overwhelmed',
                 'communication_style' => 'Frustrated, defensive, guilt-ridden, and uses blunt vocabulary.',
@@ -134,6 +135,7 @@ class scenario_loader {
             'brianna',
             [
                 'name' => 'Brianna Mitchell (Parent)',
+                'child_preferred_pronoun' => 'he/him',
                 'backstory' => 'Your name is Brianna Mitchell and your son, Wesley, in 8-years old. Wesley has severe apraxia. His speech is extremely difficult to understand. He currently uses a small handheld AAC device. Wesley has been receiving AAC services from an outpatient pediatric hospital for the past 2 years. He also receives 30 minutes of therapy from his school-based SLP. You are the mother of Wesley. You are married and Wesley is your only son. You emailed your son’s outpatient SLP and asked to meet. You are frustrated because you have tried to contact the school-SLP but you haven’t received a response. You are concerned that your son is socially isolated and is having difficulty making friends. Recently, you attended an event at Wesley’s school. While in his classroom, you were able to observe Wesley and his classmates. You noticed that Wesley was often alone and rarely interacted with his peers. At one point, you saw him laugh at a classmate’s joke and try to communicate to his classmates with no success. You’re worried and are meeting with your son’s teacher and want to figure out how Wesley could be more social in making friends, how to encourage him to use his device without being embarrassed, and if he will ever be able to use his speech.',
                 'initial_mood' => 'anxious',
                 'communication_style' => 'Highly concerned, worried, speaking rapidly about Wesley’s isolation.',
@@ -153,6 +155,7 @@ class scenario_loader {
             'cathy',
             [
                 'name' => 'Cathy Fratner (Parent)',
+                'child_preferred_pronoun' => 'he/him',
                 'backstory' => 'Your name is Cathy Fratner and your son, Charlie, is a 2-year old boy with Down Syndrome. Charlie is not yet talking. He has an iPad with a communication app that his SLP recommended for him to use about 6 months ago. Charlie has been receiving speech and language services through early intervention. Once a week, his SLP goes to his daycare to provide therapy. You are the mother of Charlie. You are newly married and Charlie is your first child. You met with Charlie’s SLP about 6 months ago. She spent 2 hours with you and your husband. She introduced a communication app to you and showed you how to work the app. It seemed to make sense when the SLP used it with Charlie, but you always feel lost and frustrated when using the app. Your husband doesn’t think that Charlie should be using his iPad to communicate and that he will talk when he is ready. Now you are worried that Charlie won’t learn how to talk if he keeps using the app in therapy and at home. You’re worried and are meeting with your son’s teacher and want to figure out how Charlie could be use the iPad more regularly, if using the iPad consistently will prevent him in the future, and if you should be concerned that Charlie isn’t talking yet.',
                 'initial_mood' => 'confused',
                 'communication_style' => 'Doubtful, feeling lost about technology, highly eager to learn.',
@@ -173,6 +176,7 @@ class scenario_loader {
             $id,
             [
                 'name' => 'Mary (Parent)',
+                'child_preferred_pronoun' => 'he/him',
                 'backstory' => 'Parent of a non-verbal 6-year-old child. Feels overwhelmed and defensive about school accommodations.',
                 'initial_mood' => 'defensive',
                 'communication_style' => 'Blunt, highly emotional, protective of child.',
@@ -190,7 +194,7 @@ class scenario_loader {
     private static function get_default_dialogue_states(): array {
         return [
             'START' => [
-                'bot_prompt' => 'I don\'t understand why we are changing the communication system again. Every time he gets used to something, you switch it!',
+                'bot_prompt' => 'I don\'t understand why we are changing the communication system again. Every time my child gets used to something, you switch it!',
                 'expected_criteria' => [
                     'validation_type' => 'empathy_check',
                     'pass_route' => 'EXPLORATION',
@@ -198,7 +202,7 @@ class scenario_loader {
                 ],
             ],
             'EXPLORATION' => [
-                'bot_prompt' => 'Well, yes, I suppose it\'s frustrating for him too. What makes this new approach so much better?',
+                'bot_prompt' => 'Well, yes, I suppose it\'s frustrating for my child too. What makes this new approach so much better?',
                 'expected_criteria' => [
                     'validation_type' => 'jargon_check',
                     'pass_route' => 'RESOLUTION',

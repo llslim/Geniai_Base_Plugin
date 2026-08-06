@@ -102,14 +102,18 @@ class generative_ai_api_strategy implements response_strategy {
 
         $stateprompt = $node['bot_prompt'] ?? '';
 
+        $pronoun = $persona['child_preferred_pronoun'] ?? 'he/him';
+
         // Overwrite system instructions with detailed context, backstory, and state directives
         $systeminstruction = "Your name is " . $persona['name'] . ". Backstory:\n" . $persona['backstory'] . "\n\n" .
+                             "Child Preferred Pronoun: " . $pronoun . "\n" .
                              "Your communication style is: " . $persona['communication_style'] . "\n\n" .
                              "Current dialogue state requirement:\n" .
                              "You are in the '" . $statekey . "' state of the conversation.\n" .
                              "On this turn, you must convey the following core concern: \"" . $stateprompt . "\"\n" .
                              "CRITICAL RULES:\n" .
                              "- Stay strictly in character as the parent.\n" .
+                             "- Always refer to your child using their preferred pronoun (" . $pronoun . "). Do NOT substitute incorrect gender pronouns.\n" .
                              "- NEVER start your response with 'I understand', 'I understand your concern', 'I understand your concerns', 'That makes sense', 'I see', or 'Thank you'.\n" .
                              "- NEVER validate or praise the teacher's explanation.\n" .
                              "- Jump straight into your emotional reaction or concern in character as the parent in 2-4 concise sentences.";

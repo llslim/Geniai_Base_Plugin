@@ -285,9 +285,18 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="communication_style">Communication Style</label>
-                <input type="text" id="communication_style" value="Blunt, highly emotional, protective of child." placeholder="e.g., Blunt, speaks rapidly..." required>
+                <label for="child_preferred_pronoun">Child Preferred Pronoun</label>
+                <select id="child_preferred_pronoun">
+                    <option value="he/him" selected>he/him (Son / Boy)</option>
+                    <option value="she/her">she/her (Daughter / Girl)</option>
+                    <option value="they/them">they/them (Non-binary / Gender-neutral)</option>
+                </select>
             </div>
+        </div>
+
+        <div class="form-group">
+            <label for="communication_style">Communication Style</label>
+            <input type="text" id="communication_style" value="Blunt, highly emotional, protective of child." placeholder="e.g., Blunt, speaks rapidly..." required>
         </div>
 
         <div class="form-group">
@@ -434,6 +443,7 @@
             "scenario_id": document.getElementById('scenario_id').value.trim(),
             "persona": {
                 "name": document.getElementById('persona_name').value.trim(),
+                "child_preferred_pronoun": document.getElementById('child_preferred_pronoun').value,
                 "backstory": document.getElementById('backstory').value.trim(),
                 "initial_mood": document.getElementById('initial_mood').value,
                 "communication_style": document.getElementById('communication_style').value.trim()
