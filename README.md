@@ -1,11 +1,14 @@
-# Geniai Base Plugin (Backend)
+# AURA Core Engine Plugin (`local_geniai`)
 
-This repository contains the **core backend logic** for the AAC Moodle Chatbot. All backend processing and integrations must be managed here.
+This repository contains the **core backend engine** for **AURA** (AAC Understanding & Reflective Assistant). All dialogue state machines, LLM evaluation pipelines, and provider integrations are managed here.
 
 > ℹ️ **Provenance & Ancestry Note:**
 > This repository is a customized fork derived from a previous version of [EduardoKrausME/moodle-local_geniai](https://github.com/EduardoKrausME/moodle-local_geniai).
 > 
 > **Important:** This plugin operates as a fully standalone core engine at `local/geniai`. There is **no runtime dependency** on the original `moodle-local_geniai` repository; installing `EduardoKrausME/moodle-local_geniai` alongside this plugin is neither required nor recommended.
+
+> 🤖 **AI Strategy & Architecture Specification:**
+> For a technical breakdown of AI response strategies, Moodle Core AI Subsystem (`\core_ai\manager`) integration, Google Gemini REST compliance, and dynamic rubric evaluation pipelines, see **[ai_strategy.md](ai_strategy.md)**.
 
 > 🧪 **Integration Test Suite Guide:**
 > For a detailed explanation of each automated PHP integration test case and pre-deployment verification steps, see **[test_suite_guide.md](test_suite_guide.md)**.
