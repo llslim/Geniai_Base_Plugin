@@ -118,9 +118,6 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                             $(`#${geniaiServerId}-audio`).audioPlayer();
                             if (messagesend.indexOf("$$persona=") === 0) {
                                 $(`#${geniaiServerId}-send`).remove();
-                                if (!data.content || data.content.trim() === "") {
-                                    $(`#${geniaiServerId}`).remove();
-                                }
                             }
                         } else {
                             console.log(data);
