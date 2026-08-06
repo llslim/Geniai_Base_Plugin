@@ -27,14 +27,14 @@ defined('MOODLE_INTERNAL') || die;
 if ($hassiteconfig) {
     global $CFG, $DB, $PAGE, $ADMIN;
 
-    // Create tabbed admin setting page for AURA AI Engine Configuration
-    $settings = new admin_settingpage_tabs("local_geniai", get_string("pluginname", "local_geniai"));
-    $ADMIN->add("localplugins", $settings);
+    // Create admin category containing sub-setting pages for Core AI, Gemini, and ChatGPT
+    $ADMIN->add("localplugins", new admin_category("local_geniai_category", get_string("pluginname", "local_geniai")));
 
     // -------------------------------------------------------------
-    // TAB 1: GENERAL & SCENARIO REGISTRY
+    // PAGE 1: GENERAL & SCENARIO REGISTRY
     // -------------------------------------------------------------
-    $tabgeneral = new admin_settingpage("local_geniai_general", "General & Scenarios");
+    $settings = new admin_settingpage("local_geniai", "General & Scenarios");
+    $ADMIN->add("local_geniai_category", $settings);
 
     $registryurl = new moodle_url('/local/geniai/scenario_builder.php');
     $registryhtml = 'Upload custom JSON scenarios, view registered personas, or remove personas site-wide. ' .
@@ -87,13 +87,11 @@ if ($hassiteconfig) {
         $scenarios
     ));
 
-    $settings->add($tabgeneral);
-
     // Determine current active strategy solution
     $activestratey = get_config("local_geniai", "engine_strategy") ?: "moodle_core_ai";
 
     // -------------------------------------------------------------
-    // TAB 2: MOODLE CORE AI FRAMEWORK
+    // PAGE 2: MOODLE CORE AI FRAMEWORK
     // -------------------------------------------------------------
     $coreai_title = '🔌 Moodle Core AI' . ($activestratey === 'moodle_core_ai' ? ' [✓ ACTIVE]' : '');
     $tabcoreai = new admin_settingpage("local_geniai_coreai", $coreai_title);
@@ -130,10 +128,10 @@ if ($hassiteconfig) {
         $coreaiprovideroptions
     ));
 
-    $settings->add($tabcoreai);
+    $ADMIN->add("local_geniai_category", $tabcoreai);
 
     // -------------------------------------------------------------
-    // TAB 3: GOOGLE GEMINI DIRECT REST API
+    // PAGE 3: GOOGLE GEMINI DIRECT REST API
     // -------------------------------------------------------------
     $gemini_title = '✨ Google Gemini' . ($activestratey === 'external_llm' ? ' [✓ ACTIVE]' : '');
     $tabgemini = new admin_settingpage("local_geniai_gemini", $gemini_title);
@@ -167,10 +165,10 @@ if ($hassiteconfig) {
         PARAM_RAW
     ));
 
-    $settings->add($tabgemini);
+    $ADMIN->add("local_geniai_category", $tabgemini);
 
     // -------------------------------------------------------------
-    // TAB 4: CHATGPT (OPENAI) DIRECT API
+    // PAGE 4: CHATGPT (OPENAI) DIRECT API
     // -------------------------------------------------------------
     $chatgpt_title = '🤖 ChatGPT (OpenAI)' . ($activestratey === 'local' ? ' [✓ ACTIVE]' : '');
     $tabchatgpt = new admin_settingpage("local_geniai_chatgpt", $chatgpt_title);
@@ -273,7 +271,7 @@ if ($hassiteconfig) {
         $cases
     ));
 
-    $settings->add($tabchatgpt);
+    $ADMIN->add("local_geniai_category", $tabchatgpt);
 
     $modules = [];
     $records = $DB->get_records("modules", ["visible" => 1], "name", "name");
