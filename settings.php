@@ -27,78 +27,77 @@ defined('MOODLE_INTERNAL') || die;
 if ($hassiteconfig) {
     global $CFG, $DB, $PAGE, $ADMIN;
 
-    $settings = new admin_settingpage("local_geniai", get_string("pluginname", "local_geniai"));
-
+    // Create tabbed admin setting page for AURA AI Engine Configuration
+    $settings = new admin_settingpage_tabs("local_geniai", get_string("pluginname", "local_geniai"));
     $ADMIN->add("localplugins", $settings);
 
-    // Link button to Scenario Builder & Site-Wide Registry
+    // -------------------------------------------------------------
+    // TAB 1: GENERAL & SCENARIO REGISTRY
+    // -------------------------------------------------------------
+    $tabgeneral = new admin_settingpage("local_geniai_general", "General & Scenarios");
+
     $registryurl = new moodle_url('/local/geniai/scenario_builder.php');
     $registryhtml = 'Upload custom JSON scenarios, view registered personas, or remove personas site-wide. ' .
         '<a href="' . $registryurl->out() . '" target="_blank" class="btn btn-sm btn-primary ml-2" style="background-color: #4f2c11; border-color: #4f2c11; color: white;">' .
         '🛠️ Manage Personas & Open Scenario Builder' .
         '</a>';
-    $settings->add(new admin_setting_heading('scenario_registry_heading', 'Custom Persona Scenario Registry', $registryhtml));
+    $tabgeneral->add(new admin_setting_heading('scenario_registry_heading', 'Custom Persona Scenario Registry', $registryhtml));
 
     $models = [
         "none" => get_string("mode_name_none", "local_geniai"),
         "assistant" => get_string("mode_name_assistant", "local_geniai"),
         "geniai" => get_string("mode_name_geniai", "local_geniai"),
     ];
-    $setting = new admin_setting_configselect(
+    $tabgeneral->add(new admin_setting_configselect(
         "local_geniai/mode",
         get_string("mode", "local_geniai"),
         get_string("mode_desc", "local_geniai"),
         "none",
         $models
-    );
-    $settings->add($setting);
+    ));
 
-    // LLM Strategy and Endpoint settings for AAC-RERC Chatbot Upgrade.
     $strategies = [
         "moodle_core_ai" => get_string("engine_strategy_core_ai", "local_geniai"),
         "external_llm" => get_string("engine_strategy_external", "local_geniai"),
         "local" => get_string("engine_strategy_local", "local_geniai"),
     ];
-    $setting = new admin_setting_configselect(
+    $tabgeneral->add(new admin_setting_configselect(
         "local_geniai/engine_strategy",
         get_string("engine_strategy", "local_geniai"),
         get_string("engine_strategy_desc", "local_geniai"),
         "moodle_core_ai",
         $strategies
-    );
-    $settings->add($setting);
+    ));
 
-    // Active Preloaded and Custom Persona Scenarios selection for AURA Chatbot
     $scenarios = [
         "anna" => "Anna Charles (Autism pre-K concern)",
         "brianna" => "Brianna Mitchell (Apraxia / social isolation)",
         "cathy" => "Cathy Fratner (Down Syndrome / app concern)",
         "mary" => "Mary (Mother of Non-Verbal 6-Year-Old)",
     ];
-
-    // Append site-wide uploaded custom personas from database
     $customrecords = $DB->get_records("local_geniai_custom_scenarios", null, "name ASC");
     foreach ($customrecords as $cr) {
         $scenarios[$cr->scenariocode] = $cr->name . " (Custom: " . $cr->scenariocode . ")";
     }
-
-    $setting = new admin_setting_configmultiselect(
+    $tabgeneral->add(new admin_setting_configmultiselect(
         "local_geniai/active_scenarios",
         get_string("active_scenarios", "local_geniai"),
         get_string("active_scenarios_desc", "local_geniai"),
         array_keys($scenarios),
         $scenarios
-    );
-    $settings->add($setting);
+    ));
+
+    $settings->add($tabgeneral);
 
     // Determine current active strategy solution
     $activestratey = get_config("local_geniai", "engine_strategy") ?: "moodle_core_ai";
 
-    $coreai_badge = ($activestratey === 'moodle_core_ai') ? ' [✓ ACTIVELY IN USE]' : ' [INACTIVE]';
-    $gemini_badge = ($activestratey === 'external_llm') ? ' [✓ ACTIVELY IN USE]' : ' [INACTIVE]';
-    $chatgpt_badge = ($activestratey === 'local') ? ' [✓ ACTIVELY IN USE]' : ' [INACTIVE]';
+    // -------------------------------------------------------------
+    // TAB 2: MOODLE CORE AI FRAMEWORK
+    // -------------------------------------------------------------
+    $coreai_title = '🔌 Moodle Core AI' . ($activestratey === 'moodle_core_ai' ? ' [✓ ACTIVE]' : '');
+    $tabcoreai = new admin_settingpage("local_geniai_coreai", $coreai_title);
 
-    // 1. MOODLE CORE AI SUB-SYSTEM CONFIGURATION SECTION
     $coreaiprovideroptions = [];
     if (class_exists('\\core_ai\\manager')) {
         try {
@@ -117,80 +116,13 @@ if ($hassiteconfig) {
         $coreaiprovideroptions['aiprovider_openai'] = 'OpenAI Provider (aiprovider_openai)';
     }
 
-    $collapsiblescript = '<script>
-    (function() {
-        function initAccordion() {
-            var activeStrategy = ' . json_encode($activestratey) . ';
-            
-            var sectionMap = [
-                { headingId: "admin-core_ai_section_heading", active: activeStrategy === "moodle_core_ai" },
-                { headingId: "admin-gemini_section_heading", active: activeStrategy === "external_llm" },
-                { headingId: "admin-chatgpt_section_heading", active: activeStrategy === "local" }
-            ];
-
-            sectionMap.forEach(function(sec) {
-                var container = document.getElementById(sec.headingId);
-                if (!container) {
-                    // Fallback search by h3 text or heading container
-                    var headings = document.querySelectorAll("h3, legend, .setting-heading");
-                    headings.forEach(function(h) {
-                        if (h.id === sec.headingId || (h.closest && h.closest("#" + sec.headingId))) {
-                            container = h.closest(".form-item, fieldset, .setting-heading, [id^=admin-]");
-                        }
-                    });
-                }
-                if (!container) return;
-
-                var h3 = container.querySelector("h3, legend, .form-header") || container;
-                h3.style.cursor = "pointer";
-                h3.style.userSelect = "none";
-                h3.title = "Click to Expand / Collapse Section";
-
-                var targetElements = [];
-                var next = container.nextElementSibling;
-                while (next) {
-                    var isNextHeading = next.id && (next.id.includes("_heading") || next.querySelector("h3") || next.querySelector("legend"));
-                    if (isNextHeading) break;
-                    targetElements.push(next);
-                    next = next.nextElementSibling;
-                }
-
-                var isOpen = sec.active;
-                function applyState() {
-                    targetElements.forEach(function(el) {
-                        el.style.display = isOpen ? "" : "none";
-                    });
-                    if (h3.querySelector("h3") || h3.tagName === "H3" || h3.tagName === "LEGEND") {
-                        var icon = isOpen ? "▼ " : "► ";
-                        var currentText = h3.textContent.replace(/^[▼►]\s*/, "");
-                        h3.textContent = icon + currentText;
-                    }
-                }
-                applyState();
-
-                h3.addEventListener("click", function(e) {
-                    e.preventDefault();
-                    isOpen = !isOpen;
-                    applyState();
-                });
-            });
-        }
-
-        if (document.readyState === "loading") {
-            document.addEventListener("DOMContentLoaded", initAccordion);
-        } else {
-            initAccordion();
-        }
-    })();
-    </script>';
-
-    $settings->add(new admin_setting_heading(
+    $tabcoreai->add(new admin_setting_heading(
         'core_ai_section_heading',
-        '🔌 1. ' . get_string("tab_core_ai", "local_geniai") . $coreai_badge,
-        get_string("core_ai_providers_desc", "local_geniai") . $collapsiblescript
+        'Moodle Core AI Subsystem Settings',
+        get_string("core_ai_providers_desc", "local_geniai")
     ));
 
-    $settings->add(new admin_setting_configselect(
+    $tabcoreai->add(new admin_setting_configselect(
         "local_geniai/core_ai_selected_provider",
         get_string("core_ai_selected_provider", "local_geniai"),
         get_string("core_ai_selected_provider_desc", "local_geniai"),
@@ -198,63 +130,72 @@ if ($hassiteconfig) {
         $coreaiprovideroptions
     ));
 
-    // 2. GOOGLE GEMINI DIRECT REST CONFIGURATION SECTION
-    $settings->add(new admin_setting_heading(
+    $settings->add($tabcoreai);
+
+    // -------------------------------------------------------------
+    // TAB 3: GOOGLE GEMINI DIRECT REST API
+    // -------------------------------------------------------------
+    $gemini_title = '✨ Google Gemini' . ($activestratey === 'external_llm' ? ' [✓ ACTIVE]' : '');
+    $tabgemini = new admin_settingpage("local_geniai_gemini", $gemini_title);
+
+    $tabgemini->add(new admin_setting_heading(
         'gemini_section_heading',
-        '✨ 2. ' . get_string("tab_gemini", "local_geniai") . ' Direct REST API' . $gemini_badge,
+        'Google Gemini Direct REST Settings',
         'Configure direct cURL API connection to Google Gemini REST endpoints (gemini-3.5-flash).'
     ));
 
-    $setting = new admin_setting_configtext(
+    $tabgemini->add(new admin_setting_configtext(
         "local_geniai/api_base_url",
         get_string("api_base_url", "local_geniai"),
         get_string("api_base_url_desc", "local_geniai"),
         "https://generativelanguage.googleapis.com/v1beta/openai",
         PARAM_RAW
-    );
-    $settings->add($setting);
+    ));
 
-    $setting = new admin_setting_configpasswordunmask(
+    $tabgemini->add(new admin_setting_configpasswordunmask(
         "local_geniai/api_bearer_token",
         get_string("api_bearer_token", "local_geniai"),
         get_string("api_bearer_token_desc", "local_geniai"),
         ""
-    );
-    $settings->add($setting);
+    ));
 
-    $setting = new admin_setting_configtext(
+    $tabgemini->add(new admin_setting_configtext(
         "local_geniai/model_identifier",
         get_string("model_identifier", "local_geniai"),
         get_string("model_identifier_desc", "local_geniai"),
         "gemini-3.5-flash",
         PARAM_RAW
-    );
-    $settings->add($setting);
+    ));
 
-    // 3. CHATGPT (OPENAI) DIRECT CONFIGURATION SECTION
-    $settings->add(new admin_setting_heading(
+    $settings->add($tabgemini);
+
+    // -------------------------------------------------------------
+    // TAB 4: CHATGPT (OPENAI) DIRECT API
+    // -------------------------------------------------------------
+    $chatgpt_title = '🤖 ChatGPT (OpenAI)' . ($activestratey === 'local' ? ' [✓ ACTIVE]' : '');
+    $tabchatgpt = new admin_settingpage("local_geniai_chatgpt", $chatgpt_title);
+
+    $tabchatgpt->add(new admin_setting_heading(
         'chatgpt_section_heading',
-        '🤖 3. ' . get_string("tab_chatgpt", "local_geniai") . ' API' . $chatgpt_badge,
+        'OpenAI ChatGPT Direct API Settings',
         'Configure direct API connection to OpenAI ChatGPT endpoints.'
     ));
 
     $apikey = get_config("local_geniai", "apikey");
     if (isset($apikey[12])) {
-        $setting = new admin_setting_configpasswordunmask(
+        $tabchatgpt->add(new admin_setting_configpasswordunmask(
             "local_geniai/apikey",
             get_string("apikey", "local_geniai"),
             get_string("apikey_desc", "local_geniai"),
             ""
-        );
-        $settings->add($setting);
+        ));
     } else {
-        $setting = new admin_setting_configtext(
+        $tabchatgpt->add(new admin_setting_configtext(
             "local_geniai/apikey",
             get_string("apikey", "local_geniai"),
             get_string("apikey_desc", "local_geniai"),
             ""
-        );
-        $settings->add($setting);
+        ));
     }
 
     $models = [
@@ -263,14 +204,13 @@ if ($hassiteconfig) {
         "gpt-4-32k" => "gpt-4-32k",
         "gpt-4-turbo" => "gpt-4-turbo",
     ];
-    $setting = new admin_setting_configselect(
+    $tabchatgpt->add(new admin_setting_configselect(
         "local_geniai/model",
         get_string("model", "local_geniai"),
         get_string("model_desc", "local_geniai"),
         "gpt-4o-mini",
         $models
-    );
-    $settings->add($setting);
+    ));
 
     $voices = [
         "alloy" => "Alloy",
@@ -307,14 +247,13 @@ if ($hassiteconfig) {
                     <td><audio src="https://cdn.openai.com/API/docs/audio/shimmer.wav" controls></audio></td>
                 </tr>
             </table>');
-    $setting = new admin_setting_configselect(
+    $tabchatgpt->add(new admin_setting_configselect(
         "local_geniai/voice",
         get_string("voice", "local_geniai"),
         $voicedesc,
         "alloy",
         $voices
-    );
-    $settings->add($setting);
+    ));
 
     $cases = [
         "chatbot" => get_string("caseuse_chatbot", "local_geniai"),
@@ -326,13 +265,15 @@ if ($hassiteconfig) {
         "informal" => get_string("caseuse_informal", "local_geniai"),
     ];
     $casedesc = $OUTPUT->render_from_template("local_geniai/settings_casedesc", []);
-    $settings->add(new admin_setting_configselect(
+    $tabchatgpt->add(new admin_setting_configselect(
         "local_geniai/case",
         get_string("case", "local_geniai"),
         $casedesc,
         "chatbot",
         $cases
     ));
+
+    $settings->add($tabchatgpt);
 
     $modules = [];
     $records = $DB->get_records("modules", ["visible" => 1], "name", "name");
