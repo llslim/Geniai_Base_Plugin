@@ -59,14 +59,15 @@ if ($hassiteconfig) {
 
     // LLM Strategy and Endpoint settings for AAC-RERC Chatbot Upgrade.
     $strategies = [
-        "local" => get_string("engine_strategy_local", "local_geniai"),
+        "moodle_core_ai" => get_string("engine_strategy_core_ai", "local_geniai"),
         "external_llm" => get_string("engine_strategy_external", "local_geniai"),
+        "local" => get_string("engine_strategy_local", "local_geniai"),
     ];
     $setting = new admin_setting_configselect(
         "local_geniai/engine_strategy",
         get_string("engine_strategy", "local_geniai"),
         get_string("engine_strategy_desc", "local_geniai"),
-        "local",
+        "moodle_core_ai",
         $strategies
     );
     $settings->add($setting);
@@ -94,6 +95,84 @@ if ($hassiteconfig) {
     );
     $settings->add($setting);
 
+    // Determine current active strategy solution
+    $activestratey = get_config("local_geniai", "engine_strategy") ?: "moodle_core_ai";
+
+    $coreai_badge = ($activestratey === 'moodle_core_ai') 
+        ? '<span class="badge badge-success px-2 py-1 ml-2" style="background-color: #28a745; color: white;">✓ ACTIVELY IN USE</span>' 
+        : '<span class="badge badge-secondary px-2 py-1 ml-2" style="background-color: #6c757d; color: white;">INACTIVE</span>';
+    
+    $gemini_badge = ($activestratey === 'external_llm') 
+        ? '<span class="badge badge-success px-2 py-1 ml-2" style="background-color: #28a745; color: white;">✓ ACTIVELY IN USE</span>' 
+        : '<span class="badge badge-secondary px-2 py-1 ml-2" style="background-color: #6c757d; color: white;">INACTIVE</span>';
+
+    $chatgpt_badge = ($activestratey === 'local') 
+        ? '<span class="badge badge-success px-2 py-1 ml-2" style="background-color: #28a745; color: white;">✓ ACTIVELY IN USE</span>' 
+        : '<span class="badge badge-secondary px-2 py-1 ml-2" style="background-color: #6c757d; color: white;">INACTIVE</span>';
+
+    // Render HTML Tab Navigation Headers
+    $tabhtml = '
+    <div class="mt-4 mb-3">
+        <ul class="nav nav-tabs" id="aiSolutionTabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active font-weight-bold" id="core-ai-tab" data-toggle="tab" href="#core-ai-panel" role="tab" style="font-size: 1.05rem;">
+                    🔌 ' . get_string("tab_core_ai", "local_geniai") . ' ' . $coreai_badge . '
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link font-weight-bold" id="gemini-tab" data-toggle="tab" href="#gemini-panel" role="tab" style="font-size: 1.05rem;">
+                    ✨ ' . get_string("tab_gemini", "local_geniai") . ' ' . $gemini_badge . '
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link font-weight-bold" id="chatgpt-tab" data-toggle="tab" href="#chatgpt-panel" role="tab" style="font-size: 1.05rem;">
+                    🤖 ' . get_string("tab_chatgpt", "local_geniai") . ' ' . $chatgpt_badge . '
+                </a>
+            </li>
+        </ul>
+    </div>';
+    $settings->add(new admin_setting_heading('ai_tabs_navigation', '', $tabhtml));
+
+    // TAB 1: MOODLE CORE AI SUB-SYSTEM CONFIGURATION
+    $coreaiprovideroptions = [];
+    if (class_exists('\\core_ai\\manager')) {
+        try {
+            $manager = new \core_ai\manager();
+            $providers = $manager->get_provider_records();
+            foreach ($providers as $p) {
+                $status = ($p->enabled) ? 'Enabled' : 'Disabled';
+                $coreaiprovideroptions[$p->provider] = "{$p->name} ({$p->provider}) - [{$status}]";
+            }
+        } catch (\Throwable $e) {
+            // Core AI manager exception fallback
+        }
+    }
+    if (empty($coreaiprovideroptions)) {
+        $coreaiprovideroptions['aiprovider_gemini'] = 'Google Gemini Provider (aiprovider_gemini)';
+        $coreaiprovideroptions['aiprovider_openai'] = 'OpenAI Provider (aiprovider_openai)';
+    }
+
+    $settings->add(new admin_setting_heading(
+        'core_ai_section_heading',
+        get_string("tab_core_ai", "local_geniai") . ' Configuration ' . $coreai_badge,
+        '<div class="alert alert-info">' . get_string("core_ai_providers_desc", "local_geniai") . '</div>'
+    ));
+
+    $settings->add(new admin_setting_configselect(
+        "local_geniai/core_ai_selected_provider",
+        get_string("core_ai_selected_provider", "local_geniai"),
+        get_string("core_ai_selected_provider_desc", "local_geniai"),
+        "aiprovider_gemini",
+        $coreaiprovideroptions
+    ));
+
+    // TAB 2: GOOGLE GEMINI DIRECT REST CONFIGURATION
+    $settings->add(new admin_setting_heading(
+        'gemini_section_heading',
+        get_string("tab_gemini", "local_geniai") . ' Direct REST API ' . $gemini_badge,
+        '<div class="alert alert-secondary">Configure direct cURL API connection to Google Gemini REST endpoints.</div>'
+    ));
+
     $setting = new admin_setting_configtext(
         "local_geniai/api_base_url",
         get_string("api_base_url", "local_geniai"),
@@ -115,12 +194,17 @@ if ($hassiteconfig) {
         "local_geniai/model_identifier",
         get_string("model_identifier", "local_geniai"),
         get_string("model_identifier_desc", "local_geniai"),
-        "gemini-1.5-pro",
+        "gemini-3.5-flash",
         PARAM_RAW
     );
     $settings->add($setting);
 
-
+    // TAB 3: CHATGPT (OPENAI) DIRECT CONFIGURATION
+    $settings->add(new admin_setting_heading(
+        'chatgpt_section_heading',
+        get_string("tab_chatgpt", "local_geniai") . ' API ' . $chatgpt_badge,
+        '<div class="alert alert-secondary">Configure direct API connection to OpenAI ChatGPT endpoints.</div>'
+    ));
 
     $apikey = get_config("local_geniai", "apikey");
     if (isset($apikey[12])) {
@@ -140,18 +224,6 @@ if ($hassiteconfig) {
         );
         $settings->add($setting);
     }
-
-    $geniainame = get_config("local_geniai", "geniainame");
-    if (!isset($geniainame[2])) {
-        $geniainame = "Tutor GeniAI";
-    }
-    $setting = new admin_setting_configtext(
-        "local_geniai/geniainame",
-        get_string("geniainame", "local_geniai"),
-        get_string("geniainame_desc", "local_geniai"),
-        "Tutor GeniAI"
-    );
-    $settings->add($setting);
 
     $models = [
         "gpt-4" => "gpt-4",

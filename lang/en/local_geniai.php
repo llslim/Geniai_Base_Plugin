@@ -159,12 +159,25 @@ $string['voice'] = 'Voice used in the audio response';
 $string['write_message'] = 'Write a message...';
 
 $string['engine_strategy'] = 'LLM Engine Strategy';
-$string['engine_strategy_desc'] = 'Select the global operational strategy for evaluating responses and dialogue. Select Local JSON/Regex Fallback for static evaluations or External LLM Cloud API for generative completions.';
+$string['engine_strategy_desc'] = 'Select the global operational strategy for evaluating responses and dialogue. Choose Moodle Core AI Framework for site-wide providers, External LLM Cloud API for direct endpoints, or Local Regex Fallback.';
 $string['engine_strategy_local'] = 'Local JSON/Regex Fallback';
-$string['engine_strategy_external'] = 'External LLM Cloud API';
+$string['engine_strategy_external'] = 'External LLM Cloud API (Gemini / Custom)';
+$string['engine_strategy_core_ai'] = 'Moodle Core AI Subsystem (\core_ai\manager)';
 $string['api_base_url'] = 'API Endpoint Base URL';
 $string['api_base_url_desc'] = 'Sanitized base URL for specifying the target server. Defaults to Google Gemini Cloud API but can be configured to an internal university Gemma instance.';
 $string['api_bearer_token'] = 'API Bearer Token / Secret Key';
 $string['api_bearer_token_desc'] = 'Masked authorization secret token needed to process external LLM inference requests.';
 $string['model_identifier'] = 'Model Variant Identifier';
-$string['model_identifier_desc'] = 'The exact model variant string (e.g. gemini-1.5-pro, gemma-7b).';
+$string['model_identifier_desc'] = 'The exact model variant string (e.g. gemini-3.5-flash, gemini-2.0-flash).';
+
+$string['tab_core_ai'] = 'Moodle Core AI';
+$string['tab_gemini'] = 'Google Gemini';
+$string['tab_chatgpt'] = 'ChatGPT (OpenAI)';
+$string['active_solution_badge'] = 'Active Engine Solution';
+$string['active_solution_info'] = 'This solution is currently set as the active engine strategy in AURA.';
+$string['inactive_solution_info'] = 'This solution is currently inactive. Select it under LLM Engine Strategy above to activate.';
+$string['core_ai_providers_heading'] = 'Site-Wide Moodle Core AI Providers';
+$string['core_ai_providers_desc'] = 'The table below lists all AI Providers registered in Moodle Core AI Subsystem (\core_ai\manager). Core AI providers are managed centrally in Site Administration > General > AI > AI Providers.';
+$string['core_ai_selected_provider'] = 'Active Core AI Provider Plugin';
+$string['core_ai_selected_provider_desc'] = 'Select which registered Moodle Core AI provider plugin to use when Moodle Core AI Framework strategy is active.';
+

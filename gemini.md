@@ -54,3 +54,12 @@ AURA supports Google Gemini models via two distinct integration paths:
 ## 4. Technical Architecture Reference
 
 For details on the Strategy pattern implementation (`core_ai_provider_strategy.php`, `generative_ai_api_strategy.php`) and automated fallback routines, see **[ai_strategy.md](ai_strategy.md)**.
+
+## 5. Development & Deployment Workflow Guidelines
+
+To maintain environment stability and version control integrity, all code updates follow a standardized deployment workflow:
+
+1. **Local Repository Edits**: Code modifications are made strictly within the local workspace repository (`local/geniai/` or `mod/geniai/`).
+2. **Git Commit & Push**: Changes are committed and pushed to the primary Git branch (`origin/moodle-5.2`).
+3. **No Direct SCP Copying**: Direct SCP file copying to production web directories is disabled.
+4. **SSH Verification**: Deployment status and Moodle cache purges (`admin/cli/purge_caches.php`) are checked and verified via SSH.
