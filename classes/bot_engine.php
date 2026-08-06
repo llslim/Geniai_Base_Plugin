@@ -107,17 +107,6 @@ class bot_engine {
             $record->timecreated = time();
             $record->timemodified = time();
             $record->id = $DB->insert_record('local_geniai_sessions', $record);
-
-            // Seed initial bot prompt into messages if scenario defines START state prompt
-            $startnode = $this->scenario->get_state('START');
-            if ($startnode && !empty($startnode['bot_prompt'])) {
-                $msg = new \stdClass();
-                $msg->sessionid = $record->id;
-                $msg->sender = 'system';
-                $msg->message_text = $startnode['bot_prompt'];
-                $msg->timestamp = time();
-                $DB->insert_record('local_geniai_messages', $msg);
-            }
         }
 
         return $record;
@@ -231,17 +220,6 @@ class bot_engine {
         $this->sessionrecord->current_state = 'START';
         $this->sessionrecord->timemodified = time();
         $DB->update_record('local_geniai_sessions', $this->sessionrecord);
-
-        // Seed initial bot prompt into messages if scenario defines START state prompt
-        $startnode = $this->scenario->get_state('START');
-        if ($startnode && !empty($startnode['bot_prompt'])) {
-            $msg = new \stdClass();
-            $msg->sessionid = $this->sessionrecord->id;
-            $msg->sender = 'system';
-            $msg->message_text = $startnode['bot_prompt'];
-            $msg->timestamp = time();
-            $DB->insert_record('local_geniai_messages', $msg);
-        }
     }
 
     /**
@@ -275,9 +253,18 @@ class bot_engine {
 
         $turncount = $this->get_turn_count();
 
-        // 3. Check for final Turn 10 Rubric grading completion
+        // 3. Check for final Turn 10 Rubric grading completion or terminal state
         if ($turncount >= 10 || $nextstatekey === 'RESOLUTION' || $nextstatekey === 'FAIL_STATE') {
+            $terminalnode = $this->scenario->get_state_node($nextstatekey);
+            $parentclosing = ($terminalnode && !empty($terminalnode['bot_prompt'])) ? $terminalnode['bot_prompt'] : '';
+
+            if (!empty($parentclosing)) {
+                $this->log_message('system', $parentclosing);
+            }
+
             $feedback = $this->generate_rubric_evaluation();
+            $fullclosingresponse = !empty($parentclosing) ? ($parentclosing . "<br><br>" . $feedback) : $feedback;
+
             $this->log_message('system', $feedback);
 
             // Sync performance metrics straight to Gradebook via trigger
@@ -287,7 +274,7 @@ class bot_engine {
             $this->sessionrecord->current_state = 'START';
             $DB->update_record('local_geniai_sessions', $this->sessionrecord);
 
-            return $feedback;
+            return $fullclosingresponse;
         }
 
         // 4. Regular response generation using active strategy
