@@ -33,14 +33,10 @@ if ($hassiteconfig) {
 
     // Link button to Scenario Builder & Site-Wide Registry
     $registryurl = new moodle_url('/local/geniai/scenario_builder.php');
-    $registryhtml = '<div class="form-group row fitem">' .
-        '<div class="col-md-3 text-sm-right"><label class="col-form-label">Scenario Registry & Builder</label></div>' .
-        '<div class="col-md-9 form-inline felement">' .
-        '<a href="' . $registryurl->out() . '" target="_blank" class="btn btn-primary" style="background-color: #4f2c11; border-color: #4f2c11; color: white;">' .
+    $registryhtml = 'Upload custom JSON scenarios, view registered personas, or remove personas site-wide. ' .
+        '<a href="' . $registryurl->out() . '" target="_blank" class="btn btn-sm btn-primary ml-2" style="background-color: #4f2c11; border-color: #4f2c11; color: white;">' .
         '🛠️ Manage Personas & Open Scenario Builder' .
-        '</a>' .
-        '<span class="form-text text-muted ml-2">Upload custom JSON scenarios, view registered personas, or remove personas site-wide.</span>' .
-        '</div></div>';
+        '</a>';
     $settings->add(new admin_setting_heading('scenario_registry_heading', 'Custom Persona Scenario Registry', $registryhtml));
 
     $models = [
