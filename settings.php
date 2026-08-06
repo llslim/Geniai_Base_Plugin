@@ -27,15 +27,11 @@ defined('MOODLE_INTERNAL') || die;
 if ($hassiteconfig) {
     global $CFG, $DB, $PAGE, $ADMIN;
 
-    // Create admin category containing sub-setting pages for Core AI, Gemini, and ChatGPT
-    $ADMIN->add("localplugins", new admin_category("local_geniai_category", get_string("pluginname", "local_geniai")));
+    // Single admin settings page under localplugins
+    $settings = new admin_settingpage("local_geniai", get_string("pluginname", "local_geniai"));
+    $ADMIN->add("localplugins", $settings);
 
-    // -------------------------------------------------------------
-    // PAGE 1: GENERAL & SCENARIO REGISTRY
-    // -------------------------------------------------------------
-    $settings = new admin_settingpage("local_geniai", "General & Scenarios");
-    $ADMIN->add("local_geniai_category", $settings);
-
+    // Link button to Scenario Builder & Site-Wide Registry
     $registryurl = new moodle_url('/local/geniai/scenario_builder.php');
     $registryhtml = 'Upload custom JSON scenarios, view registered personas, or remove personas site-wide. ' .
         '<a href="' . $registryurl->out() . '" target="_blank" class="btn btn-sm btn-primary ml-2" style="background-color: #4f2c11; border-color: #4f2c11; color: white;">' .
@@ -90,12 +86,11 @@ if ($hassiteconfig) {
     // Determine current active strategy solution
     $activestratey = get_config("local_geniai", "engine_strategy") ?: "moodle_core_ai";
 
-    // -------------------------------------------------------------
-    // PAGE 2: MOODLE CORE AI FRAMEWORK
-    // -------------------------------------------------------------
-    $coreai_title = '🔌 Moodle Core AI' . ($activestratey === 'moodle_core_ai' ? ' [✓ ACTIVE]' : '');
-    $tabcoreai = new admin_settingpage("local_geniai_coreai", $coreai_title);
+    $coreai_badge = ($activestratey === 'moodle_core_ai') ? ' [✓ ACTIVELY IN USE]' : ' [INACTIVE]';
+    $gemini_badge = ($activestratey === 'external_llm') ? ' [✓ ACTIVELY IN USE]' : ' [INACTIVE]';
+    $chatgpt_badge = ($activestratey === 'local') ? ' [✓ ACTIVELY IN USE]' : ' [INACTIVE]';
 
+    // Core AI Provider records dropdown options
     $coreaiprovideroptions = [];
     if (class_exists('\\core_ai\\manager')) {
         try {
@@ -114,13 +109,110 @@ if ($hassiteconfig) {
         $coreaiprovideroptions['aiprovider_openai'] = 'OpenAI Provider (aiprovider_openai)';
     }
 
-    $tabcoreai->add(new admin_setting_heading(
+    // Embed standalone script that wraps setting fields into Bootstrap accordions on client render
+    $accordionscript = '<script>
+    (function() {
+        function setupAccordions() {
+            var activeStrat = ' . json_encode($activestratey) . ';
+
+            var config = [
+                {
+                    headingId: "admin-core_ai_section_heading",
+                    active: activeStrat === "moodle_core_ai",
+                    cardId: "aura-accordion-coreai"
+                },
+                {
+                    headingId: "admin-gemini_section_heading",
+                    active: activeStrat === "external_llm",
+                    cardId: "aura-accordion-gemini"
+                },
+                {
+                    headingId: "admin-chatgpt_section_heading",
+                    active: activeStrat === "local",
+                    cardId: "aura-accordion-chatgpt"
+                }
+            ];
+
+            config.forEach(function(sec) {
+                var headingEl = document.getElementById(sec.headingId);
+                if (!headingEl) {
+                    var allHeadings = document.querySelectorAll(".setting-heading, h3, legend");
+                    allHeadings.forEach(function(h) {
+                        if (h.id === sec.headingId || (h.closest && h.closest("#" + sec.headingId))) {
+                            headingEl = h.closest(".setting-heading, fieldset, .form-item, div[id^=admin-]");
+                        }
+                    });
+                }
+                if (!headingEl) return;
+
+                // Collect sibling form settings until next section heading
+                var siblings = [];
+                var next = headingEl.nextElementSibling;
+                while (next) {
+                    var isNextHeader = next.id && (next.id.includes("heading") || next.id.includes("section"));
+                    if (isNextHeader || next.querySelector("h3, legend, .form-header")) {
+                        break;
+                    }
+                    siblings.push(next);
+                    next = next.nextElementSibling;
+                }
+
+                // Create wrapper container
+                var bodyDiv = document.createElement("div");
+                bodyDiv.className = "aura-section-body";
+                bodyDiv.style.display = sec.active ? "block" : "none";
+                bodyDiv.style.padding = "15px 0";
+
+                siblings.forEach(function(el) {
+                    bodyDiv.appendChild(el);
+                });
+                headingEl.parentNode.insertBefore(bodyDiv, headingEl.nextSibling);
+
+                // Make header clickable
+                var titleTarget = headingEl.querySelector("h3, legend, .form-header") || headingEl;
+                titleTarget.style.cursor = "pointer";
+                titleTarget.style.userSelect = "none";
+                titleTarget.style.display = "flex";
+                titleTarget.style.alignItems = "center";
+                titleTarget.style.justifyContent = "space-between";
+                titleTarget.style.padding = "10px 15px";
+                titleTarget.style.backgroundColor = "#f8f9fa";
+                titleTarget.style.border = "1px solid #dee2e6";
+                titleTarget.style.borderRadius = "6px";
+                titleTarget.style.marginTop = "15px";
+
+                var iconSpan = document.createElement("span");
+                iconSpan.className = "aura-toggle-icon";
+                iconSpan.style.fontSize = "16px";
+                iconSpan.style.fontWeight = "bold";
+                iconSpan.textContent = sec.active ? "▼ Hide Settings" : "► Show Settings";
+                titleTarget.appendChild(iconSpan);
+
+                titleTarget.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    var isHidden = bodyDiv.style.display === "none";
+                    bodyDiv.style.display = isHidden ? "block" : "none";
+                    iconSpan.textContent = isHidden ? "▼ Hide Settings" : "► Show Settings";
+                });
+            });
+        }
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", setupAccordions);
+        } else {
+            setupAccordions();
+        }
+    })();
+    </script>';
+
+    // 1. Core AI Section Header
+    $settings->add(new admin_setting_heading(
         'core_ai_section_heading',
-        'Moodle Core AI Subsystem Settings',
-        get_string("core_ai_providers_desc", "local_geniai")
+        '🔌 1. Moodle Core AI Framework' . $coreai_badge,
+        'Site-wide provider manager integration (\core_ai\manager).' . $accordionscript
     ));
 
-    $tabcoreai->add(new admin_setting_configselect(
+    $settings->add(new admin_setting_configselect(
         "local_geniai/core_ai_selected_provider",
         get_string("core_ai_selected_provider", "local_geniai"),
         get_string("core_ai_selected_provider_desc", "local_geniai"),
@@ -128,21 +220,14 @@ if ($hassiteconfig) {
         $coreaiprovideroptions
     ));
 
-    $ADMIN->add("local_geniai_category", $tabcoreai);
-
-    // -------------------------------------------------------------
-    // PAGE 3: GOOGLE GEMINI DIRECT REST API
-    // -------------------------------------------------------------
-    $gemini_title = '✨ Google Gemini' . ($activestratey === 'external_llm' ? ' [✓ ACTIVE]' : '');
-    $tabgemini = new admin_settingpage("local_geniai_gemini", $gemini_title);
-
-    $tabgemini->add(new admin_setting_heading(
+    // 2. Gemini Section Header
+    $settings->add(new admin_setting_heading(
         'gemini_section_heading',
-        'Google Gemini Direct REST Settings',
-        'Configure direct cURL API connection to Google Gemini REST endpoints (gemini-3.5-flash).'
+        '✨ 2. Google Gemini Direct REST API' . $gemini_badge,
+        'Direct cURL REST API connection to Google Gemini models (gemini-3.5-flash).'
     ));
 
-    $tabgemini->add(new admin_setting_configtext(
+    $settings->add(new admin_setting_configtext(
         "local_geniai/api_base_url",
         get_string("api_base_url", "local_geniai"),
         get_string("api_base_url_desc", "local_geniai"),
@@ -150,14 +235,14 @@ if ($hassiteconfig) {
         PARAM_RAW
     ));
 
-    $tabgemini->add(new admin_setting_configpasswordunmask(
+    $settings->add(new admin_setting_configpasswordunmask(
         "local_geniai/api_bearer_token",
         get_string("api_bearer_token", "local_geniai"),
         get_string("api_bearer_token_desc", "local_geniai"),
         ""
     ));
 
-    $tabgemini->add(new admin_setting_configtext(
+    $settings->add(new admin_setting_configtext(
         "local_geniai/model_identifier",
         get_string("model_identifier", "local_geniai"),
         get_string("model_identifier_desc", "local_geniai"),
@@ -165,30 +250,23 @@ if ($hassiteconfig) {
         PARAM_RAW
     ));
 
-    $ADMIN->add("local_geniai_category", $tabgemini);
-
-    // -------------------------------------------------------------
-    // PAGE 4: CHATGPT (OPENAI) DIRECT API
-    // -------------------------------------------------------------
-    $chatgpt_title = '🤖 ChatGPT (OpenAI)' . ($activestratey === 'local' ? ' [✓ ACTIVE]' : '');
-    $tabchatgpt = new admin_settingpage("local_geniai_chatgpt", $chatgpt_title);
-
-    $tabchatgpt->add(new admin_setting_heading(
+    // 3. ChatGPT Section Header
+    $settings->add(new admin_setting_heading(
         'chatgpt_section_heading',
-        'OpenAI ChatGPT Direct API Settings',
-        'Configure direct API connection to OpenAI ChatGPT endpoints.'
+        '🤖 3. ChatGPT (OpenAI Direct API)' . $chatgpt_badge,
+        'Direct API connection to OpenAI ChatGPT endpoints.'
     ));
 
     $apikey = get_config("local_geniai", "apikey");
     if (isset($apikey[12])) {
-        $tabchatgpt->add(new admin_setting_configpasswordunmask(
+        $settings->add(new admin_setting_configpasswordunmask(
             "local_geniai/apikey",
             get_string("apikey", "local_geniai"),
             get_string("apikey_desc", "local_geniai"),
             ""
         ));
     } else {
-        $tabchatgpt->add(new admin_setting_configtext(
+        $settings->add(new admin_setting_configtext(
             "local_geniai/apikey",
             get_string("apikey", "local_geniai"),
             get_string("apikey_desc", "local_geniai"),
@@ -202,7 +280,7 @@ if ($hassiteconfig) {
         "gpt-4-32k" => "gpt-4-32k",
         "gpt-4-turbo" => "gpt-4-turbo",
     ];
-    $tabchatgpt->add(new admin_setting_configselect(
+    $settings->add(new admin_setting_configselect(
         "local_geniai/model",
         get_string("model", "local_geniai"),
         get_string("model_desc", "local_geniai"),
@@ -245,7 +323,7 @@ if ($hassiteconfig) {
                     <td><audio src="https://cdn.openai.com/API/docs/audio/shimmer.wav" controls></audio></td>
                 </tr>
             </table>');
-    $tabchatgpt->add(new admin_setting_configselect(
+    $settings->add(new admin_setting_configselect(
         "local_geniai/voice",
         get_string("voice", "local_geniai"),
         $voicedesc,
@@ -263,15 +341,13 @@ if ($hassiteconfig) {
         "informal" => get_string("caseuse_informal", "local_geniai"),
     ];
     $casedesc = $OUTPUT->render_from_template("local_geniai/settings_casedesc", []);
-    $tabchatgpt->add(new admin_setting_configselect(
+    $settings->add(new admin_setting_configselect(
         "local_geniai/case",
         get_string("case", "local_geniai"),
         $casedesc,
         "chatbot",
         $cases
     ));
-
-    $ADMIN->add("local_geniai_category", $tabchatgpt);
 
     $modules = [];
     $records = $DB->get_records("modules", ["visible" => 1], "name", "name");
