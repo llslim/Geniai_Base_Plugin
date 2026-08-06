@@ -118,46 +118,70 @@ if ($hassiteconfig) {
     }
 
     $collapsiblescript = '<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var headings = document.querySelectorAll(".adminsettingflags, fieldset, h3");
-        var sections = [
-            { heading: "core_ai_section_heading", active: ' . ($activestratey === 'moodle_core_ai' ? 'true' : 'false') . ' },
-            { heading: "gemini_section_heading", active: ' . ($activestratey === 'external_llm' ? 'true' : 'false') . ' },
-            { heading: "chatgpt_section_heading", active: ' . ($activestratey === 'local' ? 'true' : 'false') . ' }
-        ];
-
-        sections.forEach(function(sec) {
-            var h3 = document.querySelector("#admin-" + sec.heading + " h3, #admin-" + sec.heading + " legend");
-            if (!h3) return;
-            h3.style.cursor = "pointer";
-            h3.style.userSelect = "none";
-            h3.title = "Click to Expand / Collapse Section";
+    (function() {
+        function initAccordion() {
+            var activeStrategy = ' . json_encode($activestratey) . ';
             
-            var container = h3.closest(".form-item, fieldset, .setting-heading");
-            if (!container) return;
+            var sectionMap = [
+                { headingId: "admin-core_ai_section_heading", active: activeStrategy === "moodle_core_ai" },
+                { headingId: "admin-gemini_section_heading", active: activeStrategy === "external_llm" },
+                { headingId: "admin-chatgpt_section_heading", active: activeStrategy === "local" }
+            ];
 
-            var sibling = container.nextElementSibling;
-            var settingsGroup = [];
-            while (sibling && !sibling.querySelector("h3") && !sibling.id.includes("_heading")) {
-                settingsGroup.push(sibling);
-                sibling = sibling.nextElementSibling;
-            }
+            sectionMap.forEach(function(sec) {
+                var container = document.getElementById(sec.headingId);
+                if (!container) {
+                    // Fallback search by h3 text or heading container
+                    var headings = document.querySelectorAll("h3, legend, .setting-heading");
+                    headings.forEach(function(h) {
+                        if (h.id === sec.headingId || (h.closest && h.closest("#" + sec.headingId))) {
+                            container = h.closest(".form-item, fieldset, .setting-heading, [id^=admin-]");
+                        }
+                    });
+                }
+                if (!container) return;
 
-            var toggleState = sec.active;
-            function updateVisibility() {
-                settingsGroup.forEach(function(el) {
-                    el.style.display = toggleState ? "" : "none";
+                var h3 = container.querySelector("h3, legend, .form-header") || container;
+                h3.style.cursor = "pointer";
+                h3.style.userSelect = "none";
+                h3.title = "Click to Expand / Collapse Section";
+
+                var targetElements = [];
+                var next = container.nextElementSibling;
+                while (next) {
+                    var isNextHeading = next.id && (next.id.includes("_heading") || next.querySelector("h3") || next.querySelector("legend"));
+                    if (isNextHeading) break;
+                    targetElements.push(next);
+                    next = next.nextElementSibling;
+                }
+
+                var isOpen = sec.active;
+                function applyState() {
+                    targetElements.forEach(function(el) {
+                        el.style.display = isOpen ? "" : "none";
+                    });
+                    if (h3.querySelector("h3") || h3.tagName === "H3" || h3.tagName === "LEGEND") {
+                        var icon = isOpen ? "▼ " : "► ";
+                        var currentText = h3.textContent.replace(/^[▼►]\s*/, "");
+                        h3.textContent = icon + currentText;
+                    }
+                }
+                applyState();
+
+                h3.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    isOpen = !isOpen;
+                    applyState();
                 });
-                h3.innerHTML = (toggleState ? "▼ " : "► ") + h3.innerHTML.replace(/^[▼►]\s*/, "");
-            }
-            updateVisibility();
-
-            h3.addEventListener("click", function() {
-                toggleState = !toggleState;
-                updateVisibility();
             });
-        });
-    });
+        }
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", initAccordion);
+        } else {
+            initAccordion();
+        }
+    })();
     </script>';
 
     $settings->add(new admin_setting_heading(
