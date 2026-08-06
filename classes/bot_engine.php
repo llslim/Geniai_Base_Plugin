@@ -294,8 +294,10 @@ class bot_engine {
         $messages = $this->get_messages();
         $botreply = $this->strategy->generate_response($messages, $this->scenario, $nextstatekey);
 
-        // Log parent response in history
-        $this->log_message('system', $botreply);
+        if (!empty($botreply)) {
+            // Log parent response in history
+            $this->log_message('system', $botreply);
+        }
 
         return $botreply;
     }

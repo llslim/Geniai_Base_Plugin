@@ -55,6 +55,6 @@ class deterministic_tree_strategy implements response_strategy {
         if ($node && !empty($node['bot_prompt'])) {
             return $node['bot_prompt'];
         }
-        return 'Thank you. Let\'s proceed.';
+        return '';
     }
 }

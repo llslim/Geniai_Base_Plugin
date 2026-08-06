@@ -108,7 +108,11 @@ class generative_ai_api_strategy implements response_strategy {
                              "Current dialogue state requirement:\n" .
                              "You are in the '" . $statekey . "' state of the conversation.\n" .
                              "On this turn, you must convey the following core concern: \"" . $stateprompt . "\"\n" .
-                             "Stay perfectly in character as the parent. Do NOT say you are an AI or evaluator. Respond in at most 4 sentences. Speak directly as the parent.";
+                             "IMPORTANT INSTRUCTIONS:\n" .
+                             "- Stay strictly in character as the parent.\n" .
+                             "- Do NOT start your response with passive agreements like 'I understand', 'That makes sense', 'I see', or 'Thank you'.\n" .
+                             "- Do NOT evaluate or validate the teacher yourself; force the student teacher to answer your concern.\n" .
+                             "- Speak directly as an authentic, emotional parent in 2-4 concise sentences.";
 
         $fullcontext = [
             ["role" => "system", "content" => $systeminstruction],
