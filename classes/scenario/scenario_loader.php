@@ -56,7 +56,16 @@ class scenario_loader {
             }
         }
 
-        // 2. Fall back to standard profiles (Anna, Brianna, Cathy, Mary)
+        // 2. Check site-wide custom scenarios registry in DB
+        $customrecord = $DB->get_record('local_geniai_custom_scenarios', ['scenariocode' => $scenarioid]);
+        if ($customrecord && !empty($customrecord->json_data)) {
+            $data = json_decode($customrecord->json_data, true);
+            if (json_last_error() === JSON_ERROR_NONE && !empty($data)) {
+                return self::parse_and_validate($data);
+            }
+        }
+
+        // 3. Fall back to static preloaded profiles (Anna, Brianna, Cathy, Mary)
         switch ($scenarioid) {
             case 'anna':
                 return self::get_anna_profile();
