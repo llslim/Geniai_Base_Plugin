@@ -117,29 +117,28 @@ if ($hassiteconfig) {
 
             var config = [
                 {
-                    matchText: "1. Moodle Core AI",
+                    headingId: "admin-core_ai_section_heading",
                     active: activeStrat === "moodle_core_ai"
                 },
                 {
-                    matchText: "2. Google Gemini",
+                    headingId: "admin-gemini_section_heading",
                     active: activeStrat === "external_llm"
                 },
                 {
-                    matchText: "3. ChatGPT",
+                    headingId: "admin-chatgpt_section_heading",
                     active: activeStrat === "local"
                 }
             ];
 
             config.forEach(function(sec) {
-                // Find element by header title text
-                var headingEl = null;
-                var allHeadings = document.querySelectorAll("h3, legend, .setting-heading, fieldset, div.form-item, div.row");
-                for (var i = 0; i < allHeadings.length; i++) {
-                    var el = allHeadings[i];
-                    if (el.textContent && el.textContent.indexOf(sec.matchText) !== -1) {
-                        headingEl = el.closest(".form-item, fieldset, div[id^=admin-], div.row, .setting-heading") || el;
-                        break;
-                    }
+                var headingEl = document.getElementById(sec.headingId);
+                if (!headingEl) {
+                    var allHeadings = document.querySelectorAll(".setting-heading, h3, legend");
+                    allHeadings.forEach(function(h) {
+                        if (h.id === sec.headingId || (h.closest && h.closest("#" + sec.headingId))) {
+                            headingEl = h.closest(".setting-heading, fieldset, .form-item, div[id^=admin-]");
+                        }
+                    });
                 }
                 if (!headingEl) return;
 
@@ -147,47 +146,54 @@ if ($hassiteconfig) {
                 var siblings = [];
                 var next = headingEl.nextElementSibling;
                 while (next) {
-                    var text = next.textContent || "";
-                    if (text.indexOf("1. Moodle Core AI") !== -1 || text.indexOf("2. Google Gemini") !== -1 || text.indexOf("3. ChatGPT") !== -1) {
+                    var isNextHeader = next.id && (next.id.includes("heading") || next.id.includes("section"));
+                    if (isNextHeader || (next.querySelector && next.querySelector("h3, legend, .form-header"))) {
                         break;
                     }
                     siblings.push(next);
                     next = next.nextElementSibling;
                 }
 
-                if (siblings.length === 0) return;
-
                 // Create section wrapper
                 var bodyDiv = document.createElement("div");
                 bodyDiv.className = "aura-section-body";
                 bodyDiv.style.display = sec.active ? "block" : "none";
                 bodyDiv.style.padding = "10px 0";
+                bodyDiv.style.clear = "both";
 
                 siblings.forEach(function(s) {
                     bodyDiv.appendChild(s);
                 });
                 headingEl.parentNode.insertBefore(bodyDiv, headingEl.nextSibling);
 
-                // Styling title bar
-                headingEl.style.cursor = "pointer";
-                headingEl.style.userSelect = "none";
-                headingEl.style.padding = "12px 16px";
-                headingEl.style.backgroundColor = "#e9ecef";
-                headingEl.style.border = "1px solid #ced4da";
-                headingEl.style.borderRadius = "6px";
-                headingEl.style.marginTop = "20px";
-                headingEl.style.fontWeight = "bold";
+                // Title target element
+                var titleEl = headingEl.querySelector("h3, legend, .form-header") || headingEl;
+                titleEl.style.cursor = "pointer";
+                titleEl.style.userSelect = "none";
+                titleEl.style.display = "flex";
+                titleEl.style.justifyContent = "space-between";
+                titleEl.style.alignItems = "center";
+                titleEl.style.padding = "10px 14px";
+                titleEl.style.backgroundColor = "#e9ecef";
+                titleEl.style.border = "1px solid #ced4da";
+                titleEl.style.borderRadius = "6px";
+                titleEl.style.marginTop = "20px";
 
-                var toggleBtn = document.createElement("span");
-                toggleBtn.style.float = "right";
-                toggleBtn.style.fontSize = "14px";
-                toggleBtn.textContent = sec.active ? "▼ Hide" : "► Expand";
-                headingEl.appendChild(toggleBtn);
+                var toggleSpan = document.createElement("span");
+                toggleSpan.style.fontWeight = "bold";
+                toggleSpan.style.fontSize = "13px";
+                toggleSpan.style.padding = "2px 8px";
+                toggleSpan.style.backgroundColor = "#ffffff";
+                toggleSpan.style.border = "1px solid #adb5bd";
+                toggleSpan.style.borderRadius = "4px";
+                toggleSpan.textContent = sec.active ? "▼ Collapse" : "► Expand";
+                titleEl.appendChild(toggleSpan);
 
-                headingEl.addEventListener("click", function(e) {
+                titleEl.addEventListener("click", function(e) {
+                    e.preventDefault();
                     var isHidden = bodyDiv.style.display === "none";
                     bodyDiv.style.display = isHidden ? "block" : "none";
-                    toggleBtn.textContent = isHidden ? "▼ Hide" : "► Expand";
+                    toggleSpan.textContent = isHidden ? "▼ Collapse" : "► Expand";
                 });
             });
         }
