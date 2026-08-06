@@ -23,7 +23,7 @@
  */
 
 $string['active_scenarios'] = 'Active Preloaded Scenario Profiles';
-$string['active_scenarios_desc'] = 'Select which preloaded parent scenarios are enabled and available for selection in EDURA chatbot activities.';
+$string['active_scenarios_desc'] = 'Select which preloaded parent scenarios are enabled and available for selection in AURA chatbot activities.';
 $string['apikey'] = 'OpenAI API Key';
 $string['apikey_desc'] = 'The API key of your OpenAI account';
 $string['case'] = 'Use Cases';
@@ -42,7 +42,7 @@ $string['frequency_penalty'] = 'Frequency Penalty';
 $string['frequency_penalty_desc'] = 'This parameter is used to discourage the model from repeating the same words or phrases too often in the generated text. It is a value added to the log probability of a token each time it occurs in the generated text. A higher frequency penalty will make the model more conservative about using repeated tokens.';
 $string['geniai:manage'] = 'Manage GeniAI';
 $string['geniai:view'] = 'View GeniAI';
-$string['geniainame'] = 'EDURA - AAC Understanding & Reflective Assistant';
+$string['geniainame'] = 'AURA - AAC Understanding & Reflective Assistant';
 $string['geniainame_desc'] = 'Define the name of your assistant';
 $string['h5p-accordion-desc'] = 'Create a Glossary allowing students to quickly access answers without being overwhelmed by excessive text.';
 $string['h5p-accordion-title'] = 'Glossary';
@@ -84,7 +84,7 @@ $string['max_tokens_desc'] = 'Maximum number of words that can be generated in e
 $string['message_01'] = 'Hello, {$a}! 🌟';
 $string['message_02_course'] = 'Welcome to the course {$a->coursename} on Moodle {$a->moodlename}!
 
-I am EDURA — your Engaging Dialogue Unit for Reflective Assessment — and I’m here to support you throughout your learning journey.
+I am AURA — your AAC Understanding & Reflective Assistant — and I’m here to support you throughout your learning journey.
 
 This AI-powered chatbot is designed to help you practice and demonstrate effective communication with parents of children who use AAC (Augmentative and Alternative Communication) tools. As a pre-service teacher, your task is to carry out a simulated parent-teacher conversation using the LAFF don’t CRY strategy.
 
@@ -101,7 +101,7 @@ This AI-powered chatbot is designed to help you practice and demonstrate effecti
 
 🎯 To pass this assignment, you must demonstrate strong application of LAFF principles — especially showing empathy, asking relevant questions, and following through with reflective teaching practice.
 
-🔄 Ready to begin or restart? Just click Clear Chat and let EDURA guide you again!
+🔄 Ready to begin or restart? Just click Clear Chat and let AURA guide you again!
 
 Good luck, and let’s make every conversation count!';
 
@@ -117,11 +117,11 @@ $string['model'] = 'The API Model';
 $string['model_desc'] = 'The API model to be executed in OpenAI. Available values are on the <a href="https://platform.openai.com/docs/models/overview" target="_blank">OpenAI website</a><br>
 * <strong>gpt-4</strong>: Much more powerful, slightly more expensive, takes a bit longer to respond, and requires a <a href="https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4" target="_blank">prepayment of $1</a> to test.<br>
 * <strong>gpt-4o-mini</strong>:  Less powerful than gpt-4, but faster and cheaper. No prepayment is required.';
-$string['modulename'] = 'EDURA - AAC Understanding & Reflective Assistant';
+$string['modulename'] = 'AURA - AAC Understanding & Reflective Assistant';
 $string['modules'] = 'Modules to hide from {$a}';
 $string['modules_desc'] = 'This list contains the modules that should not be made available to students, ensuring they are not used in exercises.';
 $string['online'] = 'Online';
-$string['pluginname'] = 'EDURA - AAC Understanding & Reflective Assistant';
+$string['pluginname'] = 'AURA - AAC Understanding & Reflective Assistant';
 $string['presence_penalty'] = 'Presence Penalty';
 $string['presence_penalty_desc'] = 'This parameter is used to encourage the model to include a variety of tokens in the generated text. It is a value subtracted from the log probability of a token each time it is generated. A higher presence penalty value will make the model more likely to generate tokens not yet included in the generated text.';
 $string['privacy:metadata'] = 'The GeniAI plugin stores conversation history and transmits only the full name, course name, and URL to OpenAI, without sharing any other personal data.';

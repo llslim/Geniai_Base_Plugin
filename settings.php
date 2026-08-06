@@ -71,7 +71,7 @@ if ($hassiteconfig) {
     );
     $settings->add($setting);
 
-    // Active Preloaded and Custom Persona Scenarios selection for EDURA Chatbot
+    // Active Preloaded and Custom Persona Scenarios selection for AURA Chatbot
     $scenarios = [
         "anna" => "Anna Charles (Autism pre-K concern)",
         "brianna" => "Brianna Mitchell (Apraxia / social isolation)",

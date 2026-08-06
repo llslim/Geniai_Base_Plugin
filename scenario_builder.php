@@ -51,7 +51,7 @@ if ($action === 'upload' && confirm_sesskey()) {
             }
             $messagetype = 'success';
         } else {
-            $message = 'Error: The uploaded file is not a valid EDURA Scenario JSON profile.';
+            $message = 'Error: The uploaded file is not a valid AURA Scenario JSON profile.';
             $messagetype = 'error';
         }
     }
