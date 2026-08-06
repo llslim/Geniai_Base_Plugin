@@ -117,10 +117,53 @@ if ($hassiteconfig) {
         $coreaiprovideroptions['aiprovider_openai'] = 'OpenAI Provider (aiprovider_openai)';
     }
 
+    $collapsiblescript = '<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var headings = document.querySelectorAll(".adminsettingflags, fieldset, h3");
+        var sections = [
+            { heading: "core_ai_section_heading", active: ' . ($activestratey === 'moodle_core_ai' ? 'true' : 'false') . ' },
+            { heading: "gemini_section_heading", active: ' . ($activestratey === 'external_llm' ? 'true' : 'false') . ' },
+            { heading: "chatgpt_section_heading", active: ' . ($activestratey === 'local' ? 'true' : 'false') . ' }
+        ];
+
+        sections.forEach(function(sec) {
+            var h3 = document.querySelector("#admin-" + sec.heading + " h3, #admin-" + sec.heading + " legend");
+            if (!h3) return;
+            h3.style.cursor = "pointer";
+            h3.style.userSelect = "none";
+            h3.title = "Click to Expand / Collapse Section";
+            
+            var container = h3.closest(".form-item, fieldset, .setting-heading");
+            if (!container) return;
+
+            var sibling = container.nextElementSibling;
+            var settingsGroup = [];
+            while (sibling && !sibling.querySelector("h3") && !sibling.id.includes("_heading")) {
+                settingsGroup.push(sibling);
+                sibling = sibling.nextElementSibling;
+            }
+
+            var toggleState = sec.active;
+            function updateVisibility() {
+                settingsGroup.forEach(function(el) {
+                    el.style.display = toggleState ? "" : "none";
+                });
+                h3.innerHTML = (toggleState ? "▼ " : "► ") + h3.innerHTML.replace(/^[▼►]\s*/, "");
+            }
+            updateVisibility();
+
+            h3.addEventListener("click", function() {
+                toggleState = !toggleState;
+                updateVisibility();
+            });
+        });
+    });
+    </script>';
+
     $settings->add(new admin_setting_heading(
         'core_ai_section_heading',
         '🔌 1. ' . get_string("tab_core_ai", "local_geniai") . $coreai_badge,
-        get_string("core_ai_providers_desc", "local_geniai")
+        get_string("core_ai_providers_desc", "local_geniai") . $collapsiblescript
     ));
 
     $settings->add(new admin_setting_configselect(
