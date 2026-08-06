@@ -109,39 +109,123 @@ if ($hassiteconfig) {
         $coreaiprovideroptions['aiprovider_openai'] = 'OpenAI Provider (aiprovider_openai)';
     }
 
-    // Inject change listener to dynamically show/hide engine sections based on selected strategy
+    // Combine interactive accordion card headers with precise s_local_geniai_* field prefix controls
     $visibilityscript = '<script>
     document.addEventListener("DOMContentLoaded", function() {
-        var strategySelect = document.querySelector("select[name=\'s_local_geniai_engine_strategy\']") || document.querySelector("select[name*=\'engine_strategy\']");
-        if (!strategySelect) return;
+        var activeStrat = ' . json_encode($activestratey) . ';
 
-        function updateSectionVisibility() {
-            var selectedVal = strategySelect.value;
-            
-            // Map of engine strategy values to setting field element names
-            var coreAiFields = ["s_local_geniai_core_ai_selected_provider"];
-            var geminiFields = ["s_local_geniai_api_base_url", "s_local_geniai_api_bearer_token", "s_local_geniai_model_identifier"];
-            var chatgptFields = ["s_local_geniai_apikey", "s_local_geniai_model", "s_local_geniai_voice", "s_local_geniai_case"];
+        var sections = [
+            {
+                headingId: "admin-core_ai_section_heading",
+                strategyVal: "moodle_core_ai",
+                fields: ["s_local_geniai_core_ai_selected_provider"]
+            },
+            {
+                headingId: "admin-gemini_section_heading",
+                strategyVal: "external_llm",
+                fields: ["s_local_geniai_api_base_url", "s_local_geniai_api_bearer_token", "s_local_geniai_model_identifier"]
+            },
+            {
+                headingId: "admin-chatgpt_section_heading",
+                strategyVal: "local",
+                fields: ["s_local_geniai_apikey", "s_local_geniai_model", "s_local_geniai_voice", "s_local_geniai_case"]
+            }
+        ];
 
-            function setGroupDisplay(fields, show) {
-                fields.forEach(function(fieldName) {
+        sections.forEach(function(sec) {
+            // Find section heading element
+            var headingEl = document.getElementById(sec.headingId);
+            if (!headingEl) {
+                var headings = document.querySelectorAll(".setting-heading, h3, legend");
+                headings.forEach(function(h) {
+                    if (h.id === sec.headingId || (h.closest && h.closest("#" + sec.headingId))) {
+                        headingEl = h.closest(".setting-heading, fieldset, .form-item, div[id^=admin-]");
+                    }
+                });
+            }
+            if (!headingEl) return;
+
+            // Target header title text element
+            var titleEl = headingEl.querySelector("h3, legend, .form-header") || headingEl;
+            titleEl.style.cursor = "pointer";
+            titleEl.style.userSelect = "none";
+            titleEl.style.display = "flex";
+            titleEl.style.justifyContent = "space-between";
+            titleEl.style.alignItems = "center";
+            titleEl.style.padding = "10px 14px";
+            titleEl.style.backgroundColor = "#e9ecef";
+            titleEl.style.border = "1px solid #ced4da";
+            titleEl.style.borderRadius = "6px";
+            titleEl.style.marginTop = "20px";
+
+            // State variable (defaults to active strategy open)
+            var isOpen = (sec.strategyVal === activeStrat);
+
+            var toggleSpan = document.createElement("span");
+            toggleSpan.style.fontWeight = "bold";
+            toggleSpan.style.fontSize = "13px";
+            toggleSpan.style.padding = "3px 10px";
+            toggleSpan.style.backgroundColor = "#ffffff";
+            toggleSpan.style.border = "1px solid #adb5bd";
+            toggleSpan.style.borderRadius = "4px";
+
+            titleEl.appendChild(toggleSpan);
+
+            function setVisibility(show) {
+                isOpen = show;
+                toggleSpan.textContent = isOpen ? "▼ Collapse" : "► Expand";
+                toggleSpan.style.backgroundColor = isOpen ? "#e2e3e5" : "#ffffff";
+
+                sec.fields.forEach(function(fieldName) {
                     var inputEl = document.querySelector("[name=\'" + fieldName + "\']");
                     if (inputEl) {
                         var container = inputEl.closest(".form-item, .setting-item, div.row, fieldset");
                         if (container) {
-                            container.style.display = show ? "" : "none";
+                            container.style.display = isOpen ? "" : "none";
                         }
                     }
                 });
             }
 
-            setGroupDisplay(coreAiFields, selectedVal === "moodle_core_ai");
-            setGroupDisplay(geminiFields, selectedVal === "external_llm");
-            setGroupDisplay(chatgptFields, selectedVal === "local");
-        }
+            // Initial visibility apply
+            setVisibility(isOpen);
 
-        strategySelect.addEventListener("change", updateSectionVisibility);
-        updateSectionVisibility();
+            // Click header to toggle expand/collapse accordion card
+            titleEl.addEventListener("click", function(e) {
+                e.preventDefault();
+                setVisibility(!isOpen);
+            });
+        });
+
+        // Also listen to Strategy dropdown change to expand selected strategy
+        var strategySelect = document.querySelector("select[name=\'s_local_geniai_engine_strategy\']") || document.querySelector("select[name*=\'engine_strategy\']");
+        if (strategySelect) {
+            strategySelect.addEventListener("change", function() {
+                var selectedVal = strategySelect.value;
+                sections.forEach(function(sec) {
+                    var headingEl = document.getElementById(sec.headingId);
+                    if (!headingEl) return;
+                    var titleEl = headingEl.querySelector("h3, legend, .form-header") || headingEl;
+                    var toggleSpan = titleEl.querySelector("span");
+                    var shouldShow = (sec.strategyVal === selectedVal);
+
+                    if (toggleSpan) {
+                        toggleSpan.textContent = shouldShow ? "▼ Collapse" : "► Expand";
+                        toggleSpan.style.backgroundColor = shouldShow ? "#e2e3e5" : "#ffffff";
+                    }
+
+                    sec.fields.forEach(function(fieldName) {
+                        var inputEl = document.querySelector("[name=\'" + fieldName + "\']");
+                        if (inputEl) {
+                            var container = inputEl.closest(".form-item, .setting-item, div.row, fieldset");
+                            if (container) {
+                                container.style.display = shouldShow ? "" : "none";
+                            }
+                        }
+                    });
+                });
+            });
+        }
     });
     </script>';
 
