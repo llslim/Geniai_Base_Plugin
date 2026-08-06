@@ -59,6 +59,22 @@ if ($hassiteconfig) {
     );
     $settings->add($setting);
 
+    // Active Preloaded Scenario Profiles selection for EDURA Chatbot
+    $scenarios = [
+        "anna" => "Anna Charles (Autism pre-K concern)",
+        "brianna" => "Brianna Mitchell (Apraxia / social isolation)",
+        "cathy" => "Cathy Fratner (Down Syndrome / app concern)",
+        "mary" => "Mary (Mother of Non-Verbal 6-Year-Old)",
+    ];
+    $setting = new admin_setting_configmultiselect(
+        "local_geniai/active_scenarios",
+        get_string("active_scenarios", "local_geniai"),
+        get_string("active_scenarios_desc", "local_geniai"),
+        ["anna", "brianna", "cathy", "mary"],
+        $scenarios
+    );
+    $settings->add($setting);
+
     $setting = new admin_setting_configtext(
         "local_geniai/api_base_url",
         get_string("api_base_url", "local_geniai"),

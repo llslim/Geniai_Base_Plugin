@@ -22,6 +22,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['active_scenarios'] = 'Active Preloaded Scenario Profiles';
+$string['active_scenarios_desc'] = 'Select which preloaded parent scenarios are enabled and available for selection in EDURA chatbot activities.';
 $string['apikey'] = 'OpenAI API Key';
 $string['apikey_desc'] = 'The API key of your OpenAI account';
 $string['case'] = 'Use Cases';
