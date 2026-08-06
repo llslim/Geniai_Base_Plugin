@@ -15,77 +15,62 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace local_geniai;
-use local_geniai\local\markdown\parse_markdown;
+
+defined('MOODLE_INTERNAL') || die;
 
 /**
- * Global api file.
+ * Class api
  *
- * Provides two main endpoints: history_api() for retrieving or clearing chat history,
- * and chat_api() for processing user messages, managing scenarios, evaluating feedback, and returning bot replies.
- *
- * @package     local_geniai
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   local_geniai
+ * @copyright 2025 Eduardo Kraus https://eduardokraus.com/
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class api {
+
     /**
-     * Clears or retrieves the chat message history.
+     * History api function.
+     *
+     * @param int $courseid
+     * @param string $action
+     * @return array
+     *
+     * @throws \dml_exception
      */
     public static function history_api($courseid, $action) {
         global $DB, $USER;
 
-        // Find standard course module ID associated with geniai module
-        $geniai = $DB->get_record('geniai', ['course' => $courseid]);
+        $geniai = $DB->get_record("geniai", ["course" => $courseid]);
         $cmid = 0;
         if ($geniai) {
             $cm = get_coursemodule_from_instance('geniai', $geniai->id);
             $cmid = $cm ? $cm->id : 0;
         }
 
-        // We can determine what is the current active scenario code
-        $activescenariocode = 'anna'; // Default fallback
-        if ($geniai && !empty($geniai->scenariocode)) {
-            $activescenariocode = $geniai->scenariocode;
-        }
+        $scenariocode = $geniai->scenariocode ?? 'anna';
         $activesession = $DB->get_record('local_geniai_sessions', ['userid' => $USER->id, 'courseid' => $courseid, 'cmid' => $cmid], '*', IGNORE_MULTIPLE);
         if ($activesession) {
-            $activescenariocode = $activesession->scenariocode;
+            $scenariocode = $activesession->scenariocode;
         }
 
-        $engine = new \local_geniai\bot_engine($USER->id, $courseid, $cmid, $activescenariocode);
+        $engine = new \local_geniai\bot_engine($USER->id, $courseid, $cmid, $scenariocode);
 
-        if ($action == "clear") {
+        if ($action === "clear") {
             $engine->reset_session();
-            $messages = $engine->get_messages();
-            $returnmessage = [];
-            $parsemarkdown = new parse_markdown();
-
-            foreach ($messages as $message) {
-                $content = $message->message_text;
-                if (strpos($content, "<audio") === false) {
-                    $content = $parsemarkdown->markdown_text($content);
-                }
-
-                $returnmessage[] = [
-                    "role" => ($message->sender === 'user') ? 'user' : 'system',
-                    "content" => $content,
-                    "format" => "html",
-                ];
-            }
-
-            return [
-                "result" => "true",
-                "content" => json_encode($returnmessage),
-            ];
         }
 
         $messages = $engine->get_messages();
         $returnmessage = [];
-        $parsemarkdown = new parse_markdown();
 
         foreach ($messages as $message) {
             $content = $message->message_text;
             if (strpos($content, "<audio") === false) {
-                $content = $parsemarkdown->markdown_text($content);
+                // If text contains HTML tags (e.g. <h3>, <strong>, <ul>, <br>), pass through directly; otherwise parse markdown.
+                if (preg_match('/<[a-z][\s\S]*>/i', $content)) {
+                    // Raw HTML rendered directly
+                } else if (class_exists('\\local_geniai\\local\\markdown\\parse_markdown')) {
+                    $parsemarkdown = new \local_geniai\local\markdown\parse_markdown();
+                    $content = $parsemarkdown->markdown_text($content);
+                }
             }
 
             $returnmessage[] = [
@@ -139,8 +124,7 @@ class api {
 
         $cleanedMessage = strip_tags(trim($message));
 
-        // Find standard course module ID associated with geniai module
-        $geniai = $DB->get_record('geniai', ['course' => $courseid]);
+        $geniai = $DB->get_record("geniai", ["course" => $courseid]);
         $cmid = 0;
         if ($geniai) {
             $cm = get_coursemodule_from_instance('geniai', $geniai->id);
@@ -161,8 +145,12 @@ class api {
 
             $startnode = $engine->get_scenario()->get_state('START');
             $prompt = $startnode['bot_prompt'] ?? '';
-            $parsemarkdown = new parse_markdown();
-            $content = $parsemarkdown->markdown_text($prompt);
+            if (class_exists('\\local_geniai\\local\\markdown\\parse_markdown')) {
+                $parsemarkdown = new \local_geniai\local\markdown\parse_markdown();
+                $content = $parsemarkdown->markdown_text($prompt);
+            } else {
+                $content = $prompt;
+            }
 
             return [
                 "result" => "true",
@@ -204,8 +192,15 @@ class api {
         $engine = new \local_geniai\bot_engine($USER->id, $courseid, $cmid, $activescenariocode);
         $botreply = $engine->process_user_turn($cleanedMessage);
 
-        $parsemarkdown = new parse_markdown();
-        $content = $parsemarkdown->markdown_text($botreply);
+        // If botreply already contains HTML tags (e.g. <h3>, <ul>, <br>), pass through directly; otherwise parse markdown.
+        if (preg_match('/<[a-z][\s\S]*>/i', $botreply)) {
+            $content = $botreply;
+        } else if (class_exists('\\local_geniai\\local\\markdown\\parse_markdown')) {
+            $parsemarkdown = new \local_geniai\local\markdown\parse_markdown();
+            $content = $parsemarkdown->markdown_text($botreply);
+        } else {
+            $content = $botreply;
+        }
 
         return [
             "result" => "true",
