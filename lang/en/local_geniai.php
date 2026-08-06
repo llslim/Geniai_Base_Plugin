@@ -158,11 +158,11 @@ $string['url_moodle'] = 'The Moodle URL is "{$a->wwwroot}" and the Moodle name i
 $string['voice'] = 'Voice used in the audio response';
 $string['write_message'] = 'Write a message...';
 
-$string['engine_strategy'] = 'LLM Engine Strategy';
-$string['engine_strategy_desc'] = 'Select the global operational strategy for evaluating responses and dialogue. Choose Moodle Core AI Framework for site-wide providers, External LLM Cloud API for direct endpoints, or Local Regex Fallback.';
-$string['engine_strategy_local'] = 'Local JSON/Regex Fallback';
-$string['engine_strategy_external'] = 'External LLM Cloud API (Gemini / Custom)';
-$string['engine_strategy_core_ai'] = 'Moodle Core AI Subsystem (\core_ai\manager)';
+$string['engine_strategy'] = 'Active AI Engine Solution';
+$string['engine_strategy_desc'] = 'Choose which AI engine solution actively powers the AURA dialogue state machine and rubric evaluation.';
+$string['engine_strategy_core_ai'] = '🔌 Moodle Core AI Framework (\core_ai\manager)';
+$string['engine_strategy_external'] = '✨ Google Gemini Direct REST API (gemini-3.5-flash)';
+$string['engine_strategy_local'] = '🤖 ChatGPT (OpenAI Direct API) / Local Engine';
 $string['api_base_url'] = 'API Endpoint Base URL';
 $string['api_base_url_desc'] = 'Sanitized base URL for specifying the target server. Defaults to Google Gemini Cloud API but can be configured to an internal university Gemma instance.';
 $string['api_bearer_token'] = 'API Bearer Token / Secret Key';
