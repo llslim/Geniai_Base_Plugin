@@ -107,28 +107,6 @@ if ($hassiteconfig) {
         : '<span class="badge badge-secondary px-2 py-1 ml-2" style="background-color: #6c757d; color: white;">INACTIVE</span>';
 
     // Render HTML Tab Navigation Headers
-    $tabhtml = '
-    <div class="mt-4 mb-3">
-        <ul class="nav nav-tabs" id="aiSolutionTabs" role="tablist">
-            <li class="nav-item">
-                <a class="nav-link active font-weight-bold" id="core-ai-tab" data-toggle="tab" href="#core-ai-panel" role="tab" style="font-size: 1.05rem;">
-                    🔌 ' . get_string("tab_core_ai", "local_geniai") . ' ' . $coreai_badge . '
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link font-weight-bold" id="gemini-tab" data-toggle="tab" href="#gemini-panel" role="tab" style="font-size: 1.05rem;">
-                    ✨ ' . get_string("tab_gemini", "local_geniai") . ' ' . $gemini_badge . '
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link font-weight-bold" id="chatgpt-tab" data-toggle="tab" href="#chatgpt-panel" role="tab" style="font-size: 1.05rem;">
-                    🤖 ' . get_string("tab_chatgpt", "local_geniai") . ' ' . $chatgpt_badge . '
-                </a>
-            </li>
-        </ul>
-    </div>';
-    $settings->add(new admin_setting_heading('ai_tabs_navigation', '', $tabhtml));
-
     // TAB 1: MOODLE CORE AI SUB-SYSTEM CONFIGURATION
     $coreaiprovideroptions = [];
     if (class_exists('\\core_ai\\manager')) {
