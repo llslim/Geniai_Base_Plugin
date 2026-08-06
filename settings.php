@@ -41,14 +41,14 @@ if ($hassiteconfig) {
         '<a href="' . $registryurl->out() . '" target="_blank" class="btn btn-sm btn-primary ml-2" style="background-color: #4f2c11; border-color: #4f2c11; color: white;">' .
         '🛠️ Manage Personas & Open Scenario Builder' .
         '</a>';
-    $tabgeneral->add(new admin_setting_heading('scenario_registry_heading', 'Custom Persona Scenario Registry', $registryhtml));
+    $settings->add(new admin_setting_heading('scenario_registry_heading', 'Custom Persona Scenario Registry', $registryhtml));
 
     $models = [
         "none" => get_string("mode_name_none", "local_geniai"),
         "assistant" => get_string("mode_name_assistant", "local_geniai"),
         "geniai" => get_string("mode_name_geniai", "local_geniai"),
     ];
-    $tabgeneral->add(new admin_setting_configselect(
+    $settings->add(new admin_setting_configselect(
         "local_geniai/mode",
         get_string("mode", "local_geniai"),
         get_string("mode_desc", "local_geniai"),
@@ -61,7 +61,7 @@ if ($hassiteconfig) {
         "external_llm" => get_string("engine_strategy_external", "local_geniai"),
         "local" => get_string("engine_strategy_local", "local_geniai"),
     ];
-    $tabgeneral->add(new admin_setting_configselect(
+    $settings->add(new admin_setting_configselect(
         "local_geniai/engine_strategy",
         get_string("engine_strategy", "local_geniai"),
         get_string("engine_strategy_desc", "local_geniai"),
@@ -79,7 +79,7 @@ if ($hassiteconfig) {
     foreach ($customrecords as $cr) {
         $scenarios[$cr->scenariocode] = $cr->name . " (Custom: " . $cr->scenariocode . ")";
     }
-    $tabgeneral->add(new admin_setting_configmultiselect(
+    $settings->add(new admin_setting_configmultiselect(
         "local_geniai/active_scenarios",
         get_string("active_scenarios", "local_geniai"),
         get_string("active_scenarios_desc", "local_geniai"),
