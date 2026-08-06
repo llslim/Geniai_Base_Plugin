@@ -117,86 +117,82 @@ if ($hassiteconfig) {
 
             var config = [
                 {
-                    headingId: "admin-core_ai_section_heading",
-                    active: activeStrat === "moodle_core_ai",
-                    cardId: "aura-accordion-coreai"
+                    matchText: "1. Moodle Core AI",
+                    active: activeStrat === "moodle_core_ai"
                 },
                 {
-                    headingId: "admin-gemini_section_heading",
-                    active: activeStrat === "external_llm",
-                    cardId: "aura-accordion-gemini"
+                    matchText: "2. Google Gemini",
+                    active: activeStrat === "external_llm"
                 },
                 {
-                    headingId: "admin-chatgpt_section_heading",
-                    active: activeStrat === "local",
-                    cardId: "aura-accordion-chatgpt"
+                    matchText: "3. ChatGPT",
+                    active: activeStrat === "local"
                 }
             ];
 
             config.forEach(function(sec) {
-                var headingEl = document.getElementById(sec.headingId);
-                if (!headingEl) {
-                    var allHeadings = document.querySelectorAll(".setting-heading, h3, legend");
-                    allHeadings.forEach(function(h) {
-                        if (h.id === sec.headingId || (h.closest && h.closest("#" + sec.headingId))) {
-                            headingEl = h.closest(".setting-heading, fieldset, .form-item, div[id^=admin-]");
-                        }
-                    });
+                // Find element by header title text
+                var headingEl = null;
+                var allHeadings = document.querySelectorAll("h3, legend, .setting-heading, fieldset, div.form-item, div.row");
+                for (var i = 0; i < allHeadings.length; i++) {
+                    var el = allHeadings[i];
+                    if (el.textContent && el.textContent.indexOf(sec.matchText) !== -1) {
+                        headingEl = el.closest(".form-item, fieldset, div[id^=admin-], div.row, .setting-heading") || el;
+                        break;
+                    }
                 }
                 if (!headingEl) return;
 
-                // Collect sibling form settings until next section heading
+                // Collect sibling form elements until next section heading
                 var siblings = [];
                 var next = headingEl.nextElementSibling;
                 while (next) {
-                    var isNextHeader = next.id && (next.id.includes("heading") || next.id.includes("section"));
-                    if (isNextHeader || next.querySelector("h3, legend, .form-header")) {
+                    var text = next.textContent || "";
+                    if (text.indexOf("1. Moodle Core AI") !== -1 || text.indexOf("2. Google Gemini") !== -1 || text.indexOf("3. ChatGPT") !== -1) {
                         break;
                     }
                     siblings.push(next);
                     next = next.nextElementSibling;
                 }
 
-                // Create wrapper container
+                if (siblings.length === 0) return;
+
+                // Create section wrapper
                 var bodyDiv = document.createElement("div");
                 bodyDiv.className = "aura-section-body";
                 bodyDiv.style.display = sec.active ? "block" : "none";
-                bodyDiv.style.padding = "15px 0";
+                bodyDiv.style.padding = "10px 0";
 
-                siblings.forEach(function(el) {
-                    bodyDiv.appendChild(el);
+                siblings.forEach(function(s) {
+                    bodyDiv.appendChild(s);
                 });
                 headingEl.parentNode.insertBefore(bodyDiv, headingEl.nextSibling);
 
-                // Make header clickable
-                var titleTarget = headingEl.querySelector("h3, legend, .form-header") || headingEl;
-                titleTarget.style.cursor = "pointer";
-                titleTarget.style.userSelect = "none";
-                titleTarget.style.display = "flex";
-                titleTarget.style.alignItems = "center";
-                titleTarget.style.justifyContent = "space-between";
-                titleTarget.style.padding = "10px 15px";
-                titleTarget.style.backgroundColor = "#f8f9fa";
-                titleTarget.style.border = "1px solid #dee2e6";
-                titleTarget.style.borderRadius = "6px";
-                titleTarget.style.marginTop = "15px";
+                // Styling title bar
+                headingEl.style.cursor = "pointer";
+                headingEl.style.userSelect = "none";
+                headingEl.style.padding = "12px 16px";
+                headingEl.style.backgroundColor = "#e9ecef";
+                headingEl.style.border = "1px solid #ced4da";
+                headingEl.style.borderRadius = "6px";
+                headingEl.style.marginTop = "20px";
+                headingEl.style.fontWeight = "bold";
 
-                var iconSpan = document.createElement("span");
-                iconSpan.className = "aura-toggle-icon";
-                iconSpan.style.fontSize = "16px";
-                iconSpan.style.fontWeight = "bold";
-                iconSpan.textContent = sec.active ? "▼ Hide Settings" : "► Show Settings";
-                titleTarget.appendChild(iconSpan);
+                var toggleBtn = document.createElement("span");
+                toggleBtn.style.float = "right";
+                toggleBtn.style.fontSize = "14px";
+                toggleBtn.textContent = sec.active ? "▼ Hide" : "► Expand";
+                headingEl.appendChild(toggleBtn);
 
-                titleTarget.addEventListener("click", function(e) {
-                    e.preventDefault();
+                headingEl.addEventListener("click", function(e) {
                     var isHidden = bodyDiv.style.display === "none";
                     bodyDiv.style.display = isHidden ? "block" : "none";
-                    iconSpan.textContent = isHidden ? "▼ Hide Settings" : "► Show Settings";
+                    toggleBtn.textContent = isHidden ? "▼ Hide" : "► Expand";
                 });
             });
         }
 
+        setTimeout(setupAccordions, 300);
         if (document.readyState === "loading") {
             document.addEventListener("DOMContentLoaded", setupAccordions);
         } else {
