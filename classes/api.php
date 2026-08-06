@@ -159,15 +159,10 @@ class api {
             $session->timemodified = time();
             $DB->update_record('local_geniai_sessions', $session);
 
-            $startnode = $engine->get_scenario()->get_state('START');
-            $prompt = $startnode['bot_prompt'] ?? '';
-            $parsemarkdown = new parse_markdown();
-            $content = $parsemarkdown->markdown_text($prompt);
-
             return [
                 "result" => "true",
                 "format" => "html",
-                "content" => $content,
+                "content" => "",
             ];
         }
 
