@@ -96,12 +96,12 @@ This AI-powered chatbot is designed to help you practice and demonstrate effecti
 - Use the dropdown to select a parent persona scenario.
 - Click Light/Dark to toggle between visual themes.
 - Use the Microphone button to speak instead of typing (if enabled).
-- Click Clear Chat to restart the conversation at any time.
+- Click Clear/Restart Chat to restart the conversation at any time.
 - Use the Generate PDF button to export your conversation log for your records.
 
 🎯 To pass this assignment, you must demonstrate strong application of LAFF principles — especially showing empathy, asking relevant questions, and following through with reflective teaching practice.
 
-🔄 Ready to begin or restart? Just click Clear Chat and let AURA guide you again!
+🔄 Ready to begin or restart? Just click Clear/Restart Chat and let AURA guide you again!
 
 Good luck, and let’s make every conversation count!';
 

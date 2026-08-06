@@ -19,7 +19,7 @@ namespace local_geniai\strategy;
 defined('MOODLE_INTERNAL') || die;
 
 use local_geniai\scenario\scenario_definition;
-use local_geniai\external\api;
+use local_geniai\api;
 
 /**
  * Class generative_ai_api_strategy interfacing with LLM endpoints for evaluative roleplay.
