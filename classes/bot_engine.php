@@ -72,6 +72,8 @@ class bot_engine {
         $strategytype = get_config('local_geniai', 'engine_strategy') ?: 'external_llm';
         if ($strategytype === 'regex') {
             $this->strategy = new \local_geniai\strategy\regex_matcher_strategy();
+        } else if ($strategytype === 'moodle_core_ai') {
+            $this->strategy = new \local_geniai\strategy\core_ai_provider_strategy();
         } else {
             $this->strategy = new \local_geniai\strategy\generative_ai_api_strategy();
         }

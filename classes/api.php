@@ -210,11 +210,44 @@ class api {
         ];
     }
 
-    /**
-     * Sends a message array to OpenAI's chat completions endpoint
-     */
     public static function chat_completions($messages, $ignoremaxtoken = false) {
-        global $DB;
+        global $DB, $USER;
+
+        // Check if Moodle Core AI provider framework is enabled & available
+        if (class_exists('\\core_ai\\manager')) {
+            try {
+                $manager = new \core_ai\manager();
+                $enabledproviders = $manager->get_provider_records();
+                if (!empty($enabledproviders)) {
+                    $lastmsg = end($messages);
+                    $prompttext = is_array($lastmsg) ? ($lastmsg['content'] ?? '') : '';
+                    $action = new \core_ai\action\generate_text(
+                        contextid: \context_system::instance()->id,
+                        userid: $USER->id,
+                        prompttext: $prompttext
+                    );
+                    $result = $manager->process_action($action);
+                    if ($result && method_exists($result, 'get_response_data')) {
+                        $data = $result->get_response_data();
+                        $generatedtext = $data['generatedcontent'] ?? ($data['response'] ?? '');
+                        if (!empty($generatedtext)) {
+                            return [
+                                "choices" => [
+                                    [
+                                        "message" => [
+                                            "content" => $generatedtext,
+                                            "role" => "assistant",
+                                        ]
+                                    ]
+                                ]
+                            ];
+                        }
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Seamlessly fallback to direct API call if core_ai manager process fails
+            }
+        }
 
         $strategy = get_config("local_geniai", "engine_strategy");
         if ($strategy === 'external_llm') {
