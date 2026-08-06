@@ -7,42 +7,33 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #4F46E5;
-            --primary-hover: #4338CA;
-            --bg-light: #F8FAFC;
-            --card-bg: #FFFFFF;
-            --border: #E2E8F0;
-            --text-main: #1E293B;
-            --text-muted: #64748B;
-            --accent-green: #059669;
-            --accent-blue: #2563EB;
-            --input-bg: #F1F5F9;
-            --card-sub-bg: #F8FAFC;
+            --primary: var(--primary, var(--main-theme-color, #0f6cbf));
+            --primary-hover: var(--primary-dark, #0b5190);
+            --bg-light: var(--body-bg, #f8f9fa);
+            --card-bg: var(--card-bg, #ffffff);
+            --border: var(--border-color, #dee2e6);
+            --text-main: var(--body-color, #212529);
+            --text-muted: var(--text-muted, #6c757d);
+            --accent-green: var(--success, #198754);
+            --accent-blue: var(--info, #0dcaf0);
+            --input-bg: var(--input-bg, #ffffff);
+            --card-sub-bg: var(--gray-100, #f8f9fa);
         }
 
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-light);
-            color: var(--text-main);
-            padding: 2rem 1rem;
-            display: flex;
-            justify-content: center;
         }
 
         .builder-container {
             max-width: 900px;
             width: 100%;
+            margin: 1.5rem auto;
             background-color: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 2.5rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            border-radius: 0.5rem;
+            padding: 2rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            color: var(--text-main);
         }
 
         .header {
