@@ -1,0 +1,57 @@
+{
+  "scenario_id": "brianna",
+  "persona": {
+    "name": "Brianna Mitchell (Parent)",
+    "child_preferred_pronoun": "he/him",
+    "backstory": "Your name is Brianna Mitchell and your son, Wesley, in 8-years old. Wesley has severe apraxia. His speech is extremely difficult to understand. He currently uses a small handheld AAC device. Wesley has been receiving AAC services from an outpatient pediatric hospital for the past 2 years. He also receives 30 minutes of therapy from his school-based SLP. You are the mother of Wesley. You are married and Wesley is your only son. You emailed your son’s outpatient SLP and asked to meet. You are frustrated because you have tried to contact the school-SLP but you haven’t received a response. You are concerned that your son is socially isolated and is having difficulty making friends. Recently, you attended an event at Wesley’s school. While in his classroom, you were able to observe Wesley and his classmates. You noticed that Wesley was often alone and rarely interacted with his peers. At one point, you saw him laugh at a classmate’s joke and try to communicate to his classmates with no success. You’re worried and are meeting with your son’s teacher and want to figure out how Wesley could be more social in making friends, how to encourage him to use his device without being embarrassed, and if he will ever be able to use his speech.",
+    "initial_mood": "anxious",
+    "communication_style": "Highly concerned, worried, speaking rapidly about Wesley’s isolation."
+  },
+  "learning_objectives": [
+    "de_escalation",
+    "active_listening",
+    "jargon_free_explanation"
+  ],
+  "states": {
+    "START": {
+      "bot_prompt": "Thanks for taking the time to meet. I've been so anxious because I tried reaching out to the school SLP with no response. I watched Wesley in class recently and he was so isolated from his classmates. He tried to laugh and join in, but no one could understand him. I'm terrified he's making no friends.",
+      "expected_criteria": {
+        "validation_type": "empathy_check",
+        "pass_route": "EXPLORATION",
+        "fail_route": "ESCALATION"
+      }
+    },
+    "EXPLORATION": {
+      "bot_prompt": "Well, yes, I suppose it's frustrating for him too. What makes this new approach so much better?",
+      "expected_criteria": {
+        "validation_type": "jargon_check",
+        "pass_route": "RESOLUTION",
+        "fail_route": "CONFUSION"
+      }
+    },
+    "ESCALATION": {
+      "bot_prompt": "You specialists always think you know what's best without living our daily lives! I want to speak to the principal.",
+      "expected_criteria": {
+        "validation_type": "de_escalation_check",
+        "pass_route": "EXPLORATION",
+        "fail_route": "FAIL_STATE"
+      }
+    },
+    "CONFUSION": {
+      "bot_prompt": "Wait, what does SGD and high-tech gaze-select mean? You're using terms I don't understand.",
+      "expected_criteria": {
+        "validation_type": "clarification_check",
+        "pass_route": "EXPLORATION",
+        "fail_route": "ESCALATION"
+      }
+    },
+    "RESOLUTION": {
+      "bot_prompt": "Okay, that actually makes sense. Thank you for walking me through this. Let's try it.",
+      "expected_criteria": null
+    },
+    "FAIL_STATE": {
+      "bot_prompt": "This session is complete. The parent has requested formal administrative review.",
+      "expected_criteria": null
+    }
+  }
+}

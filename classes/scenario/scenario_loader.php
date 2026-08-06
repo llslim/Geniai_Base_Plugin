@@ -19,53 +19,62 @@ namespace local_geniai\scenario;
 defined('MOODLE_INTERNAL') || die;
 
 /**
- * Class handles loading and validating scenario JSON configurations.
+ * Class scenario_loader
  *
- * @package   local_geniai
- * @copyright 2026 Antigravity
+ * Responsibilities:
+ * - Loads preloaded parent scenarios (Anna, Brianna, Cathy, Mary).
+ * - Loads site-wide custom uploaded scenarios from DB table local_geniai_custom_scenarios.
+ * - Parses external JSON definitions into scenario_definition instances.
+ *
+ * @package   local_geniai\scenario
+ * @copyright 2026 AAC-RERC Chatbot Team
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class scenario_loader {
+
     /**
-     * Loads a scenario definition by ID, either from Moodle File Storage (if custom)
-     * or from fallback static standard profiles.
+     * Loads a scenario by ID/code.
      *
-     * @param string $scenarioid Unique scenario code or ID
-     * @param int $cmid Optional course module ID to search uploaded files
+     * Order of resolution:
+     * 1. Dynamic custom scenarios registered in local_geniai_custom_scenarios DB table.
+     * 2. Physical JSON file in local/geniai/scenarios/<id>.json.
+     * 3. Preloaded static PHP fallback definitions (Anna, Brianna, Cathy, Mary).
+     *
+     * @param string $scenarioid
+     * @param int $courseid
      * @return scenario_definition
-     * @throws \moodle_exception
      */
-    public static function load(string $scenarioid, int $cmid = 0): scenario_definition {
-        global $DB;
+    public static function load(string $scenarioid, int $courseid = 0): scenario_definition {
+        global $DB, $CFG;
 
-        // 1. Try to load from course module context file storage first
-        if ($cmid > 0) {
-            $context = \context_module::instance($cmid, MUST_EXIST);
-            $fs = get_file_storage();
-            $files = $fs->get_area_files($context->id, 'mod_geniai', 'scenariofile', 0, 'id DESC', false);
+        $scenarioid = strtolower(trim($scenarioid));
 
-            if (!empty($files)) {
-                /** @var \stored_file $file */
-                $file = reset($files);
-                $content = $file->get_content();
-
-                $data = json_decode($content, true);
-                if (json_last_error() === JSON_ERROR_NONE && !empty($data)) {
-                    return self::parse_and_validate($data);
+        // 1. Check custom DB table for uploaded JSON profiles
+        try {
+            if ($DB && $DB->get_manager()->table_exists('local_geniai_custom_scenarios')) {
+                $custom = $DB->get_record('local_geniai_custom_scenarios', ['scenariocode' => $scenarioid]);
+                if ($custom && !empty($custom->json_data)) {
+                    $json = json_decode($custom->json_data, true);
+                    if (is_array($json)) {
+                        return self::from_array($json);
+                    }
                 }
             }
+        } catch (\Exception $e) {
+            // Fall through if DB table check fails
         }
 
-        // 2. Check site-wide custom scenarios registry in DB
-        $customrecord = $DB->get_record('local_geniai_custom_scenarios', ['scenariocode' => $scenarioid]);
-        if ($customrecord && !empty($customrecord->json_data)) {
-            $data = json_decode($customrecord->json_data, true);
-            if (json_last_error() === JSON_ERROR_NONE && !empty($data)) {
-                return self::parse_and_validate($data);
+        // 2. Check local JSON file
+        $jsonfile = $CFG->dirroot . '/local/geniai/scenarios/' . $scenarioid . '.json';
+        if (file_exists($jsonfile)) {
+            $content = file_get_contents($jsonfile);
+            $json = json_decode($content, true);
+            if (is_array($json)) {
+                return self::from_array($json);
             }
         }
 
-        // 3. Fall back to static preloaded profiles (Anna, Brianna, Cathy, Mary)
+        // 3. Fallback to preloaded profiles
         switch ($scenarioid) {
             case 'anna':
                 return self::get_anna_profile();
@@ -74,35 +83,24 @@ class scenario_loader {
             case 'cathy':
                 return self::get_cathy_profile();
             case 'mary':
-                return self::get_default_profile('mary');
             default:
-                // Return default fallback
                 return self::get_default_profile($scenarioid);
         }
     }
 
     /**
-     * Parses and validates raw JSON array structure.
+     * Instantiates a scenario_definition from a parsed JSON array structure.
      *
      * @param array $data
      * @return scenario_definition
-     * @throws \moodle_exception
      */
-    private static function parse_and_validate(array $data): scenario_definition {
-        $id = $data['scenario_id'] ?? 'unknown_scenario';
+    public static function from_array(array $data): scenario_definition {
+        $id = $data['scenario_id'] ?? 'custom';
         $persona = $data['persona'] ?? [];
-        $learningobjectives = $data['learning_objectives'] ?? [];
+        $objectives = $data['learning_objectives'] ?? [];
         $states = $data['states'] ?? [];
 
-        if (empty($persona['name']) || empty($persona['backstory'])) {
-            throw new \moodle_exception('error_invalid_persona', 'local_geniai', '', null, 'Persona metadata name and backstory are required.');
-        }
-
-        if (empty($states) || !is_array($states)) {
-            throw new \moodle_exception('error_invalid_states', 'local_geniai', '', null, 'Scenario must define at least one valid dialogue state node.');
-        }
-
-        return new scenario_definition($id, $persona, $learningobjectives, $states);
+        return new scenario_definition($id, $persona, $objectives, $states);
     }
 
     /**
@@ -111,6 +109,9 @@ class scenario_loader {
      * @return scenario_definition
      */
     private static function get_anna_profile(): scenario_definition {
+        $states = self::get_default_dialogue_states();
+        $states['START']['bot_prompt'] = "Thank you for meeting with me. I'm just really overwhelmed with Sarah starting pre-K. I feel like this iPad app isn't working for her at all, and her grandparents can't figure it out either. I'm worried we're not helping her communicate.";
+
         return new scenario_definition(
             'anna',
             [
@@ -121,7 +122,7 @@ class scenario_loader {
                 'communication_style' => 'Frustrated, defensive, guilt-ridden, and uses blunt vocabulary.',
             ],
             ['active_listening', 'empathy_check', 'note_permission'],
-            self::get_default_dialogue_states()
+            $states
         );
     }
 
@@ -131,6 +132,9 @@ class scenario_loader {
      * @return scenario_definition
      */
     private static function get_brianna_profile(): scenario_definition {
+        $states = self::get_default_dialogue_states();
+        $states['START']['bot_prompt'] = "Thanks for taking the time to meet. I've been so anxious because I tried reaching out to the school SLP with no response. I watched Wesley in class recently and he was so isolated from his classmates. He tried to laugh and join in, but no one could understand him. I'm terrified he's making no friends.";
+
         return new scenario_definition(
             'brianna',
             [
@@ -141,7 +145,7 @@ class scenario_loader {
                 'communication_style' => 'Highly concerned, worried, speaking rapidly about Wesley’s isolation.',
             ],
             ['de_escalation', 'active_listening', 'jargon_free_explanation'],
-            self::get_default_dialogue_states()
+            $states
         );
     }
 
@@ -151,6 +155,9 @@ class scenario_loader {
      * @return scenario_definition
      */
     private static function get_cathy_profile(): scenario_definition {
+        $states = self::get_default_dialogue_states();
+        $states['START']['bot_prompt'] = "I'm glad we could sit down together. I'm really confused about Charlie's communication app. When the SLP showed it to us it made sense, but at home I feel completely lost using it. My husband thinks Charlie will talk when he's ready and that the app might stop him from learning to speak. I just don't know what to do.";
+
         return new scenario_definition(
             'cathy',
             [
@@ -161,7 +168,7 @@ class scenario_loader {
                 'communication_style' => 'Doubtful, feeling lost about technology, highly eager to learn.',
             ],
             ['clarification_check', 'jargon_free_explanation', 'empathy_check'],
-            self::get_default_dialogue_states()
+            $states
         );
     }
 
@@ -172,6 +179,9 @@ class scenario_loader {
      * @return scenario_definition
      */
     private static function get_default_profile(string $id): scenario_definition {
+        $states = self::get_default_dialogue_states();
+        $states['START']['bot_prompt'] = "I don't understand why we are changing my child's communication system again. Every time he gets used to something at school, you switch it! He is non-verbal and needs consistency.";
+
         return new scenario_definition(
             $id,
             [
@@ -182,7 +192,7 @@ class scenario_loader {
                 'communication_style' => 'Blunt, highly emotional, protective of child.',
             ],
             ['active_listening', 'de_escalation'],
-            self::get_default_dialogue_states()
+            $states
         );
     }
 
@@ -194,7 +204,7 @@ class scenario_loader {
     private static function get_default_dialogue_states(): array {
         return [
             'START' => [
-                'bot_prompt' => 'I don\'t understand why we are changing the communication system again. Every time my child gets used to something, you switch it!',
+                'bot_prompt' => 'I don\'t understand why we are changing my child\'s communication system again. Every time my child gets used to something, you switch it!',
                 'expected_criteria' => [
                     'validation_type' => 'empathy_check',
                     'pass_route' => 'EXPLORATION',

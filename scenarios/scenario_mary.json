@@ -1,0 +1,56 @@
+{
+  "scenario_id": "mary",
+  "persona": {
+    "name": "Mary (Parent)",
+    "child_preferred_pronoun": "he/him",
+    "backstory": "Parent of a non-verbal 6-year-old child. Feels overwhelmed and defensive about school accommodations.",
+    "initial_mood": "defensive",
+    "communication_style": "Blunt, highly emotional, protective of child."
+  },
+  "learning_objectives": [
+    "active_listening",
+    "de_escalation"
+  ],
+  "states": {
+    "START": {
+      "bot_prompt": "I don't understand why we are changing my child's communication system again. Every time he gets used to something at school, you switch it! He is non-verbal and needs consistency.",
+      "expected_criteria": {
+        "validation_type": "empathy_check",
+        "pass_route": "EXPLORATION",
+        "fail_route": "ESCALATION"
+      }
+    },
+    "EXPLORATION": {
+      "bot_prompt": "Well, yes, I suppose it's frustrating for him too. What makes this new approach so much better?",
+      "expected_criteria": {
+        "validation_type": "jargon_check",
+        "pass_route": "RESOLUTION",
+        "fail_route": "CONFUSION"
+      }
+    },
+    "ESCALATION": {
+      "bot_prompt": "You specialists always think you know what's best without living our daily lives! I want to speak to the principal.",
+      "expected_criteria": {
+        "validation_type": "de_escalation_check",
+        "pass_route": "EXPLORATION",
+        "fail_route": "FAIL_STATE"
+      }
+    },
+    "CONFUSION": {
+      "bot_prompt": "Wait, what does SGD and high-tech gaze-select mean? You're using terms I don't understand.",
+      "expected_criteria": {
+        "validation_type": "clarification_check",
+        "pass_route": "EXPLORATION",
+        "fail_route": "ESCALATION"
+      }
+    },
+    "RESOLUTION": {
+      "bot_prompt": "Okay, that actually makes sense. Thank you for walking me through this. Let's try it.",
+      "expected_criteria": null
+    },
+    "FAIL_STATE": {
+      "bot_prompt": "This session is complete. The parent has requested formal administrative review.",
+      "expected_criteria": null
+    }
+  }
+}
