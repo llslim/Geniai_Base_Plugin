@@ -1,0 +1,54 @@
+name: Deploy local_geniai (Geniai Base Plugin)
+
+on:
+  push:
+    branches:
+      - main
+      - moodle-5.2
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      SSH_HOST: "18.210.251.16"
+      SSH_USER: "llslim-aac-learn"
+      DEPLOY_PATH: "/home/llslim-aac-learn/htdocs/aac-learn.llslim.com"
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH & Known Hosts
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Deploy local_geniai Module via rsync
+        run: |
+          echo "Deploying local_geniai submodule to $SSH_HOST:$DEPLOY_PATH/local/geniai/..."
+          rsync -rtvzp --delete -e "ssh -o StrictHostKeyChecking=accept-new" ./ $SSH_USER@$SSH_HOST:$DEPLOY_PATH/local/geniai/
+
+      - name: Execute Remote Moodle Updates
+        run: |
+          echo "Activating Moodle maintenance mode..."
+          ssh $SSH_USER@$SSH_HOST "php $DEPLOY_PATH/admin/cli/maintenance.php --enable"
+
+          echo "Running Moodle database and plugin schema upgrades..."
+          ssh $SSH_USER@$SSH_HOST "php $DEPLOY_PATH/admin/cli/upgrade.php --non-interactive"
+
+          echo "Purging Moodle site caches & forcing JS/theme revision increments..."
+          ssh $SSH_USER@$SSH_HOST "php $DEPLOY_PATH/admin/cli/cfg.php --name=jsrev --set=-1"
+          ssh $SSH_USER@$SSH_HOST "php $DEPLOY_PATH/admin/cli/cfg.php --name=themerev --set=-1"
+          ssh $SSH_USER@$SSH_HOST "php $DEPLOY_PATH/admin/cli/purge_caches.php"
+          ssh $SSH_USER@$SSH_HOST "rm -rf $DEPLOY_PATH/../data/cache/* $DEPLOY_PATH/../data/localcache/* 2>/dev/null || true"
+
+          echo "Deactivating Moodle maintenance mode..."
+          ssh $SSH_USER@$SSH_HOST "php $DEPLOY_PATH/admin/cli/maintenance.php --disable"
+
+          echo "local_geniai deployment complete!"
