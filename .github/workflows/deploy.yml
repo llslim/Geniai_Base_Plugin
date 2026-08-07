@@ -3,7 +3,6 @@ name: Deploy local_geniai (Geniai Base Plugin)
 on:
   push:
     branches:
-      - main
       - moodle-5.2
   workflow_dispatch:
 
