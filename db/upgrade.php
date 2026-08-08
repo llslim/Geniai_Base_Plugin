@@ -48,7 +48,7 @@ function xmldb_local_aacura_core_upgrade($oldversion) {
         $sql = "UPDATE {local_aacura_core_usage} SET model = '{$model}'";
         $DB->execute($sql);
 
-        upgrade_plugin_savepoint(true, 2024020501, "local", "geniai");
+        upgrade_plugin_savepoint(true, 2024020501, 'local', 'aacura_core');
     }
 
     if ($oldversion < 2024040500) {
@@ -65,7 +65,7 @@ function xmldb_local_aacura_core_upgrade($oldversion) {
             $DB->update_record("local_aacura_core_usage", $usage);
         }
 
-        upgrade_plugin_savepoint(true, 2024040500, "local", "geniai");
+        upgrade_plugin_savepoint(true, 2024040500, 'local', 'aacura_core');
     }
 
     if ($oldversion < 2025011400) {
@@ -109,7 +109,7 @@ function xmldb_local_aacura_core_upgrade($oldversion) {
         }
 
         // Atualizando a versão para 2025011400.
-        upgrade_plugin_savepoint(true, 2025011400, "local", "geniai");
+        upgrade_plugin_savepoint(true, 2025011400, 'local', 'aacura_core');
     }
 
     if ($oldversion < 2026052500) {
@@ -156,7 +156,7 @@ function xmldb_local_aacura_core_upgrade($oldversion) {
             $dbman->create_table($table3);
         }
 
-        upgrade_plugin_savepoint(true, 2026052500, 'local', 'geniai');
+        upgrade_plugin_savepoint(true, 2026052500, 'local', 'aacura_core');
     }
 
     if ($oldversion < 2026052515) {
@@ -176,7 +176,7 @@ function xmldb_local_aacura_core_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
-        upgrade_plugin_savepoint(true, 2026052515, 'local', 'geniai');
+        upgrade_plugin_savepoint(true, 2026052515, 'local', 'aacura_core');
     }
 
     return true;
