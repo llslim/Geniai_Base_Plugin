@@ -17,15 +17,15 @@
 /**
  * Index file.
  *
- * @package   local_geniai
+ * @package   local_aacura_core
  * @copyright 2024 Eduardo Kraus {@link http://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_geniai\local\h5p\itens;
-use local_geniai\local\h5p\page_header;
-use local_geniai\local\h5p\types;
-use local_geniai\local\util\release;
+use local_aacura_core\local\h5p\itens;
+use local_aacura_core\local\h5p\page_header;
+use local_aacura_core\local\h5p\types;
+use local_aacura_core\local\util\release;
 
 require("../../../config.php");
 
@@ -36,7 +36,7 @@ $context = context::instance_by_id($contextid, MUST_EXIST);
 
 require_capability("moodle/contentbank:access", $context);
 
-$cburl = new moodle_url("/local/geniai/h5p/index.php", $_GET);
+$cburl = new moodle_url("/local/aacura_core/h5p/index.php", $_GET);
 $header = new page_header();
 $header->header($cburl, $contextid, $context);
 $PAGE->set_title($header->get_title());
@@ -44,9 +44,9 @@ $PAGE->set_title($header->get_title());
 echo $OUTPUT->header();
 echo $OUTPUT->heading($header->get_title(), 2);
 
-$PAGE->requires->strings_for_js(["h5p-readmore", "h5p-page-title", "h5p-readmore", "h5p-page-title"], "local_geniai");
-$PAGE->requires->js_call_amd("local_geniai/h5p-index", "readmore", []);
-echo $OUTPUT->render_from_template("local_geniai/h5p-index", [
+$PAGE->requires->strings_for_js(["h5p-readmore", "h5p-page-title", "h5p-readmore", "h5p-page-title"], "local_aacura_core");
+$PAGE->requires->js_call_amd("local_aacura_core/h5p-index", "readmore", []);
+echo $OUTPUT->render_from_template("local_aacura_core/h5p-index", [
     "types" => types::get_types($contextid),
     "itens" => itens::get_itens($contextid),
     "user_lang" => isset($SESSION->lang) ? $SESSION->lang : $USER->lang,

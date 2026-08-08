@@ -1,11 +1,11 @@
-# AURA Core Engine Plugin (`local_geniai`)
+# AACURA Core Engine Plugin (`local_aacura_core`)
 
-This repository contains the **core backend engine** for **AURA** (AAC Understanding & Reflective Assistant). All dialogue state machines, LLM evaluation pipelines, and provider integrations are managed here.
+This repository contains the **core backend engine** for **AACURA** (AAC Understanding & Reflective Assistant). All dialogue state machines, LLM evaluation pipelines, and provider integrations are managed here.
 
 > ℹ️ **Provenance & Ancestry Note:**
-> This repository is a customized fork derived from a previous version of [EduardoKrausME/moodle-local_geniai](https://github.com/EduardoKrausME/moodle-local_geniai).
+> This repository is a customized fork derived from a previous version of [EduardoKrausME/moodle-local_aacura_core](https://github.com/EduardoKrausME/moodle-local_aacura_core).
 > 
-> **Important:** This plugin operates as a fully standalone core engine at `local/geniai`. There is **no runtime dependency** on the original `moodle-local_geniai` repository; installing `EduardoKrausME/moodle-local_geniai` alongside this plugin is neither required nor recommended.
+> **Important:** This plugin operates as a fully standalone core engine at `local/aacura_core`. There is **no runtime dependency** on the original `moodle-local_aacura_core` repository; installing `EduardoKrausME/moodle-local_aacura_core` alongside this plugin is neither required nor recommended.
 
 > 🤖 **AI Strategy & Architecture Specification:**
 > For a technical breakdown of AI response strategies, Moodle Core AI Subsystem (`\core_ai\manager`) integration, Google Gemini REST compliance, and dynamic rubric evaluation pipelines, see **[ai_strategy.md](ai_strategy.md)**.
@@ -23,7 +23,7 @@ This repository contains the **core backend engine** for **AURA** (AAC Understan
 > For a detailed technical breakdown of how validation checks are evaluated via Generative AI (LLM) and Pattern Matcher (Regex) strategies, see **[validation_checks_execution_guide.md](validation_checks_execution_guide.md)**.
 
 > 🛠️ **Custom Scenario Builder Tool:**
-> Teachers and instructors can use the web-based **[Scenario Builder Form](scenario_builder.html)** (or access via Moodle at `/local/geniai/scenario_builder.php`) to visually construct custom scenarios and download compliant `.json` files.
+> Teachers and instructors can use the web-based **[Scenario Builder Form](scenario_builder.html)** (or access via Moodle at `/local/aacura_core/scenario_builder.php`) to visually construct custom scenarios and download compliant `.json` files.
 
 ---
 
@@ -42,7 +42,7 @@ Follow these steps to install the plugin into your Moodle environment:
 The plugin will be installed at:
 
 ```
-local/geniai
+local/aacura_core
 ```
 
 ---

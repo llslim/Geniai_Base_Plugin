@@ -17,12 +17,12 @@
 /**
  * Page header file.
  *
- * @package   local_geniai
+ * @package   local_aacura_core
  * @copyright 2024 Eduardo Kraus {@link http://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_geniai\local\h5p;
+namespace local_aacura_core\local\h5p;
 
 use context_course;
 use context_system;
@@ -36,7 +36,7 @@ use navigation_node;
 /**
  * Class page_header
  *
- * @package local_geniai\local\h5p
+ * @package local_aacura_core\local\h5p
  */
 class page_header {
     /** @var string */
@@ -79,11 +79,11 @@ class page_header {
             case CONTEXT_COURSE:
                 $courseid = $context->instanceid;
 
-                $url = new moodle_url("/local/geniai/h5p/", ["contextid" => $contextid]);
-                $PAGE->navbar->add(get_string("h5p-title", "local_geniai"), $url);
+                $url = new moodle_url("/local/aacura_core/h5p/", ["contextid" => $contextid]);
+                $PAGE->navbar->add(get_string("h5p-title", "local_aacura_core"), $url);
 
                 navigation_node::override_active_url(new moodle_url("/course/view.php", ["id" => $courseid]));
-                $PAGE->navbar->add(get_string("h5p-page-title", "local_geniai"), $cburl);
+                $PAGE->navbar->add(get_string("h5p-page-title", "local_aacura_core"), $cburl);
                 $PAGE->set_pagelayout('standard');
                 $PAGE->set_pagetype('course-view');
                 break;
@@ -91,11 +91,11 @@ class page_header {
                 $PAGE->set_primary_active_tab("home");
                 $coursecat = $context->instanceid;
 
-                $url = new moodle_url("/local/geniai/h5p/", ["contextid" => $contextid]);
-                $PAGE->navbar->add(get_string("h5p-title", "local_geniai"), $url);
+                $url = new moodle_url("/local/aacura_core/h5p/", ["contextid" => $contextid]);
+                $PAGE->navbar->add(get_string("h5p-title", "local_aacura_core"), $url);
 
                 navigation_node::override_active_url(new moodle_url("/course/index.php", ["categoryid" => $coursecat]));
-                $PAGE->navbar->add(get_string("h5p-page-title", "local_geniai"), $cburl);
+                $PAGE->navbar->add(get_string("h5p-page-title", "local_aacura_core"), $cburl);
                 $PAGE->set_pagelayout("standard");
                 break;
             default:
@@ -106,11 +106,11 @@ class page_header {
         }
 
         if ($type) {
-            $tipo = get_string("h5p-" . strtolower($type) . "-title", "local_geniai");
-            $this->title = get_string("h5p-createpage-title", "local_geniai", $tipo);
+            $tipo = get_string("h5p-" . strtolower($type) . "-title", "local_aacura_core");
+            $this->title = get_string("h5p-createpage-title", "local_aacura_core", $tipo);
             $PAGE->navbar->add($this->title, $cburl);
         } else {
-            $this->title = get_string("h5p-title", "local_geniai");
+            $this->title = get_string("h5p-title", "local_aacura_core");
         }
 
         if ($PAGE->course) {

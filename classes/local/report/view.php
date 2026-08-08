@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_geniai\local\report;
+namespace local_aacura_core\local\report;
 
 defined('MOODLE_INTERNAL') || die;
 global $CFG;
@@ -23,7 +23,7 @@ require_once("{$CFG->libdir}/tablelib.php");
 /**
  * GeniAI view file.
  *
- * @package     local_geniai
+ * @package     local_aacura_core
  * @copyright   2024 Eduardo Kraus https://eduardokraus.com/
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -44,7 +44,7 @@ class view extends \table_sql {
         $download = optional_param("download", null, PARAM_ALPHA);
         if ($download) {
             raise_memory_limit(MEMORY_EXTRA);
-            $filename = get_string("report_filename", "local_geniai");
+            $filename = get_string("report_filename", "local_aacura_core");
             $this->is_downloading($download, $filename);
         }
 
@@ -55,10 +55,10 @@ class view extends \table_sql {
             "completion_tokens",
         ];
         $headers = [
-            get_string("report_datecreated", "local_geniai"),
-            get_string("report_model", "local_geniai"),
-            get_string("report_prompt_tokens", "local_geniai"),
-            get_string("report_completion_tokens", "local_geniai"),
+            get_string("report_datecreated", "local_aacura_core"),
+            get_string("report_model", "local_aacura_core"),
+            get_string("report_prompt_tokens", "local_aacura_core"),
+            get_string("report_completion_tokens", "local_aacura_core"),
         ];
 
         $this->define_columns($columns);
@@ -106,7 +106,7 @@ class view extends \table_sql {
                       SELECT SUM(prompt_tokens)     AS prompt_tokens,
                              SUM(completion_tokens) AS completion_tokens,
                              datecreated, model
-                        FROM {local_geniai_usage}
+                        FROM {local_aacura_core_usage}
                     GROUP BY model, datecreated
                     ORDER BY datecreated DESC
                        {$limit}

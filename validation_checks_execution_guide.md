@@ -6,7 +6,7 @@ This document explains in detail how EDURA evaluates student text messages again
 
 ## 1. Architectural Overview & Strategy Selection
 
-When a student sends a message, the central state coordinator ([bot_engine.php](file:///d:/Antigravity1x_backup/windows-projects/AAC-RERC%20Chatbot/local/geniai/classes/bot_engine.php)) retrieves the current active dialogue node and inspects its `validation_type` rule.
+When a student sends a message, the central state coordinator ([bot_engine.php](file:///d:/Antigravity1x_backup/windows-projects/AAC-RERC%20Chatbot/local/aacura_core/classes/bot_engine.php)) retrieves the current active dialogue node and inspects its `validation_type` rule.
 
 ```
                       ┌────────────────────────────────────────────────────────┐
@@ -37,7 +37,7 @@ When a student sends a message, the central state coordinator ([bot_engine.php](
                                 └─────────────────────────────────┘
 ```
 
-The system selects between two evaluation strategies based on Moodle's administrative configuration (`local_geniai` settings):
+The system selects between two evaluation strategies based on Moodle's administrative configuration (`local_aacura_core` settings):
 1. **Generative AI Strategy (`generative_ai_api_strategy.php`)**: Uses OpenAI LLM zero-shot prompt evaluation.
 2. **Regex Matcher Strategy (`regex_matcher_strategy.php`)**: Uses deterministic pattern and keyword matching (used directly in offline/standalone mode or as an emergency fallback if the LLM API times out).
 
@@ -91,7 +91,7 @@ When configured to use Generative AI, EDURA constructs a targeted **evaluative z
 
 ## 3. Pattern Matcher (Regex) Check Execution
 
-In offline mode, or when the LLM API is unavailable, EDURA evaluates student text using fast, deterministic pattern matching ([regex_matcher_strategy.php](file:///d:/Antigravity1x_backup/windows-projects/AAC-RERC%20Chatbot/local/geniai/classes/strategy/regex_matcher_strategy.php)).
+In offline mode, or when the LLM API is unavailable, EDURA evaluates student text using fast, deterministic pattern matching ([regex_matcher_strategy.php](file:///d:/Antigravity1x_backup/windows-projects/AAC-RERC%20Chatbot/local/aacura_core/classes/strategy/regex_matcher_strategy.php)).
 
 ### Detailed Pattern Execution Logic
 

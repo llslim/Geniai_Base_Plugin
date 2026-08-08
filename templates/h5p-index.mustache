@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template local_geniai/h5p-index
+    @template local_aacura_core/h5p-index
 
     Example context (json):
     {
@@ -68,16 +68,16 @@
           class="icon-no-margin btn btn-secondary text-nowrap mr-1"
           style="display: none">
         <i class="icon fa fa-add fa-fw"></i>
-        {{#str}}h5p-create-new,local_geniai{{/str}}</div>
+        {{#str}}h5p-create-new,local_aacura_core{{/str}}</div>
 
         <button id="h5p-create-new-link"
               class="icon-no-margin btn btn-secondary text-nowrap mr-1">
             <i class="icon fa fa-add fa-fw" style="font-size:18px;"></i>
-            {{#str}}h5p-create-new,local_geniai{{/str}}
+            {{#str}}h5p-create-new,local_aacura_core{{/str}}
         </button>
 
         <a href="{{return-url}}"
-           class="icon-no-margin btn btn-secondary text-nowrap mr-1">{{#str}}h5p-return,local_geniai{{/str}}</a>
+           class="icon-no-margin btn btn-secondary text-nowrap mr-1">{{#str}}h5p-return,local_aacura_core{{/str}}</a>
     </div>
 
     <div class="row h5p-index mt-4">
@@ -85,7 +85,7 @@
             <div class="col-xs-2 col-lg-3 col-md-4 col-sm-6 col-12">
                 <a class="card h-100 text-center h5p-block"
                    href="edit.php?id={{id}}">
-                {{#pix}}h5p/H5P.{{type}},local_geniai{{/pix}}
+                {{#pix}}h5p/H5P.{{type}},local_aacura_core{{/pix}}
                 <div class="card-body">
                     <h6 class="card-title text-center">{{{title}}}</h6>
                 </div>
@@ -99,12 +99,12 @@
     <div id="h5p-body-create" class="h5p-create">
         {{#types.unique}}
             <div class="text-center h5p-block">
-                {{#pix}}h5p/H5P.{{id}},local_geniai{{/pix}}
+                {{#pix}}h5p/H5P.{{id}},local_aacura_core{{/pix}}
                 <h4>{{{title}}}</h4>
                 <p>{{{desc}}}</p>
-                <p><a href="{{exe}}" target="_blank">{{#str}}h5p-example,local_geniai{{/str}}</a></p>
+                <p><a href="{{exe}}" target="_blank">{{#str}}h5p-example,local_aacura_core{{/str}}</a></p>
                 <p><a href="{{create}}"
-                      class="btn btn-primary">{{#str}}h5p-create-this,local_geniai{{/str}}</a></p>
+                      class="btn btn-primary">{{#str}}h5p-create-this,local_aacura_core{{/str}}</a></p>
             </div>
         {{/types.unique}}
         <hr>
@@ -112,16 +112,16 @@
             {{#types.h5ps}}
                 <div class="col-lg-4 col-sm-6 mb-4">
                     <div class="card h-100 text-center h5p-block">
-                        {{#pix}}h5p/H5P.{{id}},local_geniai{{/pix}}
+                        {{#pix}}h5p/H5P.{{id}},local_aacura_core{{/pix}}
                         <div class="card-body">
                             <h4 class="card-title text-center">
                                 {{{title}}}
                             </h4>
                             <div class="text-center">
                                 <p><span data-size="150" class="text-readmore">{{{desc}}}</span></p>
-                                <p><a href="{{exe}}" target="_blank">{{#str}}h5p-example,local_geniai{{/str}}</a></p>
+                                <p><a href="{{exe}}" target="_blank">{{#str}}h5p-example,local_aacura_core{{/str}}</a></p>
                                 <p><a href="{{create}}" class="btn btn-primary">
-                                    {{#str}}h5p-create-this,local_geniai{{/str}}</a></p>
+                                    {{#str}}h5p-create-this,local_aacura_core{{/str}}</a></p>
                             </div>
                         </div>
                     </div>

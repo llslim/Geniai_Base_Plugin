@@ -17,12 +17,12 @@
 /**
  * base file.
  *
- * @package   local_geniai
+ * @package   local_aacura_core
  * @copyright 2024 Eduardo Kraus {@link http://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_geniai\local\h5p\type;
+namespace local_aacura_core\local\h5p\type;
 
 use local_kopere_dashboard\html\form;
 use local_kopere_dashboard\html\inputs\input_checkbox;
@@ -30,7 +30,7 @@ use local_kopere_dashboard\html\inputs\input_checkbox;
 /**
  * Class Accordion
  *
- * @package local_geniai\local\h5p\type
+ * @package local_aacura_core\local\h5p\type
  */
 class Accordion implements h5p_base {
     /**

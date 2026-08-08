@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_geniai;
+namespace local_aacura_core;
 
 defined('MOODLE_INTERNAL') || die;
 
 /**
  * Class api
  *
- * @package   local_geniai
+ * @package   local_aacura_core
  * @copyright 2025 Eduardo Kraus https://eduardokraus.com/
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -47,12 +47,12 @@ class api {
         }
 
         $scenariocode = $geniai->scenariocode ?? 'anna';
-        $activesession = $DB->get_record('local_geniai_sessions', ['userid' => $USER->id, 'courseid' => $courseid, 'cmid' => $cmid], '*', IGNORE_MULTIPLE);
+        $activesession = $DB->get_record('local_aacura_core_sessions', ['userid' => $USER->id, 'courseid' => $courseid, 'cmid' => $cmid], '*', IGNORE_MULTIPLE);
         if ($activesession) {
             $scenariocode = $activesession->scenariocode;
         }
 
-        $engine = new \local_geniai\bot_engine($USER->id, $courseid, $cmid, $scenariocode);
+        $engine = new \local_aacura_core\bot_engine($USER->id, $courseid, $cmid, $scenariocode);
 
         if ($action === "clear") {
             $engine->reset_session();
@@ -67,8 +67,8 @@ class api {
                 // If text contains HTML tags (e.g. <h3>, <strong>, <ul>, <br>), pass through directly; otherwise parse markdown.
                 if (preg_match('/<[a-z][\s\S]*>/i', $content)) {
                     // Raw HTML rendered directly
-                } else if (class_exists('\\local_geniai\\local\\markdown\\parse_markdown')) {
-                    $parsemarkdown = new \local_geniai\local\markdown\parse_markdown();
+                } else if (class_exists('\\local_aacura_core\\local\\markdown\\parse_markdown')) {
+                    $parsemarkdown = new \local_aacura_core\local\markdown\parse_markdown();
                     $content = $parsemarkdown->markdown_text($content);
                 }
             }
@@ -134,19 +134,19 @@ class api {
         // Intercept special persona change command
         if (preg_match('/^\$\$persona=([a-zA-Z0-9_\-]+)\$\$$/', $cleanedMessage, $matches)) {
             $selected = $matches[1];
-            $engine = new \local_geniai\bot_engine($USER->id, $courseid, $cmid, $selected);
+            $engine = new \local_aacura_core\bot_engine($USER->id, $courseid, $cmid, $selected);
             $engine->reset_session();
 
             $session = $engine->get_session_record();
             $session->scenariocode = $selected;
             $session->current_state = 'START';
             $session->timemodified = time();
-            $DB->update_record('local_geniai_sessions', $session);
+            $DB->update_record('local_aacura_core_sessions', $session);
 
             $startnode = $engine->get_scenario()->get_state('START');
             $prompt = $startnode['bot_prompt'] ?? '';
-            if (class_exists('\\local_geniai\\local\\markdown\\parse_markdown')) {
-                $parsemarkdown = new \local_geniai\local\markdown\parse_markdown();
+            if (class_exists('\\local_aacura_core\\local\\markdown\\parse_markdown')) {
+                $parsemarkdown = new \local_aacura_core\local\markdown\parse_markdown();
                 $content = $parsemarkdown->markdown_text($prompt);
             } else {
                 $content = $prompt;
@@ -169,7 +169,7 @@ class api {
         $decision = strtolower(trim($check["choices"][0]["message"]["content"] ?? "no"));
 
         if ($decision === "yes") {
-            $engine = new \local_geniai\bot_engine($USER->id, $courseid, $cmid, 'anna');
+            $engine = new \local_aacura_core\bot_engine($USER->id, $courseid, $cmid, 'anna');
             $engine->reset_session();
             return [
                 "result" => "true",
@@ -183,20 +183,20 @@ class api {
         if ($geniai && !empty($geniai->scenariocode)) {
             $activescenariocode = $geniai->scenariocode;
         }
-        $activesession = $DB->get_record('local_geniai_sessions', ['userid' => $USER->id, 'courseid' => $courseid, 'cmid' => $cmid], '*', IGNORE_MULTIPLE);
+        $activesession = $DB->get_record('local_aacura_core_sessions', ['userid' => $USER->id, 'courseid' => $courseid, 'cmid' => $cmid], '*', IGNORE_MULTIPLE);
         if ($activesession) {
             $activescenariocode = $activesession->scenariocode;
         }
 
         // Instantiate core engine and run active turn logic
-        $engine = new \local_geniai\bot_engine($USER->id, $courseid, $cmid, $activescenariocode);
+        $engine = new \local_aacura_core\bot_engine($USER->id, $courseid, $cmid, $activescenariocode);
         $botreply = $engine->process_user_turn($cleanedMessage);
 
         // If botreply already contains HTML tags (e.g. <h3>, <ul>, <br>), pass through directly; otherwise parse markdown.
         if (preg_match('/<[a-z][\s\S]*>/i', $botreply)) {
             $content = $botreply;
-        } else if (class_exists('\\local_geniai\\local\\markdown\\parse_markdown')) {
-            $parsemarkdown = new \local_geniai\local\markdown\parse_markdown();
+        } else if (class_exists('\\local_aacura_core\\local\\markdown\\parse_markdown')) {
+            $parsemarkdown = new \local_aacura_core\local\markdown\parse_markdown();
             $content = $parsemarkdown->markdown_text($botreply);
         } else {
             $content = $botreply;
@@ -249,22 +249,22 @@ class api {
             }
         }
 
-        $strategy = get_config("local_geniai", "engine_strategy");
+        $strategy = get_config("local_aacura_core", "engine_strategy");
         if ($strategy === 'external_llm') {
-            $apikey = get_config("local_geniai", "api_bearer_token");
-            $model = get_config("local_geniai", "model_identifier");
-            $api_base_url = get_config("local_geniai", "api_base_url");
+            $apikey = get_config("local_aacura_core", "api_bearer_token");
+            $model = get_config("local_aacura_core", "model_identifier");
+            $api_base_url = get_config("local_aacura_core", "api_base_url");
         } else {
-            $apikey = get_config("local_geniai", "apikey");
-            $model = get_config("local_geniai", "model");
+            $apikey = get_config("local_aacura_core", "apikey");
+            $model = get_config("local_aacura_core", "model");
             $api_base_url = "https://api.openai.com/v1";
         }
 
-        $maxtokens = get_config("local_geniai", "max_tokens");
-        $frequencypenalty = get_config("local_geniai", "frequency_penalty");
-        $presencepenalty = get_config("local_geniai", "presence_penalty");
+        $maxtokens = get_config("local_aacura_core", "max_tokens");
+        $frequencypenalty = get_config("local_aacura_core", "frequency_penalty");
+        $presencepenalty = get_config("local_aacura_core", "presence_penalty");
 
-        switch (get_config("local_geniai", "case")) {
+        switch (get_config("local_aacura_core", "case")) {
             case "creative":
                 $temperature = .7;
                 $topp = .8;
@@ -359,7 +359,7 @@ class api {
             "datecreated" => date("Y-m-d", time()),
         ];
         try {
-            $DB->insert_record("local_geniai_usage", $usage);
+            $DB->insert_record("local_aacura_core_usage", $usage);
         } catch (\dml_exception $e) {
             echo $e->getMessage();
         }
@@ -391,7 +391,7 @@ class api {
         ]);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             "Content-Type: multipart/form-data",
-            "Authorization: Bearer " . get_config("local_geniai", "apikey"),
+            "Authorization: Bearer " . get_config("local_aacura_core", "apikey"),
         ]);
 
         $result = curl_exec($ch);
@@ -415,7 +415,7 @@ class api {
         $json = json_encode((object)[
             "model" => "tts-1",
             "input" => $input,
-            "voice" => get_config("local_geniai", "voice"),
+            "voice" => get_config("local_aacura_core", "voice"),
             "response_format" => "mp3",
         ]);
 
@@ -427,7 +427,7 @@ class api {
 
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             "Content-Type: application/json",
-            "Authorization: Bearer " . get_config("local_geniai", "apikey"),
+            "Authorization: Bearer " . get_config("local_aacura_core", "apikey"),
         ]);
 
         $audiodata = curl_exec($ch);
@@ -437,6 +437,6 @@ class api {
         $filepath = "{$CFG->dataroot}/temp/{$filename}.mp3";
         file_put_contents($filepath, $audiodata);
 
-        return "{$CFG->wwwroot}/local/geniai/load-audio-temp.php?filename={$filename}";
+        return "{$CFG->wwwroot}/local/aacura_core/load-audio-temp.php?filename={$filename}";
     }
 }

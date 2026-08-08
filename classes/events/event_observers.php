@@ -17,17 +17,17 @@
 /**
  * Event observers file.
  *
- * @package     local_geniai
+ * @package     local_aacura_core
  * @copyright   2024 Eduardo Kraus https://eduardokraus.com/
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_geniai\events;
+namespace local_aacura_core\events;
 
 /**
  * Class event_observers
  *
- * @package local_geniai\events
+ * @package local_aacura_core\events
  */
 class event_observers {
     /**

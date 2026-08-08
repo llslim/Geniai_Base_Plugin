@@ -17,12 +17,12 @@
 /**
  * parse markdown file.
  *
- * @package     local_geniai
+ * @package     local_aacura_core
  * @copyright   2024 Eduardo Kraus https://eduardokraus.com/
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_geniai\local\markdown;
+namespace local_aacura_core\local\markdown;
 
 /**
  * Class parse_markdown

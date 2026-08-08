@@ -17,26 +17,26 @@
 /**
  * Page create file.
  *
- * @package   local_geniai
+ * @package   local_aacura_core
  * @copyright 2024 Eduardo Kraus {@link http://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_geniai\local\h5p;
+namespace local_aacura_core\local\h5p;
 
 use coding_exception;
 use Exception;
-use local_geniai\local\editor\editor_tiny;
-use local_geniai\local\vo\local_geniai_h5p;
+use local_aacura_core\local\editor\editor_tiny;
+use local_aacura_core\local\vo\local_aacura_core_h5p;
 use moodle_exception;
 
 /**
  * Class page_create
  *
- * @package local_geniai\local\h5p
+ * @package local_aacura_core\local\h5p
  */
 class page_create {
-    /** @var local_geniai_h5p */
+    /** @var local_aacura_core_h5p */
     private $h5p;
 
     /**
@@ -63,16 +63,16 @@ class page_create {
             "user_fullname" => fullname($USER),
             "user_email" => $USER->email,
             "user_lang" => isset($SESSION->lang) ? $SESSION->lang : $USER->lang,
-            "case" => get_config("local_geniai", "case"),
-            "frequency_penalty" => get_config("local_geniai", "frequency_penalty"),
-            "presence_penalty" => get_config("local_geniai", "presence_penalty"),
-            "apikey" => get_config("local_geniai", "apikey"),
+            "case" => get_config("local_aacura_core", "case"),
+            "frequency_penalty" => get_config("local_aacura_core", "frequency_penalty"),
+            "presence_penalty" => get_config("local_aacura_core", "presence_penalty"),
+            "apikey" => get_config("local_aacura_core", "apikey"),
             "module" => "create",
         ]);
 
-        $basecolor = get_config("local_geniai", "base_color");
+        $basecolor = get_config("local_aacura_core", "base_color");
         $types = types::get_types($this->h5p->contextid);
-        echo $OUTPUT->render_from_template("local_geniai/h5p-create", [
+        echo $OUTPUT->render_from_template("local_aacura_core/h5p-create", [
             "h5p" => $this->h5p,
             "user" => $USER,
             "user_lang" => isset($SESSION->lang) ? $SESSION->lang : $USER->lang,
@@ -98,17 +98,17 @@ class page_create {
             "user_fullname" => fullname($USER),
             "user_email" => $USER->email,
             "user_lang" => isset($SESSION->lang) ? $SESSION->lang : $USER->lang,
-            "case" => get_config("local_geniai", "case"),
-            "frequency_penalty" => get_config("local_geniai", "frequency_penalty"),
-            "presence_penalty" => get_config("local_geniai", "presence_penalty"),
-            "apikey" => get_config("local_geniai", "apikey"),
+            "case" => get_config("local_aacura_core", "case"),
+            "frequency_penalty" => get_config("local_aacura_core", "frequency_penalty"),
+            "presence_penalty" => get_config("local_aacura_core", "presence_penalty"),
+            "apikey" => get_config("local_aacura_core", "apikey"),
             "module" => "edit",
             "sesskey" => sesskey(),
             "h5p_id" => $this->h5p->id,
         ]);
 
         $types = types::get_types($this->h5p->contextid);
-        echo $OUTPUT->render_from_template("local_geniai/h5p-edit", [
+        echo $OUTPUT->render_from_template("local_aacura_core/h5p-edit", [
             "h5p" => $this->h5p,
             "h5p_data" => json_decode($this->h5p->data),
             "user" => $USER,
@@ -116,7 +116,7 @@ class page_create {
             "h5pjs" => $h5pjs,
             "types" => $types,
             "show-pages" => $this->h5p->type == "InteractiveBook",
-            "pages" => array_values($DB->get_records("local_geniai_h5ppages", ["h5pid" => $this->h5p->id])),
+            "pages" => array_values($DB->get_records("local_aacura_core_h5ppages", ["h5pid" => $this->h5p->id])),
             "tyni_editor_config" => (new editor_tiny())->tyni_editor_config(),
         ]);
     }
@@ -131,7 +131,7 @@ class page_create {
 
         $config = $this->params_array("config", PARAM_RAW, false);
         if (isset($config["baseColor"])) {
-            set_config("base_color", $config["baseColor"], "local_geniai");
+            set_config("base_color", $config["baseColor"], "local_aacura_core");
         }
 
         if ($this->h5p->id) {
@@ -146,7 +146,7 @@ class page_create {
                 $this->h5p->textbase = $textbase;
             }
 
-            $DB->update_record("local_geniai_h5p", $this->h5p);
+            $DB->update_record("local_aacura_core_h5p", $this->h5p);
         } else {
             $this->h5p->contextid = required_param("contextid", PARAM_INT);
             $this->h5p->title = required_param("title", PARAM_TEXT);
@@ -158,17 +158,17 @@ class page_create {
                 "config" => $config,
             ], JSON_PRETTY_PRINT);
             $this->h5p->timecreated = time();
-            $this->h5p->id = $DB->insert_record("local_geniai_h5p", $this->h5p);
+            $this->h5p->id = $DB->insert_record("local_aacura_core_h5p", $this->h5p);
         }
 
-        $h5ppages = $DB->get_records("local_geniai_h5ppages", ["h5pid" => $this->h5p->id]);
+        $h5ppages = $DB->get_records("local_aacura_core_h5ppages", ["h5pid" => $this->h5p->id]);
         $pages = $this->params_array("pages", PARAM_RAW, false);
         foreach ($pages as $page) {
-            if ($h5ppage = $DB->get_record("local_geniai_h5ppages", ["h5pid" => $this->h5p->id, "type" => $page["type"]])) {
+            if ($h5ppage = $DB->get_record("local_aacura_core_h5ppages", ["h5pid" => $this->h5p->id, "type" => $page["type"]])) {
                 $h5ppage->title = $page["title"];
                 $h5ppage->type = $page["type"];
                 $h5ppage->data = json_encode($page, JSON_PRETTY_PRINT);
-                $DB->update_record("local_geniai_h5ppages", $h5ppage);
+                $DB->update_record("local_aacura_core_h5ppages", $h5ppage);
                 unset($h5ppages[$h5ppage->id]);
             } else {
                 $h5ppage = (object)[
@@ -178,13 +178,13 @@ class page_create {
                     "data" => json_encode($page, JSON_PRETTY_PRINT),
                     "timecreated" => time(),
                 ];
-                $DB->insert_record("local_geniai_h5ppages", $h5ppage);
+                $DB->insert_record("local_aacura_core_h5ppages", $h5ppage);
             }
         }
 
         foreach ($h5ppages as $h5ppage) {
             if (isset($h5ppage->id)) {
-                $DB->delete_records("local_geniai_h5ppages", ["id" => $h5ppage->id]);
+                $DB->delete_records("local_aacura_core_h5ppages", ["id" => $h5ppage->id]);
             }
         }
     }
@@ -197,8 +197,8 @@ class page_create {
     public function delete() {
         global $DB;
 
-        $DB->delete_records("local_geniai_h5p", ["id" => $this->h5p->id]);
-        $DB->delete_records("local_geniai_h5ppages", ["h5pid" => $this->h5p->id]);
+        $DB->delete_records("local_aacura_core_h5p", ["id" => $this->h5p->id]);
+        $DB->delete_records("local_aacura_core_h5ppages", ["h5pid" => $this->h5p->id]);
     }
 
     /**
@@ -233,7 +233,7 @@ class page_create {
         $url = "https://app.ottflix.com.br/upload/h5ps/geniai/?download=1";
 
         $h5p = (array)$DB->get_record(
-            "local_geniai_h5p",
+            "local_aacura_core_h5p",
             ["id" => $this->h5p->id],
             "id, contextid, contentbanktid, title, type, data"
         );
@@ -244,7 +244,7 @@ class page_create {
         $h5p["pages"] = [];
         if ($contentbankid) {
             $h5ppages = $DB->get_records(
-                "local_geniai_h5ppages",
+                "local_aacura_core_h5ppages",
                 ["id" => $contentbankid]
             );
             $h5ppages = array_values($h5ppages);
@@ -252,7 +252,7 @@ class page_create {
             $h5p["title"] = $h5p["title"] . " - " . $h5ppages[0]->title;
             $h5p["type"] = "Column";
         } else {
-            $h5ppages = $DB->get_records("local_geniai_h5ppages", ["h5pid" => $this->h5p->id]);
+            $h5ppages = $DB->get_records("local_aacura_core_h5ppages", ["h5pid" => $this->h5p->id]);
         }
 
         foreach ($h5ppages as $h5ppage) {
@@ -293,7 +293,7 @@ class page_create {
             /** @var \contenttype_h5p\content $content */
             $content = $cb->create_content_from_file(\context::instance_by_id($this->h5p->contextid), $USER->id, $storedfile);
 
-            $DB->execute("UPDATE {local_geniai_h5p} SET contentbanktid = '{$content->get_id()}' WHERE id = {$this->h5p->id}");
+            $DB->execute("UPDATE {local_aacura_core_h5p} SET contentbanktid = '{$content->get_id()}' WHERE id = {$this->h5p->id}");
         }
         $params = ["id" => $content->get_id(), "contextid" => $this->h5p->contextid];
         $url = new \moodle_url("/contentbank/view.php", $params);
@@ -303,7 +303,7 @@ class page_create {
     /**
      * Function get_h5p
      *
-     * @return local_geniai_h5p
+     * @return local_aacura_core_h5p
      */
     public function get_h5p() {
         return $this->h5p;
@@ -312,7 +312,7 @@ class page_create {
     /**
      * Function set_h5p
      *
-     * @param local_geniai_h5p $h5p
+     * @param local_aacura_core_h5p $h5p
      */
     public function set_h5p($h5p): void {
         $this->h5p = $h5p;

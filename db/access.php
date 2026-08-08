@@ -17,7 +17,7 @@
 /**
  * access file.
  *
- * @package   local_geniai
+ * @package   local_aacura_core
  * @copyright 2024 Eduardo Kraus {@link http://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die;
 
 $capabilities = [
-    "local/geniai:manage" => [
+    "local/aacura_core:manage" => [
         "captype" => "write",
         "contextlevel" => CONTEXT_SYSTEM,
         "archetypes" => [

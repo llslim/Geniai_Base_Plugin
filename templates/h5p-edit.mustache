@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template local_geniai/h5p-edit
+    @template local_aacura_core/h5p-edit
 
     Example context (json):
     {
@@ -75,9 +75,9 @@
     <input type="hidden" name="filebase" id="h5p_data_filebase" value="{{h5p_data.filebase}}">
 
     <div id="area_title" class="form-group area_title type_text">
-        <label for="title">{{#str}}h5p-create-title, local_geniai{{/str}}</label>
+        <label for="title">{{#str}}h5p-create-title, local_aacura_core{{/str}}</label>
         <input id="title" name="title" type="text" value="{{h5p.title}}">
-        <div class="help-block form-text with-errors">{{#str}}h5p-create-title-desc, local_geniai{{/str}}</div>
+        <div class="help-block form-text with-errors">{{#str}}h5p-create-title-desc, local_aacura_core{{/str}}</div>
     </div>
 
     <div id="config-h5p"></div>
@@ -87,7 +87,7 @@
             {{#pages}}
                 <li>
                     <a href="#h5ps-pages-{{id}}" title="{{title}}" data-type="{{type}}">
-                        {{#pix}}h5p/{{type}},local_geniai{{/pix}}
+                        {{#pix}}h5p/{{type}},local_aacura_core{{/pix}}
                         <span class="title">{{title}}</span>
                     </a>
                 </li>
@@ -99,7 +99,7 @@
                  data-id="{{id}}" data-type="{{type}}">
 
                 <div id="area_page_title-{{id}}" class="form-group area_title type_text">
-                    <label for="pages-{{id}}-title">{{#str}}h5p-block-title, local_geniai{{/str}}</label>
+                    <label for="pages-{{id}}-title">{{#str}}h5p-block-title, local_aacura_core{{/str}}</label>
                     <input id="pages-{{id}}-title" name="pages[{{id}}][title]" type="text" value="{{title}}">
                 </div>
 
@@ -116,14 +116,14 @@
 {{#js}}
 require(["jquery", "core/modal_factory", "jqueryui"], function($, ModalFactory, $ui) {
     var tyniEditorConfig = {{{tyni_editor_config}}};
-    var loadingIcon = `{{#pix}}h5p/loading,local_geniai{{/pix}}`.replace("icon", "");
+    var loadingIcon = `{{#pix}}h5p/loading,local_aacura_core{{/pix}}`.replace("icon", "");
 
     var h5ps = {
         {{#types.h5ps}}
             "H5P.{{{id}}}": {
                 "title": "{{{title}}}",
                 "desc": "{{{desc}}}",
-                "pix": `{{#pix}}h5p/H5P.{{id}},local_geniai{{/pix}}`.replace("icon", ""),
+                "pix": `{{#pix}}h5p/H5P.{{id}},local_aacura_core{{/pix}}`.replace("icon", ""),
             },
         {{/types.h5ps}}
     };

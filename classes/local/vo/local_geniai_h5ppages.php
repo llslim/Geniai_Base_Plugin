@@ -15,21 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * local_geniai_h5ppages file.
+ * local_aacura_core_h5ppages file.
  *
- * @package   local_geniai
+ * @package   local_aacura_core
  * @copyright 2024 Eduardo Kraus {@link http://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_geniai\local\vo;
+namespace local_aacura_core\local\vo;
 
 /**
- * Class local_geniai_h5ppages
+ * Class local_aacura_core_h5ppages
  *
- * @package local_geniai\local\vo
+ * @package local_aacura_core\local\vo
  */
-class local_geniai_h5ppages {
+class local_aacura_core_h5ppages {
     /** @var int */
     public $id = 0;
 

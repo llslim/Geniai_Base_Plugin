@@ -14,17 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_geniai\strategy;
+namespace local_aacura_core\strategy;
 
 defined('MOODLE_INTERNAL') || die;
 
-use local_geniai\scenario\scenario_definition;
-use local_geniai\api;
+use local_aacura_core\scenario\scenario_definition;
+use local_aacura_core\api;
 
 /**
  * Class generative_ai_api_strategy interfacing with LLM endpoints for evaluative roleplay.
  *
- * @package   local_geniai
+ * @package   local_aacura_core
  * @copyright 2026 Antigravity
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

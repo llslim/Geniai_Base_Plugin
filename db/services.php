@@ -17,7 +17,7 @@
 /**
  * services file.
  *
- * @package   local_geniai
+ * @package   local_aacura_core
  * @copyright 2024 Eduardo Kraus {@link http://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,34 +25,34 @@
 defined('MOODLE_INTERNAL') || die;
 
 $functions = [
-    "local_geniai_chat_3" => [
-        "classpath" => "local/geniai/classes/external/chat_3.php",
-        "classname" => "\\local_geniai\\external\\chat_3",
+    "local_aacura_core_chat_3" => [
+        "classpath" => "local/aacura_core/classes/external/chat_3.php",
+        "classname" => "\\local_aacura_core\\external\\chat_3",
         "methodname" => "api",
         "description" => "ChatGPT API",
         "type" => "write",
         "ajax" => true,
     ],
-    "local_geniai_history_3" => [
-        "classpath" => "local/geniai/classes/external/history_3.php",
-        "classname" => "\\local_geniai\\external\\history_3",
+    "local_aacura_core_history_3" => [
+        "classpath" => "local/aacura_core/classes/external/history_3.php",
+        "classname" => "\\local_aacura_core\\external\\history_3",
         "methodname" => "api",
         "description" => "Brings the conversation history",
         "type" => "write",
         "ajax" => true,
     ],
 
-    "local_geniai_chat_4" => [
-        "classpath" => "local/geniai/classes/external/chat_4.php",
-        "classname" => "\\local_geniai\\external\\chat_4",
+    "local_aacura_core_chat_4" => [
+        "classpath" => "local/aacura_core/classes/external/chat_4.php",
+        "classname" => "\\local_aacura_core\\external\\chat_4",
         "methodname" => "api",
         "description" => "ChatGPT API",
         "type" => "write",
         "ajax" => true,
     ],
-    "local_geniai_history_4" => [
-        "classpath" => "local/geniai/classes/external/history_4.php",
-        "classname" => "\\local_geniai\\external\\history_4",
+    "local_aacura_core_history_4" => [
+        "classpath" => "local/aacura_core/classes/external/history_4.php",
+        "classname" => "\\local_aacura_core\\external\\history_4",
         "methodname" => "api",
         "description" => "Brings the conversation history",
         "type" => "write",

@@ -15,17 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Privacy Subsystem implementation for local_geniai.
+ * Privacy Subsystem implementation for local_aacura_core.
  *
- * @package  local_geniai
+ * @package  local_aacura_core
  * @copyright   2024 Eduardo Kraus https://eduardokraus.com/
  * @license  http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_geniai\privacy;
+namespace local_aacura_core\privacy;
 
 /**
- * The local_geniai module does not store any data.
+ * The local_aacura_core module does not store any data.
  */
 class provider implements \core_privacy\local\metadata\null_provider {
     /**

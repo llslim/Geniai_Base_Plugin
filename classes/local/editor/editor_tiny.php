@@ -17,17 +17,17 @@
 /**
  * editor_tiny file.
  *
- * @package     local_geniai
+ * @package     local_aacura_core
  * @copyright   2024 Eduardo Kraus https://eduardokraus.com/
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_geniai\local\editor;
+namespace local_aacura_core\local\editor;
 
 /**
  * Class editor_tiny
  *
- * @package local_geniai\local\editor
+ * @package local_aacura_core\local\editor
  */
 class editor_tiny extends \editor_tiny\editor {
     /**

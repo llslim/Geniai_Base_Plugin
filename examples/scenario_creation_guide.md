@@ -1,6 +1,6 @@
-# AURA Preloaded Scenarios & Custom Scenario Creation Guide
+# AACURA Preloaded Scenarios & Custom Scenario Creation Guide
 
-This document details the 4 preloaded parent roleplay scenarios in AURA and provides a step-by-step technical guide for instructors to build and upload custom scenario JSON profiles.
+This document details the 4 preloaded parent roleplay scenarios in AACURA and provides a step-by-step technical guide for instructors to build and upload custom scenario JSON profiles.
 
 ---
 
@@ -83,11 +83,11 @@ Scenarios are defined as directed graphs using standardized JSON files. Below is
 
 ## 3. Example Scenario Files
 
-Reference JSON files are pre-packaged in the repository under `local/geniai/examples/`:
-- `local/geniai/examples/scenario_anna.json`
-- `local/geniai/examples/scenario_brianna.json`
-- `local/geniai/examples/scenario_cathy.json`
-- `local/geniai/examples/scenario_mary.json`
+Reference JSON files are pre-packaged in the repository under `local/aacura_core/examples/`:
+- `local/aacura_core/examples/scenario_anna.json`
+- `local/aacura_core/examples/scenario_brianna.json`
+- `local/aacura_core/examples/scenario_cathy.json`
+- `local/aacura_core/examples/scenario_mary.json`
 
 ---
 
@@ -95,7 +95,7 @@ Reference JSON files are pre-packaged in the repository under `local/geniai/exam
 
 Instructors can upload custom scenarios directly to any Moodle `mod_geniai` activity without touching backend code:
 
-1. **Create the JSON file** following the schema above or editing one of the example templates in `local/geniai/examples/`.
+1. **Create the JSON file** following the schema above or editing one of the example templates in `local/aacura_core/examples/`.
 2. **Log into Moodle** as an Instructor or Administrator.
 3. **Turn Editing On** and navigate to your course's EDURA Chatbot Activity module.
 4. **Edit Activity Settings**:

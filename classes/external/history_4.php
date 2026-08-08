@@ -17,12 +17,12 @@
 /**
  * History_4 file.
  *
- * @package     local_geniai
+ * @package     local_aacura_core
  * @copyright   2024 Eduardo Kraus https://eduardokraus.com/
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_geniai\external;
+namespace local_aacura_core\external;
 
 use core_external\external_api;
 use core_external\external_value;
@@ -37,7 +37,7 @@ require_once(__DIR__ . "/../api.php");
 /**
  * History_4 file.
  *
- * @package     local_geniai
+ * @package     local_aacura_core
  * @copyright   2024 Eduardo Kraus https://eduardokraus.com/
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -75,6 +75,6 @@ class history_4 extends external_api {
      * @return array
      */
     public static function api($courseid, $action) {
-        return \local_geniai\api::history_api($courseid, $action);
+        return \local_aacura_core\api::history_api($courseid, $action);
     }
 }

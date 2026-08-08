@@ -17,17 +17,17 @@
 /**
  * InteractiveVideo file.
  *
- * @package     local_geniai
+ * @package     local_aacura_core
  * @copyright   2024 Eduardo Kraus https://eduardokraus.com/
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_geniai\local\h5p\type;
+namespace local_aacura_core\local\h5p\type;
 
 /**
  * Class InteractiveVideo
  *
- * @package local_geniai\local\h5p\type
+ * @package local_aacura_core\local\h5p\type
  */
 class InteractiveVideo implements base {
 }

@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_geniai\state;
+namespace local_aacura_core\state;
 
 defined('MOODLE_INTERNAL') || die;
 
-use local_geniai\bot_engine;
+use local_aacura_core\bot_engine;
 
 /**
  * Abstract class representing a dialogue state in the chatbot state machine.
  *
- * @package   local_geniai
+ * @package   local_aacura_core
  * @copyright 2026 Antigravity
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

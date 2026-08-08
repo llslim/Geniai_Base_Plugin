@@ -20,7 +20,7 @@ define(["jquery", "core/modal_factory"], function($, ModalFactory) {
                         truncatedText = `${truncatedText} ${partes[i]}`;
                     }
 
-                    var readmore = `<span class="btn btn-link readmore-link">${M.util.get_string("h5p-readmore", "local_geniai")}</span>`;
+                    var readmore = `<span class="btn btn-link readmore-link">${M.util.get_string("h5p-readmore", "local_aacura_core")}</span>`;
                     $lement.html(truncatedText + readmore);
                     $lement.find(".readmore-link").click(function() {
                         console.log($lement.attr("data-fulltext"));
@@ -36,7 +36,7 @@ define(["jquery", "core/modal_factory"], function($, ModalFactory) {
             $("#h5p-create-new-link").click(function() {
                 ModalFactory.create({
                     type: ModalFactory.types.DEFAULT,
-                    title: M.util.get_string("h5p-page-title", "local_geniai"),
+                    title: M.util.get_string("h5p-page-title", "local_aacura_core"),
                     body: $("#h5p-body-create"),
                     footer: "",
                 }).done(function(modal) {

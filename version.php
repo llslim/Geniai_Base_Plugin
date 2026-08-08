@@ -17,7 +17,7 @@
 /**
  * version file.
  *
- * @package   local_geniai
+ * @package   local_aacura_core
  * @copyright 2024 Eduardo Kraus {@link http://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -28,4 +28,4 @@ $plugin->version = 2026052515;
 $plugin->requires = 2026042000;
 $plugin->release = "2.4.1";
 $plugin->maturity = MATURITY_STABLE;
-$plugin->component = "local_geniai";
+$plugin->component = "local_aacura_core";

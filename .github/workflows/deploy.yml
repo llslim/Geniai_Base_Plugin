@@ -1,4 +1,4 @@
-name: Deploy local_geniai (Geniai Base Plugin)
+name: Deploy local_aacura_core (Geniai Base Plugin)
 
 on:
   push:
@@ -15,21 +15,13 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set Environment Variables based on Branch
+      - name: Set Environment Variables
         run: |
-          if [ "${{ github.ref_name }}" = "main" ]; then
-            echo "Environment: PRODUCTION"
-            echo "SSH_HOST=${{ secrets.PROD_SSH_HOST || '18.210.251.16' }}" >> $GITHUB_ENV
-            echo "SSH_USER=${{ secrets.PROD_SSH_USER || 'llslim-aac-learn' }}" >> $GITHUB_ENV
-            echo "DEPLOY_PATH=${{ secrets.PROD_DEPLOY_PATH || '/home/llslim-aac-learn/htdocs/aac-learn.llslim.com' }}" >> $GITHUB_ENV
-            echo "SSH_KEY=${{ secrets.PROD_SSH_PRIVATE_KEY || secrets.SSH_PRIVATE_KEY }}" >> $GITHUB_ENV
-          else
-            echo "Environment: DEVELOPMENT"
-            echo "SSH_HOST=${{ secrets.DEV_SSH_HOST || '18.210.251.16' }}" >> $GITHUB_ENV
-            echo "SSH_USER=${{ secrets.DEV_SSH_USER || 'llslim-aac-learn' }}" >> $GITHUB_ENV
-            echo "DEPLOY_PATH=${{ secrets.DEV_DEPLOY_PATH || '/home/llslim-aac-learn/htdocs/aac-learn.llslim.com' }}" >> $GITHUB_ENV
-            echo "SSH_KEY=${{ secrets.DEV_SSH_PRIVATE_KEY || secrets.SSH_PRIVATE_KEY }}" >> $GITHUB_ENV
-          fi
+          echo "Environment: DEVELOPMENT"
+          echo "SSH_HOST=${{ secrets.DEV_SSH_HOST }}" >> $GITHUB_ENV
+          echo "SSH_USER=${{ secrets.DEV_SSH_USER }}" >> $GITHUB_ENV
+          echo "DEPLOY_PATH=${{ secrets.DEV_DEPLOY_PATH }}" >> $GITHUB_ENV
+          echo "SSH_KEY=${{ secrets.DEV_SSH_PRIVATE_KEY || secrets.SSH_PRIVATE_KEY }}" >> $GITHUB_ENV
 
       - name: Setup SSH & Known Hosts
         run: |
@@ -40,10 +32,10 @@ jobs:
           ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
-      - name: Deploy local_geniai Module via rsync
+      - name: Deploy local_aacura_core Module via rsync
         run: |
-          echo "Deploying local_geniai submodule to $SSH_HOST:$DEPLOY_PATH/local/geniai/..."
-          rsync -rtvzp --delete -e "ssh -o StrictHostKeyChecking=accept-new" ./ $SSH_USER@$SSH_HOST:$DEPLOY_PATH/local/geniai/
+          echo "Deploying local_aacura_core submodule to $SSH_HOST:$DEPLOY_PATH/local/aacura_core/..."
+          rsync -rtvzp --delete -e "ssh -o StrictHostKeyChecking=accept-new" ./ $SSH_USER@$SSH_HOST:$DEPLOY_PATH/local/aacura_core/
 
       - name: Execute Remote Moodle Updates
         run: |
@@ -62,4 +54,4 @@ jobs:
           echo "Deactivating Moodle maintenance mode..."
           ssh $SSH_USER@$SSH_HOST "php $DEPLOY_PATH/admin/cli/maintenance.php --disable"
 
-          echo "local_geniai deployment complete!"
+          echo "local_aacura_core deployment complete!"
