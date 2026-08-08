@@ -17,17 +17,17 @@
 /**
  * DragText file.
  *
- * @package     local_aacura_core
+ * @package     local_aacuracore
  * @copyright   2024 Eduardo Kraus https://eduardokraus.com/
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_aacura_core\local\h5p\type;
+namespace local_aacuracore\local\h5p\type;
 
 /**
  * Class DragText
  *
- * @package local_aacura_core\local\h5p\type
+ * @package local_aacuracore\local\h5p\type
  */
 class DragText implements base {
 }

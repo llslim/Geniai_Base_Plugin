@@ -17,7 +17,7 @@
 /**
  * events file.
  *
- * @package   local_aacura_core
+ * @package   local_aacuracore
  * @copyright 2024 Eduardo Kraus {@link http://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,11 +27,11 @@ defined('MOODLE_INTERNAL') || die;
 $observers = [
     [
         "eventname" => "\core\event\course_viewed",
-        "callback" => "\local_aacura_core\events\event_observers::course_viewed",
-        "includefile" => "/local/aacura_core/classes/events/event_observers.php",
+        "callback" => "\local_aacuracore\events\event_observers::course_viewed",
+        "includefile" => "/local/aacuracore/classes/events/event_observers.php",
     ], [
         "eventname" => "\core\event\course_module_viewed",
-        "callback" => "\local_aacura_core\events\event_observers::course_viewed",
-        "includefile" => "/local/aacura_core/classes/events/event_observers.php",
+        "callback" => "\local_aacuracore\events\event_observers::course_viewed",
+        "includefile" => "/local/aacuracore/classes/events/event_observers.php",
     ],
 ];

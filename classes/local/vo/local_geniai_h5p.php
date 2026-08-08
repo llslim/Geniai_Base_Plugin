@@ -15,21 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * local_aacura_core_h5p file.
+ * local_aacuracore_h5p file.
  *
- * @package   local_aacura_core
+ * @package   local_aacuracore
  * @copyright 2024 Eduardo Kraus {@link http://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_aacura_core\local\vo;
+namespace local_aacuracore\local\vo;
 
 /**
- * Class local_aacura_core_h5p
+ * Class local_aacuracore_h5p
  *
- * @package local_aacura_core\local\vo
+ * @package local_aacuracore\local\vo
  */
-class local_aacura_core_h5p extends \stdClass {
+class local_aacuracore_h5p extends \stdClass {
     /** @var int */
     public $id = 0;
 

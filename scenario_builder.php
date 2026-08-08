@@ -9,7 +9,7 @@
 require_once("../../config.php");
 
 require_login();
-require_capability("local/aacura_core:manage", context_system::instance());
+require_capability("local/aacuracore:manage", context_system::instance());
 
 global $DB, $USER, $OUTPUT, $PAGE;
 
@@ -28,14 +28,14 @@ if ($action === 'upload' && confirm_sesskey()) {
             $name = clean_param($data['persona']['name'], PARAM_TEXT);
             $description = clean_param($data['persona']['backstory'] ?? '', PARAM_TEXT);
 
-            $record = $DB->get_record('local_aacura_core_custom_scenarios', ['scenariocode' => $scenariocode]);
+            $record = $DB->get_record('local_aacuracore_custom_scenarios', ['scenariocode' => $scenariocode]);
             if ($record) {
                 $record->name = $name;
                 $record->description = $description;
                 $record->json_data = $jsoncontent;
                 $record->userid = $USER->id;
                 $record->timemodified = time();
-                $DB->update_record('local_aacura_core_custom_scenarios', $record);
+                $DB->update_record('local_aacuracore_custom_scenarios', $record);
                 $message = "Scenario profile '{$name}' ({$scenariocode}) updated successfully!";
             } else {
                 $record = new \stdClass();
@@ -46,7 +46,7 @@ if ($action === 'upload' && confirm_sesskey()) {
                 $record->userid = $USER->id;
                 $record->timecreated = time();
                 $record->timemodified = time();
-                $DB->insert_record('local_aacura_core_custom_scenarios', $record);
+                $DB->insert_record('local_aacuracore_custom_scenarios', $record);
                 $message = "New scenario profile '{$name}' ({$scenariocode}) registered successfully!";
             }
             $messagetype = 'success';
@@ -60,9 +60,9 @@ if ($action === 'upload' && confirm_sesskey()) {
 // Handle Persona Deletion Action
 if ($action === 'delete' && confirm_sesskey()) {
     $deletecode = required_param('scenariocode', PARAM_ALPHANUMEXT);
-    $record = $DB->get_record('local_aacura_core_custom_scenarios', ['scenariocode' => $deletecode]);
+    $record = $DB->get_record('local_aacuracore_custom_scenarios', ['scenariocode' => $deletecode]);
     if ($record) {
-        $DB->delete_records('local_aacura_core_custom_scenarios', ['id' => $record->id]);
+        $DB->delete_records('local_aacuracore_custom_scenarios', ['id' => $record->id]);
         $message = "Custom scenario profile '{$record->name}' ({$deletecode}) was deleted successfully.";
         $messagetype = 'success';
     } else {
@@ -72,12 +72,12 @@ if ($action === 'delete' && confirm_sesskey()) {
 }
 
 // Fetch all registered custom scenarios from database
-$customscenarios = $DB->get_records('local_aacura_core_custom_scenarios', null, 'name ASC');
+$customscenarios = $DB->get_records('local_aacuracore_custom_scenarios', null, 'name ASC');
 
 $PAGE->set_context(context_system::instance());
-$PAGE->set_url("/local/aacura_core/scenario_builder.php");
-$PAGE->set_title(get_string("modulename", "local_aacura_core") . " - Scenario Builder & Management");
-$PAGE->set_heading(get_string("modulename", "local_aacura_core") . " - Scenario Builder & Management");
+$PAGE->set_url("/local/aacuracore/scenario_builder.php");
+$PAGE->set_title(get_string("modulename", "local_aacuracore") . " - Scenario Builder & Management");
+$PAGE->set_heading(get_string("modulename", "local_aacuracore") . " - Scenario Builder & Management");
 
 echo $OUTPUT->header();
 

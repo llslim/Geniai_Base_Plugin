@@ -72,7 +72,7 @@ graph TD
 
 ## 5. JSON Schema Routing Example
 
-Below is the state routing configuration from `local/aacura_core/examples/scenario_anna.json` demonstrating how `validation_type`, `pass_route`, and `fail_route` are wired:
+Below is the state routing configuration from `local/aacuracore/examples/scenario_anna.json` demonstrating how `validation_type`, `pass_route`, and `fail_route` are wired:
 
 ```json
 "states": {

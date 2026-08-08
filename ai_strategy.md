@@ -28,7 +28,7 @@ graph TD
 ## 2. Pluggable Response Strategies
 
 ### A. Moodle Core AI Subsystem Strategy (`moodle_core_ai`)
-- **Class**: `\local_aacura_core\strategy\core_ai_provider_strategy`
+- **Class**: `\local_aacuracore\strategy\core_ai_provider_strategy`
 - **Purpose**: Leverages Moodle's native **Core AI Subsystem (`\core_ai\manager`)** introduced in recent Moodle LMS versions.
 - **Benefits**:
   - Centralizes API key management under **Site Administration > General > AI > AI Providers** (`/admin/settings.php?section=aisettings`).
@@ -36,14 +36,14 @@ graph TD
   - Uses `\core_ai\action\generate_text` actions with contextual logging.
 
 ### B. Direct Generative AI REST Strategy (`external_llm` / `local`)
-- **Class**: `\local_aacura_core\strategy\generative_ai_api_strategy`
+- **Class**: `\local_aacuracore\strategy\generative_ai_api_strategy`
 - **Purpose**: Directly connects to OpenAI-compatible REST endpoints, specifically optimized for **Google Gemini 3.5 Flash** (`https://generativelanguage.googleapis.com/v1beta/openai`).
 - **Features**:
   - Strict payload sanitization (omits zero-value `frequency_penalty` and `presence_penalty` parameters for Gemini REST compliance).
   - Dynamic parent backstory injection, pronoun enforcing, and emotional roleplay constraint system prompts.
 
 ### C. Deterministic Regex Matcher Strategy (`regex`)
-- **Class**: `\local_aacura_core\strategy\regex_matcher_strategy`
+- **Class**: `\local_aacuracore\strategy\regex_matcher_strategy`
 - **Purpose**: Fully offline, deterministic pattern-matching engine for local development, unit testing, or zero-connectivity environments.
 
 ---
@@ -65,7 +65,7 @@ When a simulation session reaches its conclusion (Turn 10 or terminal `RESOLUTIO
 
 ## 4. Configuration & Setup Summary
 
-Administrators can configure the AI Strategy in **Site Administration > Plugins > Local plugins > AACURA Settings** (`/admin/settings.php?section=local_aacura_coresetting`):
+Administrators can configure the AI Strategy in **Site Administration > Plugins > Local plugins > AACURA Settings** (`/admin/settings.php?section=local_aacuracoresetting`):
 
 - **Engine Strategy**: `moodle_core_ai` | `external_llm` | `local` | `regex`
 - **API Base URL**: `https://generativelanguage.googleapis.com/v1beta/openai`

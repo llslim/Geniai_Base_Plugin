@@ -2,7 +2,7 @@
 // This file is part of AACURA Core Engine for Moodle - http://moodle.org/
 //
 // CLI Migration Script: Upgrades legacy local_geniai and mod_geniai installations
-// to local_aacura_core and mod_aacura_chat.
+// to local_aacuracore and mod_aacura_chat.
 
 define('CLI_SCRIPT', true);
 
@@ -15,11 +15,11 @@ global $DB, $CFG;
 
 $dbman = $DB->get_manager();
 
-// 1. Migrate local_geniai tables -> local_aacura_core tables.
+// 1. Migrate local_geniai tables -> local_aacuracore tables.
 $localtables = [
-    'local_geniai_sessions' => 'local_aacura_core_sessions',
-    'local_geniai_scenarios' => 'local_aacura_core_scenarios',
-    'local_geniai_evaluations' => 'local_aacura_core_evaluations',
+    'local_geniai_sessions' => 'local_aacuracore_sessions',
+    'local_geniai_scenarios' => 'local_aacuracore_scenarios',
+    'local_geniai_evaluations' => 'local_aacuracore_evaluations',
 ];
 
 foreach ($localtables as $oldtable => $newtable) {
@@ -60,7 +60,7 @@ if ($module) {
 
 // 4. Update plugin settings in mdl_config_plugins.
 cli_writeln("Migrating plugin settings in config_plugins...");
-$DB->execute("UPDATE {config_plugins} SET plugin = 'local_aacura_core' WHERE plugin = 'local_geniai'");
+$DB->execute("UPDATE {config_plugins} SET plugin = 'local_aacuracore' WHERE plugin = 'local_geniai'");
 $DB->execute("UPDATE {config_plugins} SET plugin = 'mod_aacura_chat' WHERE plugin = 'mod_geniai'");
 
 // 5. Purge site caches.

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_aacura_core\scenario;
+namespace local_aacuracore\scenario;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -23,10 +23,10 @@ defined('MOODLE_INTERNAL') || die;
  *
  * Responsibilities:
  * - Loads preloaded parent scenarios (Anna, Brianna, Cathy, Mary).
- * - Loads site-wide custom uploaded scenarios from DB table local_aacura_core_custom_scenarios.
+ * - Loads site-wide custom uploaded scenarios from DB table local_aacuracore_custom_scenarios.
  * - Parses external JSON definitions into scenario_definition instances.
  *
- * @package   local_aacura_core\scenario
+ * @package   local_aacuracore\scenario
  * @copyright 2026 AAC-RERC Chatbot Team
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -36,8 +36,8 @@ class scenario_loader {
      * Loads a scenario by ID/code.
      *
      * Order of resolution:
-     * 1. Dynamic custom scenarios registered in local_aacura_core_custom_scenarios DB table.
-     * 2. Physical JSON file in local/aacura_core/scenarios/<id>.json.
+     * 1. Dynamic custom scenarios registered in local_aacuracore_custom_scenarios DB table.
+     * 2. Physical JSON file in local/aacuracore/scenarios/<id>.json.
      * 3. Preloaded static PHP fallback definitions (Anna, Brianna, Cathy, Mary).
      *
      * @param string $scenarioid
@@ -51,8 +51,8 @@ class scenario_loader {
 
         // 1. Check custom DB table for uploaded JSON profiles
         try {
-            if ($DB && $DB->get_manager()->table_exists('local_aacura_core_custom_scenarios')) {
-                $custom = $DB->get_record('local_aacura_core_custom_scenarios', ['scenariocode' => $scenarioid]);
+            if ($DB && $DB->get_manager()->table_exists('local_aacuracore_custom_scenarios')) {
+                $custom = $DB->get_record('local_aacuracore_custom_scenarios', ['scenariocode' => $scenarioid]);
                 if ($custom && !empty($custom->json_data)) {
                     $json = json_decode($custom->json_data, true);
                     if (is_array($json)) {
@@ -65,7 +65,7 @@ class scenario_loader {
         }
 
         // 2. Check local JSON file
-        $jsonfile = $CFG->dirroot . '/local/aacura_core/scenarios/' . $scenarioid . '.json';
+        $jsonfile = $CFG->dirroot . '/local/aacuracore/scenarios/' . $scenarioid . '.json';
         if (file_exists($jsonfile)) {
             $content = file_get_contents($jsonfile);
             $json = json_decode($content, true);

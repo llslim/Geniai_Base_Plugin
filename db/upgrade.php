@@ -17,7 +17,7 @@
 /**
  * upgrade file.
  *
- * @package   local_aacura_core
+ * @package   local_aacuracore
  * @copyright 2024 Eduardo Kraus {@link http://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -31,48 +31,48 @@
  *
  * @throws Exception
  */
-function xmldb_local_aacura_core_upgrade($oldversion) {
+function xmldb_local_aacuracore_upgrade($oldversion) {
     global $DB;
 
     $dbman = $DB->get_manager();
 
     if ($oldversion < 2024020501) {
-        $table = new xmldb_table("local_aacura_core_usage");
+        $table = new xmldb_table("local_aacuracore_usage");
         $field = new xmldb_field("model", XMLDB_TYPE_CHAR, "40", null, true, null, null, "receive");
 
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
-        $model = get_config("local_aacura_core", "model");
-        $sql = "UPDATE {local_aacura_core_usage} SET model = '{$model}'";
+        $model = get_config("local_aacuracore", "model");
+        $sql = "UPDATE {local_aacuracore_usage} SET model = '{$model}'";
         $DB->execute($sql);
 
-        upgrade_plugin_savepoint(true, 2024020501, 'local', 'aacura_core');
+        upgrade_plugin_savepoint(true, 2024020501, 'local', 'aacuracore');
     }
 
     if ($oldversion < 2024040500) {
-        $table = new xmldb_table("local_aacura_core_usage");
+        $table = new xmldb_table("local_aacuracore_usage");
         $field = new xmldb_field("datecreated", XMLDB_TYPE_CHAR, "10", null, true, null, null, "timecreated");
 
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
-        $usages = $DB->get_records("local_aacura_core_usage");
+        $usages = $DB->get_records("local_aacuracore_usage");
         foreach ($usages as $usage) {
             $usage->datecreated = date("Y-m-d", $usage->timecreated);
-            $DB->update_record("local_aacura_core_usage", $usage);
+            $DB->update_record("local_aacuracore_usage", $usage);
         }
 
-        upgrade_plugin_savepoint(true, 2024040500, 'local', 'aacura_core');
+        upgrade_plugin_savepoint(true, 2024040500, 'local', 'aacuracore');
     }
 
     if ($oldversion < 2025011400) {
-        // Criação da tabela local_aacura_core_h5p.
-        $table = new xmldb_table("local_aacura_core_h5p");
+        // Criação da tabela local_aacuracore_h5p.
+        $table = new xmldb_table("local_aacuracore_h5p");
 
-        // Definindo os campos da tabela local_aacura_core_h5p.
+        // Definindo os campos da tabela local_aacuracore_h5p.
         $table->add_field("id", XMLDB_TYPE_INTEGER, "10", true, XMLDB_NOTNULL, XMLDB_SEQUENCE);
         $table->add_field("contextid", XMLDB_TYPE_INTEGER, "10", null, XMLDB_NOTNULL);
         $table->add_field("contentbanktid", XMLDB_TYPE_INTEGER, "10", null, XMLDB_NOTNULL);
@@ -89,10 +89,10 @@ function xmldb_local_aacura_core_upgrade($oldversion) {
             $DB->get_manager()->create_table($table);
         }
 
-        // Criação da tabela local_aacura_core_h5ppages.
-        $table = new xmldb_table("local_aacura_core_h5ppages");
+        // Criação da tabela local_aacuracore_h5ppages.
+        $table = new xmldb_table("local_aacuracore_h5ppages");
 
-        // Definindo os campos da tabela local_aacura_core_h5ppages.
+        // Definindo os campos da tabela local_aacuracore_h5ppages.
         $table->add_field("id", XMLDB_TYPE_INTEGER, "10", true, XMLDB_NOTNULL, XMLDB_SEQUENCE);
         $table->add_field("h5pid", XMLDB_TYPE_INTEGER, "10", null, XMLDB_NOTNULL);
         $table->add_field("title", XMLDB_TYPE_CHAR, "255", null, XMLDB_NOTNULL);
@@ -109,12 +109,12 @@ function xmldb_local_aacura_core_upgrade($oldversion) {
         }
 
         // Atualizando a versão para 2025011400.
-        upgrade_plugin_savepoint(true, 2025011400, 'local', 'aacura_core');
+        upgrade_plugin_savepoint(true, 2025011400, 'local', 'aacuracore');
     }
 
     if ($oldversion < 2026052500) {
-        // Table local_aacura_core_sessions.
-        $table1 = new xmldb_table('local_aacura_core_sessions');
+        // Table local_aacuracore_sessions.
+        $table1 = new xmldb_table('local_aacuracore_sessions');
         $table1->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table1->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
         $table1->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
@@ -129,38 +129,38 @@ function xmldb_local_aacura_core_upgrade($oldversion) {
             $dbman->create_table($table1);
         }
 
-        // Table local_aacura_core_messages.
-        $table2 = new xmldb_table('local_aacura_core_messages');
+        // Table local_aacuracore_messages.
+        $table2 = new xmldb_table('local_aacuracore_messages');
         $table2->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table2->add_field('sessionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
         $table2->add_field('sender', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, 'user');
         $table2->add_field('message_text', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
         $table2->add_field('timestamp', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
         $table2->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-        $table2->add_key('session_fk', XMLDB_KEY_FOREIGN, ['sessionid'], 'local_aacura_core_sessions', ['id']);
+        $table2->add_key('session_fk', XMLDB_KEY_FOREIGN, ['sessionid'], 'local_aacuracore_sessions', ['id']);
 
         if (!$dbman->table_exists($table2)) {
             $dbman->create_table($table2);
         }
 
-        // Table local_aacura_core_analytics.
-        $table3 = new xmldb_table('local_aacura_core_analytics');
+        // Table local_aacuracore_analytics.
+        $table3 = new xmldb_table('local_aacuracore_analytics');
         $table3->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table3->add_field('sessionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
         $table3->add_field('metric_type', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, null);
         $table3->add_field('metric_value', XMLDB_TYPE_NUMBER, '10,2', null, XMLDB_NOTNULL, null, '0.00');
         $table3->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-        $table3->add_key('session_fk', XMLDB_KEY_FOREIGN, ['sessionid'], 'local_aacura_core_sessions', ['id']);
+        $table3->add_key('session_fk', XMLDB_KEY_FOREIGN, ['sessionid'], 'local_aacuracore_sessions', ['id']);
 
         if (!$dbman->table_exists($table3)) {
             $dbman->create_table($table3);
         }
 
-        upgrade_plugin_savepoint(true, 2026052500, 'local', 'aacura_core');
+        upgrade_plugin_savepoint(true, 2026052500, 'local', 'aacuracore');
     }
 
     if ($oldversion < 2026052515) {
-        $table = new xmldb_table('local_aacura_core_custom_scenarios');
+        $table = new xmldb_table('local_aacuracore_custom_scenarios');
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('scenariocode', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
         $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
@@ -176,7 +176,7 @@ function xmldb_local_aacura_core_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
-        upgrade_plugin_savepoint(true, 2026052515, 'local', 'aacura_core');
+        upgrade_plugin_savepoint(true, 2026052515, 'local', 'aacuracore');
     }
 
     return true;

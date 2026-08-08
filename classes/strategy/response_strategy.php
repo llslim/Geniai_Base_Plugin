@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_aacura_core\strategy;
+namespace local_aacuracore\strategy;
 
 defined('MOODLE_INTERNAL') || die;
 
-use local_aacura_core\scenario\scenario_definition;
+use local_aacuracore\scenario\scenario_definition;
 
 /**
  * Interface response_strategy defining standard evaluation behavior.
  *
- * @package   local_aacura_core
+ * @package   local_aacuracore
  * @copyright 2026 Antigravity
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

@@ -17,14 +17,14 @@
 /**
  * lib file.
  *
- * @package   local_aacura_core
+ * @package   local_aacuracore
  * @copyright 2024 Eduardo Kraus {@link http://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-use local_aacura_core\core_hook_output;
+use local_aacuracore\core_hook_output;
 
 /**
  * Hook before footer rendering.
@@ -33,6 +33,6 @@ use local_aacura_core\core_hook_output;
  * @throws dml_exception
  * @throws moodle_exception
  */
-function local_aacura_core_before_footer() {
+function local_aacuracore_before_footer() {
     core_hook_output::before_footer_html_generation();
 }

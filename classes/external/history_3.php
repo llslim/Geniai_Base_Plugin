@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_aacura_core\external;
+namespace local_aacuracore\external;
 
 use external_api;
 use external_value;
@@ -29,7 +29,7 @@ require_once(__DIR__ . "/../api.php");
 /**
  * History_3 file.
  *
- * @package     local_aacura_core
+ * @package     local_aacuracore
  * @copyright   2024 Eduardo Kraus https://eduardokraus.com/
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -67,6 +67,6 @@ class history_3 extends external_api {
      * @return array
      */
     public static function api($courseid, $action) {
-        return \local_aacura_core\api::history_api($courseid, $action);
+        return \local_aacuracore\api::history_api($courseid, $action);
     }
 }

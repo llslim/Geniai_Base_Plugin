@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/aacura_core/db" VERSION="20240303" COMMENT="XMLDB file for Moodle local/local_aacura_core"
+<XMLDB PATH="local/aacuracore/db" VERSION="20240303" COMMENT="XMLDB file for Moodle local/local_aacuracore"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
     <TABLES>
-        <TABLE NAME="local_aacura_core_usage" COMMENT="Stores information on how much ChatGPT was used">
+        <TABLE NAME="local_aacuracore_usage" COMMENT="Stores information on how much ChatGPT was used">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="send" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
@@ -18,7 +18,7 @@
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
             </KEYS>
         </TABLE>
-        <TABLE NAME="local_aacura_core_h5p" COMMENT="Stores H5P itens">
+        <TABLE NAME="local_aacuracore_h5p" COMMENT="Stores H5P itens">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="contextid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -32,7 +32,7 @@
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
             </KEYS>
         </TABLE>
-        <TABLE NAME="local_aacura_core_h5ppages" COMMENT="Stores H5P Pages">
+        <TABLE NAME="local_aacuracore_h5ppages" COMMENT="Stores H5P Pages">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="h5pid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -45,7 +45,7 @@
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
             </KEYS>
         </TABLE>
-        <TABLE NAME="local_aacura_core_sessions" COMMENT="Maintains active chatbot sessions and current progress">
+        <TABLE NAME="local_aacuracore_sessions" COMMENT="Maintains active chatbot sessions and current progress">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -60,7 +60,7 @@
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
             </KEYS>
         </TABLE>
-        <TABLE NAME="local_aacura_core_messages" COMMENT="Stores full text transcripts for evaluation and grade reviews">
+        <TABLE NAME="local_aacuracore_messages" COMMENT="Stores full text transcripts for evaluation and grade reviews">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="sessionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -70,10 +70,10 @@
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-                <KEY NAME="session_fk" TYPE="foreign" FIELDS="sessionid" REFTABLE="local_aacura_core_sessions" REFFIELDS="id"/>
+                <KEY NAME="session_fk" TYPE="foreign" FIELDS="sessionid" REFTABLE="local_aacuracore_sessions" REFFIELDS="id"/>
             </KEYS>
         </TABLE>
-        <TABLE NAME="local_aacura_core_analytics" COMMENT="Tracks performance evaluation markers and diagnostic scores">
+        <TABLE NAME="local_aacuracore_analytics" COMMENT="Tracks performance evaluation markers and diagnostic scores">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="sessionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -82,10 +82,10 @@
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-                <KEY NAME="session_fk" TYPE="foreign" FIELDS="sessionid" REFTABLE="local_aacura_core_sessions" REFFIELDS="id"/>
+                <KEY NAME="session_fk" TYPE="foreign" FIELDS="sessionid" REFTABLE="local_aacuracore_sessions" REFFIELDS="id"/>
             </KEYS>
         </TABLE>
-        <TABLE NAME="local_aacura_core_custom_scenarios" COMMENT="Stores custom JSON persona scenarios uploaded site-wide">
+        <TABLE NAME="local_aacuracore_custom_scenarios" COMMENT="Stores custom JSON persona scenarios uploaded site-wide">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="scenariocode" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>

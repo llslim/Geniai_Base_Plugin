@@ -95,10 +95,10 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                     }
                     geniaiscrollarea.scrollTop = 10000000000000;
 
-                    var methodname = "local_aacura_core_chat_3";
+                    var methodname = "local_aacuracore_chat_3";
                     var relNum = parseFloat(release) || 0;
                     if (relNum >= 4.2) {
-                        methodname = "local_aacura_core_chat_4";
+                        methodname = "local_aacuracore_chat_4";
                     }
 
                     ajax.call([{
@@ -187,10 +187,10 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                 }
                 geniaiareamensagens.html("");
 
-                var methodname = "local_aacura_core_history_3";
+                var methodname = "local_aacuracore_history_3";
                 var relNum = parseFloat(release) || 0;
                 if (relNum >= 4.2) {
-                    methodname = "local_aacura_core_history_4";
+                    methodname = "local_aacuracore_history_4";
                 }
 
                 ajax.call([{
@@ -211,9 +211,9 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                     geniaiareamensagens.html("");
                     startChat();
 
-                    var methodname = "local_aacura_core_history_3";
+                    var methodname = "local_aacuracore_history_3";
                     if (release >= 4.2) {
-                        methodname = "local_aacura_core_history_4";
+                        methodname = "local_aacuracore_history_4";
                     }
 
                     ajax.call([{
@@ -426,17 +426,17 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
             });
 
             function startChat() {
-                var message_01 = $("#local_aacura_core_message_01").val();
+                var message_01 = $("#local_aacuracore_message_01").val();
                 geniaiareamensagens.append(`<div class="geniai-message geniai-server format-text">${message_01}</div>`);
-                var message_02 = $("#local_aacura_core_message_02").val();
+                var message_02 = $("#local_aacuracore_message_02").val();
                 geniaiareamensagens.append(`<div class="geniai-message geniai-server format-text">${message_02}</div>`);
             }
 
             function showHistory() {
-                var methodname = "local_aacura_core_history_3";
+                var methodname = "local_aacuracore_history_3";
                 var relNum = parseFloat(release) || 0;
                 if (relNum >= 4.2) {
-                    methodname = "local_aacura_core_history_4";
+                    methodname = "local_aacuracore_history_4";
                 }
 
                 ajax.call([{

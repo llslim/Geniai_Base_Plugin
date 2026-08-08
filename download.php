@@ -17,7 +17,7 @@
 /**
  * Report for geniai.
  *
- * @package   local_aacura_core
+ * @package   local_aacuracore
  * @copyright 2024 Eduardo Kraus {@link http://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -31,7 +31,7 @@ if ($action = optional_param("action", false, PARAM_INT)) {
         header("Content-Type: text/csv");
         header("Content-Disposition: attachment; filename=\"usage.csv\"");
 
-        $usages = $DB->get_records("local_aacura_core_usage");
+        $usages = $DB->get_records("local_aacuracore_usage");
         $output = fopen("php://output", "w");
 
         foreach ($usages as $usage) {
@@ -51,7 +51,7 @@ if ($action = optional_param("action", false, PARAM_INT)) {
 
         foreach ($audios as $audio) {
             $filename = pathinfo($audio, PATHINFO_FILENAME);
-            $link = "{$CFG->wwwroot}/local/aacura_core/load-audio-temp.php?filename={$filename}";
+            $link = "{$CFG->wwwroot}/local/aacuracore/load-audio-temp.php?filename={$filename}";
             echo "<p><a href=\"?action=1\">{$filename}.mp3</a></p>";
         }
         die;

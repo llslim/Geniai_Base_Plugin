@@ -17,19 +17,19 @@
 /**
  * h5p_base file.
  *
- * @package   local_aacura_core
+ * @package   local_aacuracore
  * @copyright 2024 Eduardo Kraus {@link http://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_aacura_core\local\h5p\type;
+namespace local_aacuracore\local\h5p\type;
 
 use local_kopere_dashboard\html\form;
 
 /**
  * Interface h5p_base
  *
- * @package local_aacura_core\local\h5p\type
+ * @package local_aacuracore\local\h5p\type
  */
 interface h5p_base {
     /**

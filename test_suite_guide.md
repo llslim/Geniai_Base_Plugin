@@ -1,6 +1,6 @@
-# `local_aacura_core` Core Engine & API Integration Test Suite Guide
+# `local_aacuracore` Core Engine & API Integration Test Suite Guide
 
-This document details the automated integration test suite for the `local_aacura_core` Moodle plugin. The test suite validates core state machine execution, scenario loading, session management, and Moodle 5.2 web service API compliance.
+This document details the automated integration test suite for the `local_aacuracore` Moodle plugin. The test suite validates core state machine execution, scenario loading, session management, and Moodle 5.2 web service API compliance.
 
 ---
 
@@ -38,7 +38,7 @@ The test suite runs automatically on the remote server as part of the GitHub Act
 | `Bot Engine initializes session to START` | `bot_engine->__construct()` | Instantiates state machine coordinator and verifies `$sessionrecord->current_state` is set to `'START'`. |
 | `Bot Engine initializes scenario to Anna` | `bot_engine->get_session_record()` | Verifies `$sessionrecord->scenariocode` matches `'anna'`. |
 | `Reset session sets current_state back to START` | `bot_engine->reset_session()` | Deletes existing message records, clears analytics, and resets state graph to `'START'`. |
-| `Reset session re-seeds opening prompt into messages` | `bot_engine->get_messages()` | Confirms initial parent dialogue prompt is re-inserted into `local_aacura_core_messages` table upon reset. |
+| `Reset session re-seeds opening prompt into messages` | `bot_engine->get_messages()` | Confirms initial parent dialogue prompt is re-inserted into `local_aacuracore_messages` table upon reset. |
 
 ---
 
@@ -74,7 +74,7 @@ ssh llslim-aac-learn@18.210.251.16 "php /tmp/run_tests.php"
 Expected Output:
 ```
 =========================================
-RUNNING local_aacura_core INTEGRATION TEST SUITE
+RUNNING local_aacuracore INTEGRATION TEST SUITE
 =========================================
  [PASS] Scenario loader loads Anna
  [PASS] Anna persona metadata is populated

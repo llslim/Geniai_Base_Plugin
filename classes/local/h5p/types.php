@@ -17,17 +17,17 @@
 /**
  * Types create file.
  *
- * @package   local_aacura_core
+ * @package   local_aacuracore
  * @copyright 2024 Eduardo Kraus {@link http://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_aacura_core\local\h5p;
+namespace local_aacuracore\local\h5p;
 
 /**
  * Class types
  *
- * @package local_aacura_core\local\h5p
+ * @package local_aacuracore\local\h5p
  */
 class types {
     /**
@@ -46,46 +46,46 @@ class types {
             "contextid" => $contextid,
             "unique" => [
                 "id" => "InteractiveBook",
-                "title" => get_string("h5p-interactivebook-title", "local_aacura_core"),
-                "desc" => get_string("h5p-interactivebook-desc", "local_aacura_core"),
+                "title" => get_string("h5p-interactivebook-title", "local_aacuracore"),
+                "desc" => get_string("h5p-interactivebook-desc", "local_aacuracore"),
                 "exe" => "https://h5p.org/content-types/interactive-book",
-                "create" => "{$CFG->wwwroot}/local/aacura_core/h5p/create.php?contextid={$contextid}&type=InteractiveBook",
+                "create" => "{$CFG->wwwroot}/local/aacuracore/h5p/create.php?contextid={$contextid}&type=InteractiveBook",
             ],
             "h5ps" => [
                 [
                     "id" => "AdvancedText",
-                    "title" => get_string("h5p-advancedtext-title", "local_aacura_core"),
-                    "desc" => get_string("h5p-advancedtext-desc", "local_aacura_core"),
+                    "title" => get_string("h5p-advancedtext-title", "local_aacuracore"),
+                    "desc" => get_string("h5p-advancedtext-desc", "local_aacuracore"),
                     "exe" => "https://h5p.org/advancedText",
-                    "create" => "{$CFG->wwwroot}/local/aacura_core/h5p/create.php?contextid={$contextid}&type=AdvancedText",
+                    "create" => "{$CFG->wwwroot}/local/aacuracore/h5p/create.php?contextid={$contextid}&type=AdvancedText",
                 ],
                 [
                     "id" => "Accordion",
-                    "title" => get_string("h5p-accordion-title", "local_aacura_core"),
-                    "desc" => get_string("h5p-accordion-desc", "local_aacura_core"),
+                    "title" => get_string("h5p-accordion-title", "local_aacuracore"),
+                    "desc" => get_string("h5p-accordion-desc", "local_aacuracore"),
                     "exe" => "https://h5p.org/accordion",
-                    "create" => "{$CFG->wwwroot}/local/aacura_core/h5p/create.php?contextid={$contextid}&type=Accordion",
+                    "create" => "{$CFG->wwwroot}/local/aacuracore/h5p/create.php?contextid={$contextid}&type=Accordion",
                 ],
                 [
                     "id" => "Dialogcards",
-                    "title" => get_string("h5p-dialogcards-title", "local_aacura_core"),
-                    "desc" => get_string("h5p-dialogcards-desc", "local_aacura_core"),
+                    "title" => get_string("h5p-dialogcards-title", "local_aacuracore"),
+                    "desc" => get_string("h5p-dialogcards-desc", "local_aacuracore"),
                     "exe" => "https://h5p.org/dialog-cards",
-                    "create" => "{$CFG->wwwroot}/local/aacura_core/h5p/create.php?contextid={$contextid}&type=Dialogcards",
+                    "create" => "{$CFG->wwwroot}/local/aacuracore/h5p/create.php?contextid={$contextid}&type=Dialogcards",
                 ],
                 [
                     "id" => "QuestionSet",
-                    "title" => get_string("h5p-questionset-title", "local_aacura_core"),
-                    "desc" => get_string("h5p-questionset-desc", "local_aacura_core"),
+                    "title" => get_string("h5p-questionset-title", "local_aacuracore"),
+                    "desc" => get_string("h5p-questionset-desc", "local_aacuracore"),
                     "exe" => "https://h5p.org/question-set",
-                    "create" => "{$CFG->wwwroot}/local/aacura_core/h5p/create.php?contextid={$contextid}&type=QuestionSet",
+                    "create" => "{$CFG->wwwroot}/local/aacuracore/h5p/create.php?contextid={$contextid}&type=QuestionSet",
                 ],
                 [
                     "id" => "DragText",
-                    "title" => get_string("h5p-dragtext-title", "local_aacura_core"),
-                    "desc" => get_string("h5p-dragtext-desc", "local_aacura_core"),
+                    "title" => get_string("h5p-dragtext-title", "local_aacuracore"),
+                    "desc" => get_string("h5p-dragtext-desc", "local_aacuracore"),
                     "exe" => "https://h5p.org/drag-the-words",
-                    "create" => "{$CFG->wwwroot}/local/aacura_core/h5p/create.php?contextid={$contextid}&type=DragText",
+                    "create" => "{$CFG->wwwroot}/local/aacuracore/h5p/create.php?contextid={$contextid}&type=DragText",
                 ],
             ],
         ];

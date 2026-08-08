@@ -17,7 +17,7 @@
 /**
  * Report for geniai.
  *
- * @package   local_aacura_core
+ * @package   local_aacuracore
  * @copyright 2024 Eduardo Kraus {@link http://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,22 +27,22 @@ require_once($CFG->libdir . "/tablelib.php");
 require_once(__DIR__ . "/classes/report/view.php");
 
 require_login();
-require_capability("local/aacura_core:manage", context_system::instance());
+require_capability("local/aacuracore:manage", context_system::instance());
 
-$table = new \local_aacura_core\local\report\view("geniai_report");
+$table = new \local_aacuracore\local\report\view("geniai_report");
 
 if (!$table->is_downloading()) {
     $PAGE->set_context(context_system::instance());
-    $PAGE->set_url("/local/aacura_core/report.php");
-    $PAGE->set_title(get_string("modulename", "local_aacura_core"));
-    $PAGE->set_heading(get_string("modulename", "local_aacura_core"));
+    $PAGE->set_url("/local/aacuracore/report.php");
+    $PAGE->set_title(get_string("modulename", "local_aacuracore"));
+    $PAGE->set_heading(get_string("modulename", "local_aacuracore"));
     echo $OUTPUT->header();
 
-    echo $OUTPUT->heading(get_string("report_filename", "local_aacura_core"), 2, "main", "geniaiheading");
-    echo get_string("report_info", "local_aacura_core");
+    echo $OUTPUT->heading(get_string("report_filename", "local_aacuracore"), 2, "main", "geniaiheading");
+    echo get_string("report_info", "local_aacuracore");
 }
 
-$table->define_baseurl("{$CFG->wwwroot}/local/aacura_core/report.php");
+$table->define_baseurl("{$CFG->wwwroot}/local/aacuracore/report.php");
 $table->out(40, true);
 
 if (!$table->is_downloading()) {

@@ -17,17 +17,17 @@
 /**
  * Itens file.
  *
- * @package     local_aacura_core
+ * @package     local_aacuracore
  * @copyright   2024 Eduardo Kraus https://eduardokraus.com/
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_aacura_core\local\h5p;
+namespace local_aacuracore\local\h5p;
 
 /**
  * Class itens
  *
- * @package local_aacura_core\local\h5p
+ * @package local_aacuracore\local\h5p
  */
 class itens {
     /**
@@ -42,7 +42,7 @@ class itens {
         global $DB;
 
         $h5ps = $DB->get_records(
-            "local_aacura_core_h5p",
+            "local_aacuracore_h5p",
             ["contextid" => $contextid],
             "title ASC",
             "id, contextid, contentbanktid, title, type"

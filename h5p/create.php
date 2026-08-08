@@ -17,14 +17,14 @@
 /**
  * Creat file.
  *
- * @package   local_aacura_core
+ * @package   local_aacuracore
  * @copyright 2024 Eduardo Kraus {@link http://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_aacura_core\local\h5p\page_create;
-use local_aacura_core\local\h5p\page_header;
-use local_aacura_core\local\vo\local_aacura_core_h5p;
+use local_aacuracore\local\h5p\page_create;
+use local_aacuracore\local\h5p\page_header;
+use local_aacuracore\local\vo\local_aacuracore_h5p;
 
 require("../../../config.php");
 
@@ -32,25 +32,25 @@ require_login();
 
 $contextid = required_param("contextid", PARAM_INT);
 $type = required_param("type", PARAM_TEXT);
-$h5p = new local_aacura_core_h5p();
+$h5p = new local_aacuracore_h5p();
 
 $h5p->type = $type;
 $h5p->contextid = $contextid;
 
 $context = context::instance_by_id($contextid, MUST_EXIST);
 
-$apikey = get_config("local_aacura_core", "apikey");
+$apikey = get_config("local_aacuracore", "apikey");
 if (!isset($apikey[9])) {
     $PAGE->set_context(context_system::instance());
-    $PAGE->set_url(new moodle_url("/local/aacura_core/h5p/index.php", ["contextid" => $contextid, "type" => $type]));
+    $PAGE->set_url(new moodle_url("/local/aacuracore/h5p/index.php", ["contextid" => $contextid, "type" => $type]));
     echo $OUTPUT->header();
-    $message = get_string("h5p-no-apikey", "local_aacura_core", "{$CFG->wwwroot}/admin/settings.php?section=local_aacura_core");
+    $message = get_string("h5p-no-apikey", "local_aacuracore", "{$CFG->wwwroot}/admin/settings.php?section=local_aacuracore");
     \core\notification::add($message, "error");
     echo $OUTPUT->footer();
     die;
 }
 
-$cburl = new moodle_url("/local/aacura_core/h5p/create.php", $_GET);
+$cburl = new moodle_url("/local/aacuracore/h5p/create.php", $_GET);
 $header = new page_header();
 $header->header($cburl, $contextid, $context, $type);
 $PAGE->set_title($header->get_title());

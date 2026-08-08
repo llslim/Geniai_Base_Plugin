@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_aacura_core;
+namespace local_aacuracore;
 
-use local_aacura_core\scenario\scenario_loader;
-use local_aacura_core\scenario\scenario_definition;
-use local_aacura_core\scenario\state_node;
+use local_aacuracore\scenario\scenario_loader;
+use local_aacuracore\scenario\scenario_definition;
+use local_aacuracore\scenario\state_node;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -28,10 +28,10 @@ defined('MOODLE_INTERNAL') || die;
  * Responsibilities:
  * - Manages session lifecycle state machine.
  * - Handles prompt/response pipelines.
- * - Logs turn history to DB tables local_aacura_core_sessions, local_aacura_core_messages, and local_aacura_core_analytics.
+ * - Logs turn history to DB tables local_aacuracore_sessions, local_aacuracore_messages, and local_aacuracore_analytics.
  * - Triggers dynamic rubric evaluation & Gradebook integration on turn completion.
  *
- * @package   local_aacura_core
+ * @package   local_aacuracore
  * @copyright 2026 AAC-RERC Chatbot Team
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -69,13 +69,13 @@ class bot_engine {
         $this->cmid = $cmid;
         $this->scenario = scenario_loader::load($scenariocode, $courseid);
 
-        $strategytype = get_config('local_aacura_core', 'engine_strategy') ?: 'external_llm';
+        $strategytype = get_config('local_aacuracore', 'engine_strategy') ?: 'external_llm';
         if ($strategytype === 'regex') {
-            $this->strategy = new \local_aacura_core\strategy\regex_matcher_strategy();
+            $this->strategy = new \local_aacuracore\strategy\regex_matcher_strategy();
         } else if ($strategytype === 'moodle_core_ai') {
-            $this->strategy = new \local_aacura_core\strategy\core_ai_provider_strategy();
+            $this->strategy = new \local_aacuracore\strategy\core_ai_provider_strategy();
         } else {
-            $this->strategy = new \local_aacura_core\strategy\generative_ai_api_strategy();
+            $this->strategy = new \local_aacuracore\strategy\generative_ai_api_strategy();
         }
 
         $this->sessionrecord = $this->lookup_or_create_session($userid, $courseid, $scenariocode);
@@ -92,7 +92,7 @@ class bot_engine {
     private function lookup_or_create_session(int $userid, int $courseid, string $scenariocode): \stdClass {
         global $DB;
 
-        $record = $DB->get_record('local_aacura_core_sessions', [
+        $record = $DB->get_record('local_aacuracore_sessions', [
             'userid' => $userid,
             'courseid' => $courseid,
             'cmid' => $this->cmid,
@@ -100,7 +100,7 @@ class bot_engine {
 
         if ($record && $record->scenariocode !== $scenariocode) {
             $record->scenariocode = $scenariocode;
-            $DB->update_record('local_aacura_core_sessions', $record);
+            $DB->update_record('local_aacuracore_sessions', $record);
         }
 
         if (!$record) {
@@ -112,7 +112,7 @@ class bot_engine {
             $record->current_state = 'START';
             $record->timecreated = time();
             $record->timemodified = time();
-            $record->id = $DB->insert_record('local_aacura_core_sessions', $record);
+            $record->id = $DB->insert_record('local_aacuracore_sessions', $record);
 
             // Seed initial parent prompt into messages if scenario defines START state prompt
             $startnode = $this->scenario->get_state('START');
@@ -122,7 +122,7 @@ class bot_engine {
                 $msg->sender = 'system';
                 $msg->message_text = $startnode['bot_prompt'];
                 $msg->timestamp = time();
-                $DB->insert_record('local_aacura_core_messages', $msg);
+                $DB->insert_record('local_aacuracore_messages', $msg);
             }
         }
 
@@ -182,11 +182,11 @@ class bot_engine {
         $record->message_text = $message;
         $record->timestamp = time();
 
-        return (int)$DB->insert_record('local_aacura_core_messages', $record);
+        return (int)$DB->insert_record('local_aacuracore_messages', $record);
     }
 
     /**
-     * Logs performance metrics to local_aacura_core_analytics DB table.
+     * Logs performance metrics to local_aacuracore_analytics DB table.
      *
      * @param string $metrictype
      * @param float $value
@@ -201,7 +201,7 @@ class bot_engine {
         $record->metric_value = $value;
         $record->timestamp = time();
 
-        return (int)$DB->insert_record('local_aacura_core_analytics', $record);
+        return (int)$DB->insert_record('local_aacuracore_analytics', $record);
     }
 
     /**
@@ -211,7 +211,7 @@ class bot_engine {
      */
     public function get_messages(): array {
         global $DB;
-        return array_values($DB->get_records('local_aacura_core_messages', ['sessionid' => $this->sessionrecord->id], 'timestamp ASC, id ASC'));
+        return array_values($DB->get_records('local_aacuracore_messages', ['sessionid' => $this->sessionrecord->id], 'timestamp ASC, id ASC'));
     }
 
     /**
@@ -221,7 +221,7 @@ class bot_engine {
      */
     public function get_turn_count(): int {
         global $DB;
-        return (int)$DB->count_records('local_aacura_core_messages', ['sessionid' => $this->sessionrecord->id, 'sender' => 'user']);
+        return (int)$DB->count_records('local_aacuracore_messages', ['sessionid' => $this->sessionrecord->id, 'sender' => 'user']);
     }
 
     /**
@@ -230,12 +230,12 @@ class bot_engine {
     public function reset_session(): void {
         global $DB;
 
-        $DB->delete_records('local_aacura_core_messages', ['sessionid' => $this->sessionrecord->id]);
-        $DB->delete_records('local_aacura_core_analytics', ['sessionid' => $this->sessionrecord->id]);
+        $DB->delete_records('local_aacuracore_messages', ['sessionid' => $this->sessionrecord->id]);
+        $DB->delete_records('local_aacuracore_analytics', ['sessionid' => $this->sessionrecord->id]);
 
         $this->sessionrecord->current_state = 'START';
         $this->sessionrecord->timemodified = time();
-        $DB->update_record('local_aacura_core_sessions', $this->sessionrecord);
+        $DB->update_record('local_aacuracore_sessions', $this->sessionrecord);
 
         // Seed initial parent prompt into messages if scenario defines START state prompt
         $startnode = $this->scenario->get_state('START');
@@ -245,7 +245,7 @@ class bot_engine {
             $msg->sender = 'system';
             $msg->message_text = $startnode['bot_prompt'];
             $msg->timestamp = time();
-            $DB->insert_record('local_aacura_core_messages', $msg);
+            $DB->insert_record('local_aacuracore_messages', $msg);
         }
     }
 
@@ -277,7 +277,7 @@ class bot_engine {
         // Update database session state
         $this->sessionrecord->current_state = $nextstatekey;
         $this->sessionrecord->timemodified = time();
-        $DB->update_record('local_aacura_core_sessions', $this->sessionrecord);
+        $DB->update_record('local_aacuracore_sessions', $this->sessionrecord);
 
         $turncount = $this->get_turn_count();
 
@@ -300,7 +300,7 @@ class bot_engine {
 
             // Auto reset/clear active state variables
             $this->sessionrecord->current_state = 'START';
-            $DB->update_record('local_aacura_core_sessions', $this->sessionrecord);
+            $DB->update_record('local_aacuracore_sessions', $this->sessionrecord);
 
             return $fullclosingresponse;
         }
@@ -325,7 +325,7 @@ class bot_engine {
 
         // Fetch overall scores compiled inside database analytics
         $totalscore = 10; // Out of 10 points
-        $analytics = $DB->get_records('local_aacura_core_analytics', ['sessionid' => $this->sessionrecord->id]);
+        $analytics = $DB->get_records('local_aacuracore_analytics', ['sessionid' => $this->sessionrecord->id]);
         $missedcount = 0;
         foreach ($analytics as $analytic) {
             if ($analytic->metric_value == 0.00) {
@@ -430,7 +430,7 @@ class bot_engine {
         }
 
         try {
-            $response = \local_aacura_core\api::chat_completions($fullcontext);
+            $response = \local_aacuracore\api::chat_completions($fullcontext);
             if (isset($response["choices"][0]["message"]["content"])) {
                 $rawcontent = trim($response["choices"][0]["message"]["content"]);
                 // Strip markdown code fences if LLM accidentally returns them

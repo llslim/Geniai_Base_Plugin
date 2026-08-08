@@ -1,4 +1,4 @@
-name: Deploy local_aacura_core (Moodle Local Plugin)
+name: Deploy local_aacuracore (Moodle Local Plugin)
 
 on:
   push:
@@ -34,10 +34,10 @@ jobs:
           ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
-      - name: Deploy local_aacura_core Module via rsync
+      - name: Deploy local_aacuracore Module via rsync
         run: |
-          echo "Deploying local_aacura_core submodule to $SSH_HOST:$DEPLOY_PATH/local/aacura_core/..."
-          rsync -rtvzp --delete -e "ssh -o StrictHostKeyChecking=accept-new" ./ $SSH_USER@$SSH_HOST:$DEPLOY_PATH/local/aacura_core/
+          echo "Deploying local_aacuracore submodule to $SSH_HOST:$DEPLOY_PATH/local/aacuracore/..."
+          rsync -rtvzp --delete -e "ssh -o StrictHostKeyChecking=accept-new" ./ $SSH_USER@$SSH_HOST:$DEPLOY_PATH/local/aacuracore/
 
       - name: Execute Remote Moodle Updates
         run: |
@@ -56,4 +56,4 @@ jobs:
           echo "Deactivating Moodle maintenance mode..."
           ssh $SSH_USER@$SSH_HOST "php $DEPLOY_PATH/admin/cli/maintenance.php --disable"
 
-          echo "local_aacura_core deployment complete!"
+          echo "local_aacuracore deployment complete!"

@@ -17,7 +17,7 @@
 /**
  * Settings file.
  *
- * @package   local_aacura_core
+ * @package   local_aacuracore
  * @copyright 2024 Eduardo Kraus {@link http://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -28,11 +28,11 @@ if ($hassiteconfig) {
     global $CFG, $DB, $PAGE, $ADMIN;
 
     // Single admin settings page under localplugins
-    $settings = new admin_settingpage("local_aacura_core", get_string("pluginname", "local_aacura_core"));
+    $settings = new admin_settingpage("local_aacuracore", get_string("pluginname", "local_aacuracore"));
     $ADMIN->add("localplugins", $settings);
 
     // Link button to Scenario Builder & Site-Wide Registry
-    $registryurl = new moodle_url('/local/aacura_core/scenario_builder.php');
+    $registryurl = new moodle_url('/local/aacuracore/scenario_builder.php');
     $registryhtml = 'Upload custom JSON scenarios, view registered personas, or remove personas site-wide. ' .
         '<a href="' . $registryurl->out() . '" target="_blank" class="btn btn-sm btn-primary ml-2" style="background-color: #4f2c11; border-color: #4f2c11; color: white;">' .
         '🛠️ Manage Personas & Open Scenario Builder' .
@@ -40,27 +40,27 @@ if ($hassiteconfig) {
     $settings->add(new admin_setting_heading('scenario_registry_heading', 'Custom Persona Scenario Registry', $registryhtml));
 
     $models = [
-        "none" => get_string("mode_name_none", "local_aacura_core"),
-        "assistant" => get_string("mode_name_assistant", "local_aacura_core"),
-        "geniai" => get_string("mode_name_geniai", "local_aacura_core"),
+        "none" => get_string("mode_name_none", "local_aacuracore"),
+        "assistant" => get_string("mode_name_assistant", "local_aacuracore"),
+        "geniai" => get_string("mode_name_geniai", "local_aacuracore"),
     ];
     $settings->add(new admin_setting_configselect(
-        "local_aacura_core/mode",
-        get_string("mode", "local_aacura_core"),
-        get_string("mode_desc", "local_aacura_core"),
+        "local_aacuracore/mode",
+        get_string("mode", "local_aacuracore"),
+        get_string("mode_desc", "local_aacuracore"),
         "none",
         $models
     ));
 
     $strategies = [
-        "moodle_core_ai" => get_string("engine_strategy_core_ai", "local_aacura_core"),
-        "external_llm" => get_string("engine_strategy_external", "local_aacura_core"),
-        "local" => get_string("engine_strategy_local", "local_aacura_core"),
+        "moodle_core_ai" => get_string("engine_strategy_core_ai", "local_aacuracore"),
+        "external_llm" => get_string("engine_strategy_external", "local_aacuracore"),
+        "local" => get_string("engine_strategy_local", "local_aacuracore"),
     ];
     $settings->add(new admin_setting_configselect(
-        "local_aacura_core/engine_strategy",
-        get_string("engine_strategy", "local_aacura_core"),
-        get_string("engine_strategy_desc", "local_aacura_core"),
+        "local_aacuracore/engine_strategy",
+        get_string("engine_strategy", "local_aacuracore"),
+        get_string("engine_strategy_desc", "local_aacuracore"),
         "moodle_core_ai",
         $strategies
     ));
@@ -71,20 +71,20 @@ if ($hassiteconfig) {
         "cathy" => "Cathy Fratner (Down Syndrome / app concern)",
         "mary" => "Mary (Mother of Non-Verbal 6-Year-Old)",
     ];
-    $customrecords = $DB->get_records("local_aacura_core_custom_scenarios", null, "name ASC");
+    $customrecords = $DB->get_records("local_aacuracore_custom_scenarios", null, "name ASC");
     foreach ($customrecords as $cr) {
         $scenarios[$cr->scenariocode] = $cr->name . " (Custom: " . $cr->scenariocode . ")";
     }
     $settings->add(new admin_setting_configmultiselect(
-        "local_aacura_core/active_scenarios",
-        get_string("active_scenarios", "local_aacura_core"),
-        get_string("active_scenarios_desc", "local_aacura_core"),
+        "local_aacuracore/active_scenarios",
+        get_string("active_scenarios", "local_aacuracore"),
+        get_string("active_scenarios_desc", "local_aacuracore"),
         array_keys($scenarios),
         $scenarios
     ));
 
     // Determine current active strategy solution
-    $activestratey = get_config("local_aacura_core", "engine_strategy") ?: "moodle_core_ai";
+    $activestratey = get_config("local_aacuracore", "engine_strategy") ?: "moodle_core_ai";
 
     $coreai_badge = ($activestratey === 'moodle_core_ai') ? ' <span style="background-color: #198754; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">[✓ ACTIVELY IN USE]</span>' : ' <span style="background-color: #6c757d; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">[INACTIVE]</span>';
     $gemini_badge = ($activestratey === 'external_llm') ? ' <span style="background-color: #198754; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">[✓ ACTIVELY IN USE]</span>' : ' <span style="background-color: #6c757d; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">[INACTIVE]</span>';
@@ -109,7 +109,7 @@ if ($hassiteconfig) {
         $coreaiprovideroptions['aiprovider_openai'] = 'OpenAI Provider (aiprovider_openai)';
     }
 
-    // Combine interactive accordion card headers with precise s_local_aacura_core_* field prefix controls
+    // Combine interactive accordion card headers with precise s_local_aacuracore_* field prefix controls
     $visibilityscript = '<script>
     document.addEventListener("DOMContentLoaded", function() {
         var activeStrat = ' . json_encode($activestratey) . ';
@@ -118,17 +118,17 @@ if ($hassiteconfig) {
             {
                 strategyVal: "moodle_core_ai",
                 matchText: "1. Moodle Core AI",
-                fields: ["s_local_aacura_core_core_ai_selected_provider"]
+                fields: ["s_local_aacuracore_core_ai_selected_provider"]
             },
             {
                 strategyVal: "external_llm",
                 matchText: "2. Google Gemini",
-                fields: ["s_local_aacura_core_api_base_url", "s_local_aacura_core_api_bearer_token", "s_local_aacura_core_model_identifier"]
+                fields: ["s_local_aacuracore_api_base_url", "s_local_aacuracore_api_bearer_token", "s_local_aacuracore_model_identifier"]
             },
             {
                 strategyVal: "local",
                 matchText: "3. ChatGPT",
-                fields: ["s_local_aacura_core_apikey", "s_local_aacura_core_model", "s_local_aacura_core_voice", "s_local_aacura_core_case"]
+                fields: ["s_local_aacuracore_apikey", "s_local_aacuracore_model", "s_local_aacuracore_voice", "s_local_aacuracore_case"]
             }
         ];
 
@@ -192,7 +192,7 @@ if ($hassiteconfig) {
         });
 
         // Dynamic change listener on strategy select dropdown
-        var strategySelect = document.querySelector("select[name=\'s_local_aacura_core_engine_strategy\']") || document.querySelector("select[name*=\'engine_strategy\']");
+        var strategySelect = document.querySelector("select[name=\'s_local_aacuracore_engine_strategy\']") || document.querySelector("select[name*=\'engine_strategy\']");
         if (strategySelect) {
             strategySelect.addEventListener("change", function() {
                 var selectedVal = strategySelect.value;
@@ -238,9 +238,9 @@ if ($hassiteconfig) {
     ));
 
     $settings->add(new admin_setting_configselect(
-        "local_aacura_core/core_ai_selected_provider",
-        get_string("core_ai_selected_provider", "local_aacura_core"),
-        get_string("core_ai_selected_provider_desc", "local_aacura_core"),
+        "local_aacuracore/core_ai_selected_provider",
+        get_string("core_ai_selected_provider", "local_aacuracore"),
+        get_string("core_ai_selected_provider_desc", "local_aacuracore"),
         "aiprovider_gemini",
         $coreaiprovideroptions
     ));
@@ -253,24 +253,24 @@ if ($hassiteconfig) {
     ));
 
     $settings->add(new admin_setting_configtext(
-        "local_aacura_core/api_base_url",
-        get_string("api_base_url", "local_aacura_core"),
-        get_string("api_base_url_desc", "local_aacura_core"),
+        "local_aacuracore/api_base_url",
+        get_string("api_base_url", "local_aacuracore"),
+        get_string("api_base_url_desc", "local_aacuracore"),
         "https://generativelanguage.googleapis.com/v1beta/openai",
         PARAM_RAW
     ));
 
     $settings->add(new admin_setting_configpasswordunmask(
-        "local_aacura_core/api_bearer_token",
-        get_string("api_bearer_token", "local_aacura_core"),
-        get_string("api_bearer_token_desc", "local_aacura_core"),
+        "local_aacuracore/api_bearer_token",
+        get_string("api_bearer_token", "local_aacuracore"),
+        get_string("api_bearer_token_desc", "local_aacuracore"),
         ""
     ));
 
     $settings->add(new admin_setting_configtext(
-        "local_aacura_core/model_identifier",
-        get_string("model_identifier", "local_aacura_core"),
-        get_string("model_identifier_desc", "local_aacura_core"),
+        "local_aacuracore/model_identifier",
+        get_string("model_identifier", "local_aacuracore"),
+        get_string("model_identifier_desc", "local_aacuracore"),
         "gemini-3.5-flash",
         PARAM_RAW
     ));
@@ -282,19 +282,19 @@ if ($hassiteconfig) {
         'Direct API connection to OpenAI ChatGPT endpoints.'
     ));
 
-    $apikey = get_config("local_aacura_core", "apikey");
+    $apikey = get_config("local_aacuracore", "apikey");
     if (isset($apikey[12])) {
         $settings->add(new admin_setting_configpasswordunmask(
-            "local_aacura_core/apikey",
-            get_string("apikey", "local_aacura_core"),
-            get_string("apikey_desc", "local_aacura_core"),
+            "local_aacuracore/apikey",
+            get_string("apikey", "local_aacuracore"),
+            get_string("apikey_desc", "local_aacuracore"),
             ""
         ));
     } else {
         $settings->add(new admin_setting_configtext(
-            "local_aacura_core/apikey",
-            get_string("apikey", "local_aacura_core"),
-            get_string("apikey_desc", "local_aacura_core"),
+            "local_aacuracore/apikey",
+            get_string("apikey", "local_aacuracore"),
+            get_string("apikey_desc", "local_aacuracore"),
             ""
         ));
     }
@@ -306,9 +306,9 @@ if ($hassiteconfig) {
         "gpt-4-turbo" => "gpt-4-turbo",
     ];
     $settings->add(new admin_setting_configselect(
-        "local_aacura_core/model",
-        get_string("model", "local_aacura_core"),
-        get_string("model_desc", "local_aacura_core"),
+        "local_aacuracore/model",
+        get_string("model", "local_aacuracore"),
+        get_string("model_desc", "local_aacuracore"),
         "gpt-4o-mini",
         $models
     ));
@@ -349,26 +349,26 @@ if ($hassiteconfig) {
                 </tr>
             </table>');
     $settings->add(new admin_setting_configselect(
-        "local_aacura_core/voice",
-        get_string("voice", "local_aacura_core"),
+        "local_aacuracore/voice",
+        get_string("voice", "local_aacuracore"),
         $voicedesc,
         "alloy",
         $voices
     ));
 
     $cases = [
-        "chatbot" => get_string("caseuse_chatbot", "local_aacura_core"),
-        "creative" => get_string("caseuse_creative", "local_aacura_core"),
-        "balanced" => get_string("caseuse_balanced", "local_aacura_core"),
-        "precise" => get_string("caseuse_precise", "local_aacura_core"),
-        "exploration" => get_string("caseuse_exploration", "local_aacura_core"),
-        "formal" => get_string("caseuse_formal", "local_aacura_core"),
-        "informal" => get_string("caseuse_informal", "local_aacura_core"),
+        "chatbot" => get_string("caseuse_chatbot", "local_aacuracore"),
+        "creative" => get_string("caseuse_creative", "local_aacuracore"),
+        "balanced" => get_string("caseuse_balanced", "local_aacuracore"),
+        "precise" => get_string("caseuse_precise", "local_aacuracore"),
+        "exploration" => get_string("caseuse_exploration", "local_aacuracore"),
+        "formal" => get_string("caseuse_formal", "local_aacuracore"),
+        "informal" => get_string("caseuse_informal", "local_aacuracore"),
     ];
-    $casedesc = $OUTPUT->render_from_template("local_aacura_core/settings_casedesc", []);
+    $casedesc = $OUTPUT->render_from_template("local_aacuracore/settings_casedesc", []);
     $settings->add(new admin_setting_configselect(
-        "local_aacura_core/case",
-        get_string("case", "local_aacura_core"),
+        "local_aacuracore/case",
+        get_string("case", "local_aacuracore"),
         $casedesc,
         "chatbot",
         $cases
@@ -384,17 +384,17 @@ if ($hassiteconfig) {
         }
     }
     $settings->add(new admin_setting_configmultiselect(
-        "local_aacura_core/modules",
-        get_string("modules", "local_aacura_core", $geniainame),
-        get_string("modules_desc", "local_aacura_core", $geniainame),
+        "local_aacuracore/modules",
+        get_string("modules", "local_aacuracore", $geniainame),
+        get_string("modules_desc", "local_aacuracore", $geniainame),
         ["glossary", "lesson", "forum", "scorm", "feedback", "survey", "quiz", "assign", "wiki", "lti", "workshop"],
         $modules
     ));
 
     $setting = new admin_setting_configtext(
-        "local_aacura_core/max_tokens",
-        get_string("max_tokens", "local_aacura_core"),
-        get_string("max_tokens_desc", "local_aacura_core"),
+        "local_aacuracore/max_tokens",
+        get_string("max_tokens", "local_aacuracore"),
+        get_string("max_tokens_desc", "local_aacuracore"),
         200,
         PARAM_INT
     );
@@ -444,18 +444,18 @@ if ($hassiteconfig) {
         "2.0" => "2.0",
     ];
     $setting = new admin_setting_configselect(
-        "local_aacura_core/frequency_penalty",
-        get_string("frequency_penalty", "local_aacura_core"),
-        get_string("frequency_penalty_desc", "local_aacura_core"),
+        "local_aacuracore/frequency_penalty",
+        get_string("frequency_penalty", "local_aacuracore"),
+        get_string("frequency_penalty_desc", "local_aacuracore"),
         "0.0",
         $penalty
     );
     $settings->add($setting);
 
     $setting = new admin_setting_configselect(
-        "local_aacura_core/presence_penalty",
-        get_string("presence_penalty", "local_aacura_core"),
-        get_string("presence_penalty_desc", "local_aacura_core"),
+        "local_aacuracore/presence_penalty",
+        get_string("presence_penalty", "local_aacuracore"),
+        get_string("presence_penalty_desc", "local_aacuracore"),
         "0.0",
         $penalty
     );

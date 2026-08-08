@@ -17,7 +17,7 @@
 /**
  * Hooks
  *
- * @package   local_aacura_core
+ * @package   local_aacuracore
  * @copyright 2024 Eduardo Kraus {@link http://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,6 +26,6 @@ defined('MOODLE_INTERNAL') || die;
 $callbacks = [
     [
         "hook" => \core\hook\output\before_footer_html_generation::class,
-        "callback" => "\local_aacura_core\core_hook_output::before_footer_html_generation",
+        "callback" => "\local_aacuracore\core_hook_output::before_footer_html_generation",
     ],
 ];

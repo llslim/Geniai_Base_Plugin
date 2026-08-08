@@ -17,14 +17,14 @@
 /**
  * Creat file.
  *
- * @package   local_aacura_core
+ * @package   local_aacuracore
  * @copyright 2024 Eduardo Kraus {@link http://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_aacura_core\local\h5p\page_create;
-use local_aacura_core\local\h5p\page_header;
-use local_aacura_core\local\vo\local_aacura_core_h5p;
+use local_aacuracore\local\h5p\page_create;
+use local_aacuracore\local\h5p\page_header;
+use local_aacuracore\local\vo\local_aacuracore_h5p;
 
 require("../../../config.php");
 require("{$CFG->libdir}/editor/tiny/lib.php");
@@ -33,32 +33,32 @@ require_login();
 
 $id = optional_param("id", 0, PARAM_INT);
 if ($id) {
-    /** @var local_aacura_core_h5p $h5p */
-    $h5p = $DB->get_record("local_aacura_core_h5p", ["id" => $id]);
+    /** @var local_aacuracore_h5p $h5p */
+    $h5p = $DB->get_record("local_aacuracore_h5p", ["id" => $id]);
     $contextid = $h5p->contextid;
     $type = $h5p->type;
 } else {
     $contextid = optional_param("contextid", \context_system::instance()->id, PARAM_INT);
     $type = optional_param("type", "", PARAM_TEXT);
-    $h5p = new local_aacura_core_h5p();
+    $h5p = new local_aacuracore_h5p();
 
     $h5p->type = $type;
     $h5p->contextid = $contextid;
 }
 $context = context::instance_by_id($contextid, MUST_EXIST);
 
-$apikey = get_config("local_aacura_core", "apikey");
+$apikey = get_config("local_aacuracore", "apikey");
 if (!isset($apikey[9])) {
     $PAGE->set_context(context_system::instance());
-    $PAGE->set_url(new moodle_url("/local/aacura_core/h5p/index.php", ["contextid" => $contextid, "type" => $type]));
+    $PAGE->set_url(new moodle_url("/local/aacuracore/h5p/index.php", ["contextid" => $contextid, "type" => $type]));
     echo $OUTPUT->header();
-    $message = get_string("h5p-no-apikey", "local_aacura_core", "{$CFG->wwwroot}/admin/settings.php?section=local_aacura_core");
+    $message = get_string("h5p-no-apikey", "local_aacuracore", "{$CFG->wwwroot}/admin/settings.php?section=local_aacuracore");
     \core\notification::add($message, "error");
     echo $OUTPUT->footer();
     die;
 }
 
-$cburl = new moodle_url("/local/aacura_core/h5p/edit.php", $_GET);
+$cburl = new moodle_url("/local/aacuracore/h5p/edit.php", $_GET);
 $header = new page_header();
 $header->header($cburl, $contextid, $context, $type);
 $PAGE->set_title($h5p->title);
@@ -80,8 +80,8 @@ if (optional_param("delete", false, PARAM_INT)) {
 
     $page->delete();
     redirect(
-        new moodle_url("/local/aacura_core/h5p/index.php", ["contextid" => $page->get_h5p()->contextid]),
-        get_string("h5p-delete-success", "local_aacura_core")
+        new moodle_url("/local/aacuracore/h5p/index.php", ["contextid" => $page->get_h5p()->contextid]),
+        get_string("h5p-delete-success", "local_aacuracore")
     );
     die;
 }
@@ -98,7 +98,7 @@ if (optional_param("POST", false, PARAM_TEXT)) {
         $page->send_contentbank();
     }
 
-    redirect(new moodle_url("/local/aacura_core/h5p/edit.php", ["id" => $page->get_h5p()->id]));
+    redirect(new moodle_url("/local/aacuracore/h5p/edit.php", ["id" => $page->get_h5p()->id]));
     die();
 } else {
     $page->edit();

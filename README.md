@@ -1,4 +1,4 @@
-# AACURA Core Engine Plugin (`local_aacura_core`)
+# AACURA Core Engine Plugin (`local_aacuracore`)
 
 This repository contains the **core backend engine** for **AACURA** (AAC Understanding & Reflective Assistant). All dialogue state machines, LLM evaluation pipelines, and provider integrations are managed here.
 
@@ -10,7 +10,7 @@ This repository contains the **core backend engine** for **AACURA** (AAC Underst
 > For a technical breakdown of AI response strategies, Moodle Core AI Subsystem (`\core_ai\manager`) integration, Google Gemini REST compliance, and dynamic rubric evaluation pipelines, see **[ai_strategy.md](ai_strategy.md)**.
 
 > 🛠️ **Refactoring & Component Migration Guide:**
-> For details on migrating from legacy `local_geniai` to `local_aacura_core`, see **[REFACTORING_GUIDE.md](REFACTORING_GUIDE.md)**.
+> For details on migrating from legacy `local_geniai` to `local_aacuracore`, see **[REFACTORING_GUIDE.md](REFACTORING_GUIDE.md)**.
 
 > 🧪 **Integration Test Suite Guide:**
 > For a detailed explanation of each automated PHP integration test case and pre-deployment verification steps, see **[test_suite_guide.md](test_suite_guide.md)**.
@@ -22,7 +22,7 @@ This repository contains the **core backend engine** for **AACURA** (AAC Underst
 > For a detailed explanation of the LAFF Don't Cry communication strategy, validation checks, and state routing graph, see **[laff_framework_guide.md](laff_framework_guide.md)**.
 
 > 🛠️ **Custom Scenario Builder Tool:**
-> Teachers and instructors can use the web-based **[Scenario Builder Form](scenario_builder.html)** (or access via Moodle at `/local/aacura_core/scenario_builder.php`) to visually construct custom scenarios and download compliant `.json` files.
+> Teachers and instructors can use the web-based **[Scenario Builder Form](scenario_builder.html)** (or access via Moodle at `/local/aacuracore/scenario_builder.php`) to visually construct custom scenarios and download compliant `.json` files.
 
 ---
 
@@ -30,7 +30,7 @@ This repository contains the **core backend engine** for **AACURA** (AAC Underst
 
 Follow these steps to install the plugin into your Moodle environment:
 
-1. **Download** the latest ZIP archive of this repository ([llslim/moodle-plugin-aacura_core_engine](https://github.com/llslim/moodle-plugin-aacura_core_engine)).
+1. **Download** the latest ZIP archive of this repository ([llslim/moodle-plugin-aacuracore_engine](https://github.com/llslim/moodle-plugin-aacuracore_engine)).
 2. **Navigate** to Moodle and proceed to:
 
    ```
@@ -41,7 +41,7 @@ Follow these steps to install the plugin into your Moodle environment:
 The plugin will be installed at:
 
 ```
-local/aacura_core
+local/aacuracore
 ```
 
 ---
@@ -51,7 +51,7 @@ local/aacura_core
 For sites upgrading from legacy `local_geniai`, run the included CLI migration utility:
 
 ```bash
-php local/aacura_core/cli/migrate_geniai_to_aacura.php
+php local/aacuracore/cli/migrate_geniai_to_aacura.php
 ```
 
 ---
@@ -61,7 +61,7 @@ php local/aacura_core/cli/migrate_geniai_to_aacura.php
 To contribute to this project, follow the structured Git workflow:
 
 ```bash
-git clone https://github.com/llslim/moodle-plugin-aacura_core_engine.git local/aacura_core
-cd local/aacura_core
+git clone https://github.com/llslim/moodle-plugin-aacuracore_engine.git local/aacuracore
+cd local/aacuracore
 git checkout -b feature/your-feature-name
 ```
