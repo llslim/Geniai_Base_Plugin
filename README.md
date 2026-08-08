@@ -2,13 +2,15 @@
 
 This repository contains the **core backend engine** for **AACURA** (AAC Understanding & Reflective Assistant). All dialogue state machines, LLM evaluation pipelines, and provider integrations are managed here.
 
-> ℹ️ **Provenance & Ancestry Note:**
-> This repository is a customized fork derived from a previous version of [EduardoKrausME/moodle-local_aacura_core](https://github.com/EduardoKrausME/moodle-local_aacura_core).
-> 
-> **Important:** This plugin operates as a fully standalone core engine at `local/aacura_core`. There is **no runtime dependency** on the original `moodle-local_aacura_core` repository; installing `EduardoKrausME/moodle-local_aacura_core` alongside this plugin is neither required nor recommended.
+---
+
+## 📖 Key Documentation Links
 
 > 🤖 **AI Strategy & Architecture Specification:**
 > For a technical breakdown of AI response strategies, Moodle Core AI Subsystem (`\core_ai\manager`) integration, Google Gemini REST compliance, and dynamic rubric evaluation pipelines, see **[ai_strategy.md](ai_strategy.md)**.
+
+> 🛠️ **Refactoring & Component Migration Guide:**
+> For details on migrating from legacy `local_geniai` to `local_aacura_core`, see **[REFACTORING_GUIDE.md](REFACTORING_GUIDE.md)**.
 
 > 🧪 **Integration Test Suite Guide:**
 > For a detailed explanation of each automated PHP integration test case and pre-deployment verification steps, see **[test_suite_guide.md](test_suite_guide.md)**.
@@ -19,9 +21,6 @@ This repository contains the **core backend engine** for **AACURA** (AAC Underst
 > 💬 **LAFF Don't Cry Framework & Validation Guide:**
 > For a detailed explanation of the LAFF Don't Cry communication strategy, validation checks, and state routing graph, see **[laff_framework_guide.md](laff_framework_guide.md)**.
 
-> 🔍 **Technical Validation Checks Execution Guide:**
-> For a detailed technical breakdown of how validation checks are evaluated via Generative AI (LLM) and Pattern Matcher (Regex) strategies, see **[validation_checks_execution_guide.md](validation_checks_execution_guide.md)**.
-
 > 🛠️ **Custom Scenario Builder Tool:**
 > Teachers and instructors can use the web-based **[Scenario Builder Form](scenario_builder.html)** (or access via Moodle at `/local/aacura_core/scenario_builder.php`) to visually construct custom scenarios and download compliant `.json` files.
 
@@ -31,7 +30,7 @@ This repository contains the **core backend engine** for **AACURA** (AAC Underst
 
 Follow these steps to install the plugin into your Moodle environment:
 
-1. **Download** the latest ZIP archive of this repository.
+1. **Download** the latest ZIP archive of this repository ([llslim/moodle-plugin-aacura_core_engine](https://github.com/llslim/moodle-plugin-aacura_core_engine)).
 2. **Navigate** to Moodle and proceed to:
 
    ```
@@ -47,89 +46,22 @@ local/aacura_core
 
 ---
 
-## 🔄 Frontend Synchronization
+## 🔄 Automated Database Migration for Existing Sites
 
-Ensure synchronization between backend updates and frontend UI changes:
+For sites upgrading from legacy `local_geniai`, run the included CLI migration utility:
 
-* After updating backend logic, ensure any relevant API changes or adjustments are reflected in the frontend chatbot activity plugin.
-* **Reminder:** Do not push frontend UI/activity code to this backend repository.
+```bash
+php local/aacura_core/cli/migrate_geniai_to_aacura.php
+```
 
 ---
 
-## 🚀 Contributing Workflow
+## 🚀 Contributing & Deployment Workflow
 
 To contribute to this project, follow the structured Git workflow:
 
-### 1. Clone Repository
-
-Clone via SSH:
-
 ```bash
-git clone git@github.com:DrKat0m/Geniai_Base_Plugin.git
-cd Geniai_Base_Plugin
+git clone https://github.com/llslim/moodle-plugin-aacura_core_engine.git local/aacura_core
+cd local/aacura_core
+git checkout -b feature/your-feature-name
 ```
-
-### 2. Create Feature Branch
-
-Create and switch to your branch:
-
-```bash
-git checkout -b your-feature-branch
-```
-
-### 3. Commit and Push Changes
-
-Make your changes, then stage, commit, and push:
-
-```bash
-git add .
-git commit -m "Descriptive commit message"
-git push -u origin your-feature-branch
-```
-
-### 4. Submit Pull Request
-
-Open a Pull Request on GitHub for review and merging.
-
----
-
-## 🐞 Debugging with Xdebug
-
-For setting up Xdebug with PHP, refer to Kartavya’s comprehensive guide on Discord:
-
-🔗 [Xdebug Setup Guide](https://gist.github.com/DrKat0m#-debugging-with-xdebug)
-
----
-
-## ✨ Fresh Installation & Setup
-
-Follow these instructions for a clean setup:
-
-1. **Ensure Git installation:** [Download Git](https://git-scm.com/downloads)
-
-2. **Navigate to Moodle's local plugins directory:**
-
-```bash
-cd D:\xampp\htdocs\moodle\local
-```
-
-3. **Clone the repository:**
-
-```bash
-git clone git@github.com:DrKat0m/Geniai_Base_Plugin.git
-```
-
-4. **Create a working branch:**
-
-```bash
-cd Geniai_Base_Plugin
-git checkout -b your-feature-branch
-```
-
----
-
-## ✅ Important Guidelines
-
-* Commit **only backend changes** to this repository.
-* Update dependent frontend changes in the [moodle-chatbot](https://github.com/DrKat0m/EDURA) repository promptly.
-* Do not push chatbot activity module or block code to this repository to prevent codebase clutter and conflicts.
