@@ -1,4 +1,4 @@
-name: Deploy local_aacura_core (Geniai Base Plugin)
+name: Deploy local_aacura_core (Moodle Local Plugin)
 
 on:
   push:
