@@ -18,6 +18,9 @@ This repository contains the **core backend engine** for **AACURA** (AAC Underst
 > 🧪 **Scenario Testing & Graph Diagnostics:**
 > For details on the dialogue state machine graph crawler script and PHPUnit scenario validation tests, see **[scenario_test.md](scenario_test.md)**.
 
+> 🏷️ **Version History & Git Tagging Log:**
+> For the semantic version log of engine commits mapped according to our tagging policy, see **[version_history.md](version_history.md)**.
+
 > 📖 **Scenarios & Custom JSON Creation Guide:**
 > For details on the 4 preloaded parent scenarios and a step-by-step guide for creating custom JSON scenarios, see **[scenario_creation_guide.md](scenario_creation_guide.md)**.
 
