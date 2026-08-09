@@ -334,19 +334,19 @@ class bot_engine {
         }
         $finalscore = max(0, $totalscore - $missedcount);
 
-        // Trigger standard mod_geniai library grading hook
-        if (file_exists(__DIR__ . '/../../mod/geniai/lib.php')) {
-            require_once(__DIR__ . '/../../mod/geniai/lib.php');
-            if (function_exists('geniai_grade_item_update')) {
+        // Trigger standard mod_aacurachat library grading hook
+        if (file_exists(__DIR__ . '/../../mod/aacurachat/lib.php')) {
+            require_once(__DIR__ . '/../../mod/aacurachat/lib.php');
+            if (function_exists('aacurachat_grade_item_update')) {
                 // Fetch course module record
-                $cm = get_coursemodule_from_id('geniai', $this->sessionrecord->cmid);
+                $cm = get_coursemodule_from_id('aacurachat', $this->sessionrecord->cmid);
                 if ($cm) {
-                    $geniai = $DB->get_record('geniai', ['id' => $cm->instance]);
-                    if ($geniai) {
+                    $aacurachat = $DB->get_record('aacurachat', ['id' => $cm->instance]);
+                    if ($aacurachat) {
                         $grade = new \stdClass();
                         $grade->userid = $this->sessionrecord->userid;
                         $grade->rawgrade = $finalscore;
-                        geniai_grade_item_update($geniai, $grade);
+                        aacurachat_grade_item_update($aacurachat, $grade);
                     }
                 }
             }

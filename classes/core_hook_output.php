@@ -64,7 +64,7 @@ class core_hook_output {
             return;
         }
 
-        if (strpos($_SERVER["REQUEST_URI"], "mod/geniai/") >= 1) {
+        if (strpos($_SERVER["REQUEST_URI"], "mod/aacurachat/") >= 1) {
             return;
         }
 

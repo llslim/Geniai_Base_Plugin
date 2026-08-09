@@ -39,14 +39,14 @@ class api {
     public static function history_api($courseid, $action) {
         global $DB, $USER;
 
-        $geniai = $DB->get_record("geniai", ["course" => $courseid]);
+        $aacurachat = $DB->get_record("aacurachat", ["course" => $courseid]);
         $cmid = 0;
-        if ($geniai) {
-            $cm = get_coursemodule_from_instance('geniai', $geniai->id);
+        if ($aacurachat) {
+            $cm = get_coursemodule_from_instance('aacurachat', $aacurachat->id);
             $cmid = $cm ? $cm->id : 0;
         }
 
-        $scenariocode = $geniai->scenariocode ?? 'anna';
+        $scenariocode = $aacurachat->scenariocode ?? 'anna';
         $activesession = $DB->get_record('local_aacuracore_sessions', ['userid' => $USER->id, 'courseid' => $courseid, 'cmid' => $cmid], '*', IGNORE_MULTIPLE);
         if ($activesession) {
             $scenariocode = $activesession->scenariocode;
@@ -124,10 +124,10 @@ class api {
 
         $cleanedMessage = strip_tags(trim($message));
 
-        $geniai = $DB->get_record("geniai", ["course" => $courseid]);
+        $aacurachat = $DB->get_record("aacurachat", ["course" => $courseid]);
         $cmid = 0;
-        if ($geniai) {
-            $cm = get_coursemodule_from_instance('geniai', $geniai->id);
+        if ($aacurachat) {
+            $cm = get_coursemodule_from_instance('aacurachat', $aacurachat->id);
             $cmid = $cm ? $cm->id : 0;
         }
 
@@ -180,8 +180,8 @@ class api {
 
         // Load active scenario from DB or fallback
         $activescenariocode = 'anna';
-        if ($geniai && !empty($geniai->scenariocode)) {
-            $activescenariocode = $geniai->scenariocode;
+        if ($aacurachat && !empty($aacurachat->scenariocode)) {
+            $activescenariocode = $aacurachat->scenariocode;
         }
         $activesession = $DB->get_record('local_aacuracore_sessions', ['userid' => $USER->id, 'courseid' => $courseid, 'cmid' => $cmid], '*', IGNORE_MULTIPLE);
         if ($activesession) {
