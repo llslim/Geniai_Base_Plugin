@@ -256,10 +256,20 @@ class api {
                                 ]
                             ];
                         }
+                    } else {
+                        $err = 'Unknown failure or empty result';
+                        if ($result) {
+                            if (method_exists($result, 'get_errormessage')) {
+                                $err = $result->get_errormessage();
+                            } else if (method_exists($result, 'get_response_data')) {
+                                $err = json_encode($result->get_response_data());
+                            }
+                        }
+                        file_put_contents('/home/llslim-aac-learn/aacura_debug.log', date('[Y-m-d H:i:s] ') . 'core_ai process_action failed: ' . $err . "\n", FILE_APPEND);
                     }
                 }
             } catch (\Throwable $e) {
-                // Seamlessly fallback to direct API call if core_ai manager process fails
+                file_put_contents('/home/llslim-aac-learn/aacura_debug.log', date('[Y-m-d H:i:s] ') . 'core_ai caught exception: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() . "\n", FILE_APPEND);
             }
         }
 
