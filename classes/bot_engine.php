@@ -430,16 +430,21 @@ class bot_engine {
         }
 
         try {
+            error_log('[AACURA] generate_rubric_evaluation: calling chat_completions, context size=' . count($fullcontext));
             $response = \local_aacuracore\api::chat_completions($fullcontext);
+            error_log('[AACURA] generate_rubric_evaluation: response keys=' . implode(',', array_keys($response ?? [])));
             if (isset($response["choices"][0]["message"]["content"])) {
                 $rawcontent = trim($response["choices"][0]["message"]["content"]);
                 // Strip markdown code fences if LLM accidentally returns them
                 $rawcontent = preg_replace('/^```(?:html)?\s*/i', '', $rawcontent);
                 $rawcontent = preg_replace('/\s*```$/', '', $rawcontent);
+                error_log('[AACURA] generate_rubric_evaluation: success, returning content length=' . strlen($rawcontent));
                 return trim($rawcontent);
             }
+            error_log('[AACURA] generate_rubric_evaluation: no choices in response, returning fallback');
             return "<h3>Simulation Complete!</h3><p>Your responses have been saved and sent to Gradebook.</p>";
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            error_log('[AACURA] generate_rubric_evaluation: caught Throwable: ' . get_class($e) . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
             return "<h3>Simulation Complete!</h3><p>Your responses have been saved and sent to Gradebook.</p>";
         }
     }
