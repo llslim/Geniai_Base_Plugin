@@ -216,12 +216,10 @@ class api {
         // Check if Moodle Core AI provider framework is enabled & available
         if (class_exists('\\core_ai\\manager')) {
             try {
-                $debuglog = '/home/llslim-aac-learn/aacura_debug.log';
-                $manager = new \core_ai\manager();
+                $manager = new \core_ai\manager($DB);
                 $allproviders = $manager->get_provider_records();
                 // Only proceed if at least one provider is actually enabled
                 $enabledproviders = array_filter($allproviders, fn($p) => !empty($p->enabled));
-                file_put_contents($debuglog, date('[Y-m-d H:i:s] ') . 'core_ai: enabled providers=' . count($enabledproviders) . ' of ' . count($allproviders) . "\n", FILE_APPEND);
                 if (!empty($enabledproviders)) {
                     // core_ai generate_text only accepts a single plaintext prompt.
                     // Flatten the full message array (system instructions + all turns) into one combined string.
@@ -243,15 +241,9 @@ class api {
                         prompttext: $prompttext
                     );
                     $result = $manager->process_action($action);
-                    $resultclass = $result ? get_class($result) : 'null';
-                    $issuccess = ($result && method_exists($result, 'is_success')) ? ($result->is_success() ? 'true' : 'false') : 'no_method';
-                    $errorcode = ($result && method_exists($result, 'get_errorcode')) ? $result->get_errorcode() : 'n/a';
-                    $errormsg = ($result && method_exists($result, 'get_errormessage')) ? $result->get_errormessage() : 'n/a';
-                    file_put_contents($debuglog, date('[Y-m-d H:i:s] ') . 'core_ai: result=' . $resultclass . ' is_success=' . $issuccess . ' errorcode=' . $errorcode . ' errormsg=' . $errormsg . "\n", FILE_APPEND);
                     if ($result && method_exists($result, 'is_success') && $result->is_success()) {
                         $data = $result->get_response_data();
                         $generatedtext = $data['generatedcontent'] ?? ($data['response'] ?? '');
-                        file_put_contents($debuglog, date('[Y-m-d H:i:s] ') . 'core_ai: data keys=' . implode(',', array_keys($data ?? [])) . ' generatedtext len=' . strlen($generatedtext) . "\n", FILE_APPEND);
                         if (!empty($generatedtext)) {
                             return [
                                 "choices" => [
@@ -267,7 +259,7 @@ class api {
                     }
                 }
             } catch (\Throwable $e) {
-                file_put_contents('/home/llslim-aac-learn/aacura_debug.log', date('[Y-m-d H:i:s] ') . 'core_ai: Throwable: ' . get_class($e) . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() . "\n", FILE_APPEND);
+                // Seamlessly fallback to direct API call if core_ai manager process fails
             }
         }
 

@@ -94,7 +94,7 @@ if ($hassiteconfig) {
     $coreaiprovideroptions = [];
     if (class_exists('\\core_ai\\manager')) {
         try {
-            $manager = new \core_ai\manager();
+            $manager = new \core_ai\manager($DB);
             $providers = $manager->get_provider_records();
             foreach ($providers as $p) {
                 $status = ($p->enabled) ? 'Enabled' : 'Disabled';
