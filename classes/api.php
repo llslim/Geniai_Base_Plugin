@@ -235,7 +235,7 @@ class api {
                     }
                     $prompttext = implode("\n\n", $promptparts);
 
-                    $action = new \core_ai\action\generate_text(
+                    $action = new \core_ai\aiactions\generate_text(
                         contextid: \context_system::instance()->id,
                         userid: $USER->id,
                         prompttext: $prompttext
