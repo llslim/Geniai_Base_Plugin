@@ -241,7 +241,7 @@ class api {
                         prompttext: $prompttext
                     );
                     $result = $manager->process_action($action);
-                    if ($result && method_exists($result, 'is_success') && $result->is_success()) {
+                    if ($result && method_exists($result, 'get_success') && $result->get_success()) {
                         $data = $result->get_response_data();
                         $generatedtext = $data['generatedcontent'] ?? ($data['response'] ?? '');
                         if (!empty($generatedtext)) {
