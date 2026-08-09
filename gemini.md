@@ -60,7 +60,7 @@ For details on the Strategy pattern implementation (`core_ai_provider_strategy.p
 To maintain environment stability and version control integrity, all code updates follow a standardized GitHub Actions deployment workflow:
 
 1. **Local Repository Edits**: Code modifications are made strictly within the local workspace repository (`local/aacuracore/` or `mod/aacura_chat/`).
-2. **Git Commit & Push**: Changes are committed and pushed to the primary Git branch (`origin/moodle-5.2`).
+2. **Git Commit & Push**: Changes are committed and pushed to the primary Git branch (`origin/dev`).
 3. **Automated GitHub Actions CI/CD Pipeline**: GitHub Actions (`deploy.yml`) automatically triggers on push, checks out submodules, deploys code via rsync, runs database upgrades, executes integration tests (`run_tests.php`), increments asset revisions (`jsrev`/`themerev`), and purges site caches.
 4. **SSH Verification**: Verify GitHub Actions workflow run completion and deployment status via SSH or gh CLI instead of manual git pulls.
 
