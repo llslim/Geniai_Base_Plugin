@@ -265,11 +265,11 @@ class api {
                                 $err = json_encode($result->get_response_data());
                             }
                         }
-                        file_put_contents('/home/llslim-aac-learn/aacura_debug.log', date('[Y-m-d H:i:s] ') . 'core_ai process_action failed: ' . $err . "\n", FILE_APPEND);
+                        debugging('[AACURA] core_ai process_action failed: ' . $err, DEBUG_DEVELOPER);
                     }
                 }
             } catch (\Throwable $e) {
-                file_put_contents('/home/llslim-aac-learn/aacura_debug.log', date('[Y-m-d H:i:s] ') . 'core_ai caught exception: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() . "\n", FILE_APPEND);
+                debugging('[AACURA] core_ai caught exception: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine(), DEBUG_DEVELOPER);
             }
         }
 
