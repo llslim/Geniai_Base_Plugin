@@ -1,0 +1,9 @@
+{
+    "name": "llslim/moodle-local_aacuracore",
+    "description": "Core AACURA AI Dialogue State Machine & Rubric Evaluation Engine",
+    "type": "moodle-local",
+    "license": "GPL-3.0-or-later",
+    "require": {
+        "moodle/composer-installer": "*"
+    }
+}
