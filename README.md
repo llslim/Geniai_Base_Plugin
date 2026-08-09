@@ -15,6 +15,9 @@ This repository contains the **core backend engine** for **AACURA** (AAC Underst
 > 🧪 **Integration Test Suite Guide:**
 > For a detailed explanation of each automated PHP integration test case and pre-deployment verification steps, see **[test_suite_guide.md](test_suite_guide.md)**.
 
+> 🧪 **Scenario Testing & Graph Diagnostics:**
+> For details on the dialogue state machine graph crawler script and PHPUnit scenario validation tests, see **[scenario_test.md](scenario_test.md)**.
+
 > 📖 **Scenarios & Custom JSON Creation Guide:**
 > For details on the 4 preloaded parent scenarios and a step-by-step guide for creating custom JSON scenarios, see **[scenario_creation_guide.md](scenario_creation_guide.md)**.
 

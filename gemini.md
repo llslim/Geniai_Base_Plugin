@@ -63,3 +63,9 @@ To maintain environment stability and version control integrity, all code update
 2. **Git Commit & Push**: Changes are committed and pushed to the primary Git branch (`origin/moodle-5.2`).
 3. **Automated GitHub Actions CI/CD Pipeline**: GitHub Actions (`deploy.yml`) automatically triggers on push, checks out submodules, deploys code via rsync, runs database upgrades, executes integration tests (`run_tests.php`), increments asset revisions (`jsrev`/`themerev`), and purges site caches.
 4. **SSH Verification**: Verify GitHub Actions workflow run completion and deployment status via SSH or gh CLI instead of manual git pulls.
+
+---
+
+## 6. Automated Scenario & Integration Testing
+
+For details on how to debug Gemini API configurations, toggle server developer debugging, run automated graph verification crawls, and execute PHPUnit unit tests, see the **[Scenario Testing & Diagnostics Guide](scenario_test.md)**.
