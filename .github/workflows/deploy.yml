@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - moodle-5.2
+      - dev
   workflow_dispatch:
 
 jobs:

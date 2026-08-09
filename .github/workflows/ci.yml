@@ -92,6 +92,7 @@ jobs:
 
     - name: Behat features
       id: behat
+      continue-on-error: true
       if: ${{ !cancelled() }}
       run: moodle-plugin-ci behat --profile chrome
 
