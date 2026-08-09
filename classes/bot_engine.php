@@ -429,22 +429,23 @@ class bot_engine {
             $fullcontext[] = ["role" => "user", "content" => $reply];
         }
 
+        $debuglog = '/home/llslim-aac-learn/aacura_debug.log';
         try {
-            error_log('[AACURA] generate_rubric_evaluation: calling chat_completions, context size=' . count($fullcontext));
+            file_put_contents($debuglog, date('[Y-m-d H:i:s] ') . 'generate_rubric_evaluation: calling chat_completions, context size=' . count($fullcontext) . "\n", FILE_APPEND);
             $response = \local_aacuracore\api::chat_completions($fullcontext);
-            error_log('[AACURA] generate_rubric_evaluation: response keys=' . implode(',', array_keys($response ?? [])));
+            file_put_contents($debuglog, date('[Y-m-d H:i:s] ') . 'generate_rubric_evaluation: response keys=' . implode(',', array_keys($response ?? [])) . "\n", FILE_APPEND);
             if (isset($response["choices"][0]["message"]["content"])) {
                 $rawcontent = trim($response["choices"][0]["message"]["content"]);
                 // Strip markdown code fences if LLM accidentally returns them
                 $rawcontent = preg_replace('/^```(?:html)?\s*/i', '', $rawcontent);
                 $rawcontent = preg_replace('/\s*```$/', '', $rawcontent);
-                error_log('[AACURA] generate_rubric_evaluation: success, returning content length=' . strlen($rawcontent));
+                file_put_contents($debuglog, date('[Y-m-d H:i:s] ') . 'generate_rubric_evaluation: success, content length=' . strlen($rawcontent) . "\n", FILE_APPEND);
                 return trim($rawcontent);
             }
-            error_log('[AACURA] generate_rubric_evaluation: no choices in response, returning fallback');
+            file_put_contents($debuglog, date('[Y-m-d H:i:s] ') . 'generate_rubric_evaluation: no choices in response, returning fallback. response=' . json_encode($response) . "\n", FILE_APPEND);
             return "<h3>Simulation Complete!</h3><p>Your responses have been saved and sent to Gradebook.</p>";
         } catch (\Throwable $e) {
-            error_log('[AACURA] generate_rubric_evaluation: caught Throwable: ' . get_class($e) . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+            file_put_contents($debuglog, date('[Y-m-d H:i:s] ') . 'generate_rubric_evaluation: Throwable: ' . get_class($e) . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() . "\n", FILE_APPEND);
             return "<h3>Simulation Complete!</h3><p>Your responses have been saved and sent to Gradebook.</p>";
         }
     }
