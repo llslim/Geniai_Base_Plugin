@@ -438,8 +438,7 @@ class bot_engine {
                 $rawcontent = preg_replace('/\s*```$/', '', $rawcontent);
                 return trim($rawcontent);
             }
-            return "<h3>Simulation Complete!</h3><p>Your responses have been saved and sent to Gradebook.</p>" .
-                   "<p><em>Note: Automated rubric feedback is temporarily unavailable (API connection timeout).</em></p>";
+            return "<h3>Simulation Complete!</h3><p>Your responses have been saved and sent to Gradebook.</p>";
         } catch (\Exception $e) {
             return "<h3>Simulation Complete!</h3><p>Your responses have been saved and sent to Gradebook.</p>";
         }

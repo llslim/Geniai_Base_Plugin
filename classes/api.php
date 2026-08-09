@@ -217,17 +217,31 @@ class api {
         if (class_exists('\\core_ai\\manager')) {
             try {
                 $manager = new \core_ai\manager();
-                $enabledproviders = $manager->get_provider_records();
+                $allproviders = $manager->get_provider_records();
+                // Only proceed if at least one provider is actually enabled
+                $enabledproviders = array_filter($allproviders, fn($p) => !empty($p->enabled));
                 if (!empty($enabledproviders)) {
-                    $lastmsg = end($messages);
-                    $prompttext = is_array($lastmsg) ? ($lastmsg['content'] ?? '') : '';
+                    // core_ai generate_text only accepts a single plaintext prompt.
+                    // Flatten the full message array (system instructions + all turns) into one combined string.
+                    $promptparts = [];
+                    foreach ($messages as $msg) {
+                        $role = $msg['role'] ?? 'user';
+                        $content = $msg['content'] ?? '';
+                        if ($role === 'system') {
+                            $promptparts[] = "[INSTRUCTIONS]\n" . $content;
+                        } else {
+                            $promptparts[] = "[" . strtoupper($role) . "]\n" . $content;
+                        }
+                    }
+                    $prompttext = implode("\n\n", $promptparts);
+
                     $action = new \core_ai\action\generate_text(
                         contextid: \context_system::instance()->id,
                         userid: $USER->id,
                         prompttext: $prompttext
                     );
                     $result = $manager->process_action($action);
-                    if ($result && method_exists($result, 'get_response_data')) {
+                    if ($result && method_exists($result, 'is_success') && $result->is_success()) {
                         $data = $result->get_response_data();
                         $generatedtext = $data['generatedcontent'] ?? ($data['response'] ?? '');
                         if (!empty($generatedtext)) {
@@ -322,6 +336,11 @@ class api {
             $post->max_tokens = intval($maxtokens);
         }
 
+        // Guard: if no API key is configured, skip the cURL call entirely
+        if (empty($apikey)) {
+            return ["choices" => []];
+        }
+
         $baseurl = rtrim($api_base_url, '/');
         $url = $baseurl . '/chat/completions';
 
@@ -330,7 +349,7 @@ class api {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post));
-        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60); // Increased from 15s — LLM inference can take up to 30s
 
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             "Content-Type: application/json",
