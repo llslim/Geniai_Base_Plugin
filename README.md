@@ -4,9 +4,9 @@ Welcome to the core backend engine repository for **AACURA** (AAC Understanding 
 
 ---
 
-## 🚀 Architectural Architecture & Design Patterns
+## 🚀 Architectural Design
 
-The plugin is designed to decouple presentation from dialogue logic, utilizing classic software engineering patterns in PHP to remain highly extensible.
+The plugin is designed to decouple presentation from dialogue logic, utilizing classic software engineering patterns in PHP to remain highly adaptable.
 
 ### 1. State Pattern (Dialogue Management)
 Instead of relying on nested conditionals or hardcoded database sequences, a formal State Pattern coordinates the student through dialogue phases. Concrete state classes (e.g. `StateIntro`, `StateExploration`, `StateEscalation`, `StateComplete`) encapsulate specific transition validations, keeping states modularized and extensible.
@@ -16,6 +16,39 @@ Response generation and rubric scoring logic are decoupled behind a common Strat
 * **Pattern Matching Strategy**: Evaluates criteria using regex and token overlaps.
 * **Generative AI Strategy**: Executes direct API integration with Google Gemini.
 * **Core AI Subsystem Strategy**: Integrates with Moodle 5.x native `\core_ai\manager` APIs.
+
+### 3. Frontend Decoupling & Independence (Disclaimer)
+While `local_aacuracore` was historically derived from the legacy `local_geniai` project, it has been completely rewritten and restructured. **There is no dependency** on the legacy `local_geniai` codebase, configuration, or database tables. The core backend communicates with its companion user interface activity module `mod_aacurachat` via clean state data objects and Moodle APIs, allowing separate scaling, updates, and styling.
+
+---
+
+## 📝 Scenario Configurations & Example Graph Structure
+
+Conversations in AACURA are driven by structured JSON scenarios defined as directed graphs. Each node represents a conversation state containing prompt templates, expected criteria, and conditional transition links.
+
+### Example Scenario Schema Snippet:
+```json
+{
+  "code": "parent_exploration",
+  "name": "LAFF Strategy: parent exploration phase",
+  "start_node": "intro_greeting",
+  "nodes": {
+    "intro_greeting": {
+      "bot_prompt": "Hello, thank you for meeting with me to discuss my child's communication device...",
+      "expected_strategy": "pattern_matching",
+      "criteria": {
+        "empathy": ["glad", "happy", "understand", "here to help"],
+        "jargon_avoidance": ["!SLP", "!AAC", "!assistive tech"]
+      },
+      "transitions": {
+        "success": "gather_information",
+        "fallback": "intro_greeting_retry"
+      }
+    }
+  }
+}
+```
+*For a complete guide on how to design and upload scenarios, see [scenario_creation_guide.md](scenario_creation_guide.md).*
 
 ---
 
