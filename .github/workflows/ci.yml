@@ -17,7 +17,7 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
 
       mariadb:
-        image: mariadb:10.11
+        image: mariadb:11.4
         env:
           MYSQL_USER: 'root'
           MYSQL_ALLOW_EMPTY_PASSWORD: "true"
@@ -76,7 +76,7 @@ jobs:
 
     - name: Validating
       if: ${{ !cancelled() }}
-      run: moodle-plugin-ci validate ./plugin
+      run: moodle-plugin-ci validate -m moodle ./plugin
 
     - name: Check upgrade savepoints
       if: ${{ !cancelled() }}
@@ -84,17 +84,17 @@ jobs:
 
     - name: Mustache Lint
       if: ${{ !cancelled() }}
-      run: moodle-plugin-ci mustache ./plugin
+      run: moodle-plugin-ci mustache -m moodle ./plugin
 
     - name: PHPUnit tests
       if: ${{ !cancelled() }}
-      run: moodle-plugin-ci phpunit --fail-on-warning ./plugin
+      run: moodle-plugin-ci phpunit -m moodle --fail-on-warning ./plugin
 
     - name: Behat features
       id: behat
       continue-on-error: true
       if: ${{ !cancelled() }}
-      run: moodle-plugin-ci behat --profile chrome ./plugin
+      run: moodle-plugin-ci behat -m moodle --profile chrome ./plugin
 
     - name: Upload Behat Faildump
       if: ${{ failure() && steps.behat.outcome == 'failure' }}
