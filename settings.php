@@ -383,6 +383,7 @@ if ($hassiteconfig) {
             }
         }
     }
+    $geniainame = get_config("local_aacuracore", "geniainame") ?: get_string("geniainame", "local_aacuracore");
     $settings->add(new admin_setting_configmultiselect(
         "local_aacuracore/modules",
         get_string("modules", "local_aacuracore", $geniainame),
