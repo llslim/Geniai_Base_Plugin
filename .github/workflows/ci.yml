@@ -33,6 +33,9 @@ jobs:
         php: ['8.2', '8.3', '8.4']
         moodle-branch: ['MOODLE_500_STABLE', 'main']
         database: [pgsql, mariadb]
+        exclude:
+          - php: '8.2'
+            moodle-branch: 'main'
 
     steps:
     - name: Check out repository code
@@ -92,7 +95,7 @@ jobs:
 
     - name: Validating
       if: ${{ !cancelled() }}
-      run: moodle-plugin-ci validate -m ${{ env.MOODLE_DIR }} ${{ env.PLUGIN_DEST }}
+      run: moodle-plugin-ci validate -m moodle ${{ env.PLUGIN_DEST }}
 
     - name: Check upgrade savepoints
       if: ${{ !cancelled() }}
@@ -100,17 +103,17 @@ jobs:
 
     - name: Mustache Lint
       if: ${{ !cancelled() }}
-      run: moodle-plugin-ci mustache -m ${{ env.MOODLE_DIR }} ${{ env.PLUGIN_DEST }}
+      run: moodle-plugin-ci mustache -m moodle ${{ env.PLUGIN_DEST }}
 
     - name: PHPUnit tests
       if: ${{ !cancelled() }}
-      run: moodle-plugin-ci phpunit -m ${{ env.MOODLE_DIR }} --fail-on-warning ${{ env.PLUGIN_DEST }}
+      run: moodle-plugin-ci phpunit -m moodle --fail-on-warning ${{ env.PLUGIN_DEST }}
 
     - name: Behat features
       id: behat
       continue-on-error: true
       if: ${{ !cancelled() }}
-      run: moodle-plugin-ci behat -m ${{ env.MOODLE_DIR }} --profile chrome ${{ env.PLUGIN_DEST }}
+      run: moodle-plugin-ci behat -m moodle --profile chrome ${{ env.PLUGIN_DEST }}
 
     - name: Upload Behat Faildump
       if: ${{ failure() && steps.behat.outcome == 'failure' }}
