@@ -6,7 +6,7 @@ This log documents the commit history on the `dev` branch, mapping each update t
 
 | Commit Hash | Version | Commit Message / Description | Version Type |
 | :--- | :--- | :--- | :--- |
-| `457b700` | **v1.2.4** | fix: correct naming in CLI migration script and fix CI Behat triggers | Revision (Fix) |
+| `eeae02b` | **v1.2.4** | fix: correct naming in CLI migration script and fix CI Behat triggers | Revision (Fix) |
 | `72d50da` | **v1.2.3** | docs: rename development branch references to dev | Revision (Patch) |
 | `0aeaa66` | **v1.2.2** | docs: add scenario_test.md and link from README.md and gemini.md | Revision (Patch) |
 | `70ebead` | **v1.2.1** | refactor: rename test_scenarios.php to aacuradebug_scenario.php | Revision (Patch) |
