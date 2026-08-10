@@ -1,4 +1,4 @@
-name: Deploy local_aacuracore (Moodle Local Plugin)
+name: local_aacuracore
 
 on:
   push:
