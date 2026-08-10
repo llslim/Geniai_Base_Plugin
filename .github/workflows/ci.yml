@@ -78,7 +78,7 @@ jobs:
           composer update lcobucci/clock maennchen/zipstream-php league/oauth2-server --no-interaction --no-progress
           cd -
         fi
-        moodle-plugin-ci install --moodle "$MOODLE_DIR" --plugin "$PLUGIN_DEST" --db-host=127.0.0.1
+        moodle-plugin-ci install --moodle moodle --plugin "$PLUGIN_DEST" --db-host=127.0.0.1
       env:
         DB: ${{ matrix.database }}
         MOODLE_BRANCH: ${{ matrix.moodle-branch }}
