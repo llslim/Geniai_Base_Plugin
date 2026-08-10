@@ -1,0 +1,242 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+namespace local_aacuracore;
+
+defined('MOODLE_INTERNAL') || die();
+
+/**
+ * Integration tests for AACURA Chatbot Gradebook sync and turn evaluation.
+ *
+ * @package     local_aacuracore
+ * @category    test
+ * @copyright   2026 Antigravity
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class gradebook_test extends \advanced_testcase {
+
+    /**
+     * Set up tests.
+     */
+    protected function setUp(): void {
+        parent::setUp();
+        $this->resetAfterTest(true);
+    }
+
+    /**
+     * Test successful scenario path and Gradebook recording for all parent scenarios.
+     */
+    public function test_gradebook_save_success_path() {
+        global $DB, $CFG;
+        require_once($CFG->dirroot . '/course/lib.php');
+
+        $scenarios = ['anna', 'brianna', 'cathy', 'mary'];
+
+        foreach ($scenarios as $scenario) {
+            $this->resetAfterTest(true); // Reset database state for next loop iteration
+            
+            // Set engine strategy to regex matcher for deterministic offline unit testing
+            set_config('engine_strategy', 'regex', 'local_aacuracore');
+
+            // 1. Generate Course, Student, and Activity
+            $generator = $this->getDataGenerator();
+            $course = $generator->create_course();
+            $student = $generator->create_user();
+            $generator->enrol_user($student->id, $course->id, 'student');
+
+            // Insert aacurachat record manually
+            $record = new \stdClass();
+            $record->course = $course->id;
+            $record->name = "Chatbot - {$scenario}";
+            $record->scenariocode = $scenario;
+            $record->intro = 'Test Intro';
+            $record->introformat = FORMAT_HTML;
+            $record->timecreated = time();
+            $record->timemodified = time();
+            $record->id = $DB->insert_record('aacurachat', $record);
+
+            // Create Moodle Course Module
+            $module = $DB->get_record('modules', ['name' => 'aacurachat'], '*', MUST_EXIST);
+            $cm = new \stdClass();
+            $cm->course = $course->id;
+            $cm->module = $module->id;
+            $cm->instance = $record->id;
+            $cm->section = 1;
+            $cm->added = time();
+            $cmid = add_course_module($cm);
+
+            // Add course module to section 1 sequence
+            $section = $DB->get_record('course_sections', ['course' => $course->id, 'section' => 1]);
+            if (!$section) {
+                $section = $DB->get_record('course_sections', ['course' => $course->id, 'section' => 0]);
+            }
+            if ($section) {
+                $section->sequence = trim($section->sequence . ',' . $cmid, ',');
+                $DB->update_record('course_sections', $section);
+            }
+            rebuild_course_cache($course->id);
+
+            // Set global user context to Steve
+            $this->setUser($student);
+
+            // 2. Instantiate bot_engine and reset session
+            $engine = new \local_aacuracore\bot_engine($student->id, $course->id, $cmid, $scenario);
+            $engine->reset_session();
+
+            // 3. Send Turn 1: Should pass empathy_check (triggers transition START -> EXPLORATION)
+            $reply1 = $engine->process_user_turn("I understand your concerns and want to help you.");
+            $this->assertNotEmpty($reply1);
+            
+            // Verify session state transitioned to EXPLORATION
+            $session = $DB->get_record('local_aacuracore_sessions', ['userid' => $student->id, 'scenariocode' => $scenario]);
+            $this->assertEquals('EXPLORATION', $session->current_state);
+
+            // Verify user message was logged in messages history
+            $usercount = $DB->count_records('local_aacuracore_messages', ['sessionid' => $session->id, 'sender' => 'user']);
+            $this->assertEquals(1, $usercount);
+
+            // Verify analytics was logged as valid (1.00)
+            $analytic1 = $DB->get_record('local_aacuracore_analytics', ['sessionid' => $session->id, 'metric_type' => 'empathy_check']);
+            $this->assertNotNull($analytic1);
+            $this->assertEquals(1.00, $analytic1->metric_value);
+
+            // 4. Send Turn 2: Should pass jargon_check (triggers transition EXPLORATION -> RESOLUTION)
+            $reply2 = $engine->process_user_turn("This is a simple device with picture symbols.");
+            $this->assertNotEmpty($reply2);
+
+            // Verify session state was reset back to START after resolution terminal completion
+            $session = $DB->get_record('local_aacuracore_sessions', ['userid' => $student->id, 'scenariocode' => $scenario]);
+            $this->assertEquals('START', $session->current_state);
+
+            // Verify user message count is now 2
+            $usercount = $DB->count_records('local_aacuracore_messages', ['sessionid' => $session->id, 'sender' => 'user']);
+            $this->assertEquals(2, $usercount);
+
+            // Verify jargon_check analytics was logged as valid (1.00)
+            $analytic2 = $DB->get_record('local_aacuracore_analytics', ['sessionid' => $session->id, 'metric_type' => 'jargon_check']);
+            $this->assertNotNull($analytic2);
+            $this->assertEquals(1.00, $analytic2->metric_value);
+
+            // 5. Verify Moodle Gradebook sync
+            $gradeitem = $DB->get_record('grade_items', ['courseid' => $course->id, 'iteminstance' => $record->id, 'itemmodule' => 'aacurachat']);
+            $this->assertNotNull($gradeitem, "Grade item for 'aacurachat' should be created automatically");
+
+            $grade = $DB->get_record('grade_grades', ['itemid' => $gradeitem->id, 'userid' => $student->id]);
+            $this->assertNotNull($grade, "Student's grade record must exist in Moodle Gradebook");
+            $this->assertEquals(10.00000, $grade->finalgrade, "Steve should get 10/10 since 0 metrics were missed");
+        }
+    }
+
+    /**
+     * Test failed scenario path and Gradebook recording for all parent scenarios.
+     */
+    public function test_gradebook_save_fail_path() {
+        global $DB, $CFG;
+        require_once($CFG->dirroot . '/course/lib.php');
+
+        $scenarios = ['anna', 'brianna', 'cathy', 'mary'];
+
+        foreach ($scenarios as $scenario) {
+            $this->resetAfterTest(true); // Reset database state for next loop iteration
+            
+            // Set engine strategy to regex matcher for deterministic offline unit testing
+            set_config('engine_strategy', 'regex', 'local_aacuracore');
+
+            // 1. Generate Course, Student, and Activity
+            $generator = $this->getDataGenerator();
+            $course = $generator->create_course();
+            $student = $generator->create_user();
+            $generator->enrol_user($student->id, $course->id, 'student');
+
+            // Insert aacurachat record manually
+            $record = new \stdClass();
+            $record->course = $course->id;
+            $record->name = "Chatbot - {$scenario}";
+            $record->scenariocode = $scenario;
+            $record->intro = 'Test Intro';
+            $record->introformat = FORMAT_HTML;
+            $record->timecreated = time();
+            $record->timemodified = time();
+            $record->id = $DB->insert_record('aacurachat', $record);
+
+            // Create Moodle Course Module
+            $module = $DB->get_record('modules', ['name' => 'aacurachat'], '*', MUST_EXIST);
+            $cm = new \stdClass();
+            $cm->course = $course->id;
+            $cm->module = $module->id;
+            $cm->instance = $record->id;
+            $cm->section = 1;
+            $cm->added = time();
+            $cmid = add_course_module($cm);
+
+            // Add course module to section 1 sequence
+            $section = $DB->get_record('course_sections', ['course' => $course->id, 'section' => 1]);
+            if (!$section) {
+                $section = $DB->get_record('course_sections', ['course' => $course->id, 'section' => 0]);
+            }
+            if ($section) {
+                $section->sequence = trim($section->sequence . ',' . $cmid, ',');
+                $DB->update_record('course_sections', $section);
+            }
+            rebuild_course_cache($course->id);
+
+            // Set global user context to Steve
+            $this->setUser($student);
+
+            // 2. Instantiate bot_engine and reset session
+            $engine = new \local_aacuracore\bot_engine($student->id, $course->id, $cmid, $scenario);
+            $engine->reset_session();
+
+            // 3. Send Turn 1: Should FAIL empathy_check (triggers transition START -> ESCALATION)
+            $reply1 = $engine->process_user_turn("Whatever. This is what we have.");
+            $this->assertNotEmpty($reply1);
+            
+            // Verify session state transitioned to ESCALATION
+            $session = $DB->get_record('local_aacuracore_sessions', ['userid' => $student->id, 'scenariocode' => $scenario]);
+            $this->assertEquals('ESCALATION', $session->current_state);
+
+            // Verify user message was logged
+            $usercount = $DB->count_records('local_aacuracore_messages', ['sessionid' => $session->id, 'sender' => 'user']);
+            $this->assertEquals(1, $usercount);
+
+            // Verify analytics was logged as invalid (0.00)
+            $analytic1 = $DB->get_record('local_aacuracore_analytics', ['sessionid' => $session->id, 'metric_type' => 'empathy_check']);
+            $this->assertNotNull($analytic1);
+            $this->assertEquals(0.00, $analytic1->metric_value);
+
+            // 4. Send Turn 2: Should FAIL de_escalation_check (triggers transition ESCALATION -> FAIL_STATE)
+            $reply2 = $engine->process_user_turn("I don't care, talk to the principal.");
+            $this->assertNotEmpty($reply2);
+
+            // Verify session state was reset back to START after terminal completion
+            $session = $DB->get_record('local_aacuracore_sessions', ['userid' => $student->id, 'scenariocode' => $scenario]);
+            $this->assertEquals('START', $session->current_state);
+
+            // Verify jargon_check analytics was logged as invalid (0.00)
+            $analytic2 = $DB->get_record('local_aacuracore_analytics', ['sessionid' => $session->id, 'metric_type' => 'de_escalation_check']);
+            $this->assertNotNull($analytic2);
+            $this->assertEquals(0.00, $analytic2->metric_value);
+
+            // 5. Verify Moodle Gradebook sync
+            $gradeitem = $DB->get_record('grade_items', ['courseid' => $course->id, 'iteminstance' => $record->id, 'itemmodule' => 'aacurachat']);
+            $this->assertNotNull($gradeitem);
+
+            $grade = $DB->get_record('grade_grades', ['itemid' => $gradeitem->id, 'userid' => $student->id]);
+            $this->assertNotNull($grade);
+            $this->assertEquals(8.00000, $grade->finalgrade, "Steve should get 8/10 since 2 metrics were missed (empathy_check & de_escalation_check)");
+        }
+    }
+}

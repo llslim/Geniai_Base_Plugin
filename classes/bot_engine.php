@@ -266,12 +266,27 @@ class bot_engine {
         // 1. Sanitization Layer
         $cleanedmessage = clean_param($usermessage, PARAM_CLEANHTML);
 
+        // Log user message in history
+        $this->log_message('user', $cleanedmessage);
+
         // 2. State & Intent validation routing
         $statekey = $this->sessionrecord->current_state ?? 'START';
         $currentnode = $this->scenario->get_state_node($statekey);
         $nextstatekey = 'EXPLORATION'; // Default transition route
-        if (!empty($currentnode['expected_criteria']['pass_route'])) {
-            $nextstatekey = $currentnode['expected_criteria']['pass_route'];
+
+        if ($currentnode && !empty($currentnode['expected_criteria'])) {
+            $criteria = $currentnode['expected_criteria'];
+            $validationtype = $criteria['validation_type'];
+            $passroute = $criteria['pass_route'];
+            $failroute = $criteria['fail_route'];
+
+            // Evaluate validation criteria against response strategy
+            $isvalid = $this->strategy->evaluate_input($cleanedmessage, $validationtype, $this->scenario);
+
+            // Store analytics marker in database
+            $this->log_analytic($validationtype, $isvalid ? 1.00 : 0.00);
+
+            $nextstatekey = $isvalid ? $passroute : $failroute;
         }
 
         // Update database session state
@@ -321,7 +336,7 @@ class bot_engine {
      * Programmatically triggers Moodle Gradebook sync updates.
      */
     private function trigger_gradebook_sync(): void {
-        global $DB;
+        global $CFG, $DB;
 
         // Fetch overall scores compiled inside database analytics
         $totalscore = 10; // Out of 10 points
@@ -335,8 +350,9 @@ class bot_engine {
         $finalscore = max(0, $totalscore - $missedcount);
 
         // Trigger standard mod_aacurachat library grading hook
-        if (file_exists(__DIR__ . '/../../mod/aacurachat/lib.php')) {
-            require_once(__DIR__ . '/../../mod/aacurachat/lib.php');
+        $libfile = $CFG->dirroot . '/mod/aacurachat/lib.php';
+        if (file_exists($libfile)) {
+            require_once($libfile);
             if (function_exists('aacurachat_grade_item_update')) {
                 // Fetch course module record
                 $cm = get_coursemodule_from_id('aacurachat', $this->sessionrecord->cmid);

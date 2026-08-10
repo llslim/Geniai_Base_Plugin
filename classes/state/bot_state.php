@@ -60,7 +60,7 @@ abstract class bot_state {
         $isvalid = $strategy->evaluate_input($input, $validationtype, $engine->get_scenario());
 
         // Store analytics marker
-        $engine->log_analytics($validationtype, $isvalid ? 1.00 : 0.00);
+        $engine->log_analytic($validationtype, $isvalid ? 1.00 : 0.00);
 
         return $isvalid ? $passroute : $failroute;
     }
