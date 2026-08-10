@@ -2,7 +2,7 @@
 // This file is part of AACURA Core Engine for Moodle - http://moodle.org/
 //
 // CLI Migration Script: Upgrades legacy local_geniai and mod_geniai installations
-// to local_aacuracore and mod_aacura_chat.
+// to local_aacuracore and mod_aacurachat.
 
 define('CLI_SCRIPT', true);
 
@@ -40,28 +40,28 @@ foreach ($localtables as $oldtable => $newtable) {
     }
 }
 
-// 2. Migrate activity table mod_geniai -> mod_aacura_chat.
+// 2. Migrate activity table mod_geniai -> mod_aacurachat.
 if ($dbman->table_exists('geniai')) {
-    if (!$dbman->table_exists('aacura_chat')) {
-        cli_writeln("Renaming activity table 'geniai' -> 'aacura_chat'...");
+    if (!$dbman->table_exists('aacurachat')) {
+        cli_writeln("Renaming activity table 'geniai' -> 'aacurachat'...");
         $table = new xmldb_table('geniai');
-        $dbman->rename_table($table, 'aacura_chat');
+        $dbman->rename_table($table, 'aacurachat');
     } else {
-        cli_writeln("Target activity table 'aacura_chat' already exists.");
+        cli_writeln("Target activity table 'aacurachat' already exists.");
     }
 }
 
 // 3. Update Moodle modules registry for activity plugin.
 $module = $DB->get_record('modules', ['name' => 'geniai']);
 if ($module) {
-    cli_writeln("Updating Moodle module registry from 'geniai' -> 'aacura_chat'...");
-    $DB->set_field('modules', 'name', 'aacura_chat', ['id' => $module->id]);
+    cli_writeln("Updating Moodle module registry from 'geniai' -> 'aacurachat'...");
+    $DB->set_field('modules', 'name', 'aacurachat', ['id' => $module->id]);
 }
 
 // 4. Update plugin settings in mdl_config_plugins.
 cli_writeln("Migrating plugin settings in config_plugins...");
 $DB->execute("UPDATE {config_plugins} SET plugin = 'local_aacuracore' WHERE plugin = 'local_geniai'");
-$DB->execute("UPDATE {config_plugins} SET plugin = 'mod_aacura_chat' WHERE plugin = 'mod_geniai'");
+$DB->execute("UPDATE {config_plugins} SET plugin = 'mod_aacurachat' WHERE plugin = 'mod_geniai'");
 
 // 5. Purge site caches.
 cli_writeln("Purging Moodle site caches...");
