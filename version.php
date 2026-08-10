@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die;
 
 $plugin->version = 2026052517;
-$plugin->requires = 2026042000;
+$plugin->requires = 2025041400;
 $plugin->release = "2.4.1";
 $plugin->maturity = MATURITY_STABLE;
 $plugin->component = "local_aacuracore";
