@@ -32,11 +32,28 @@ This repository contains the **core backend engine** for **AACURA** (AAC Underst
 
 ---
 
-## 📥 Installation Guide
+### Option A: Install via Composer (Recommended)
+Add the repository to your Moodle project's root `composer.json` and require it:
 
-Follow these steps to install the plugin into your Moodle environment:
+```json
+"repositories": [
+    {
+        "type": "vcs",
+        "url": "https://github.com/llslim/moodle-plugin-aacuracore.git"
+    }
+],
+"require": {
+    "llslim/moodle-plugin-aacuracore": "dev-dev"
+}
+```
 
-1. **Download** the latest ZIP archive of this repository ([llslim/moodle-plugin-aacuracore_engine](https://github.com/llslim/moodle-plugin-aacuracore_engine)).
+Then run:
+```bash
+composer update
+```
+
+### Option B: Manual Installation
+1. **Download** the latest ZIP archive of this repository ([llslim/moodle-plugin-aacuracore](https://github.com/llslim/moodle-plugin-aacuracore)).
 2. **Navigate** to Moodle and proceed to:
 
    ```
