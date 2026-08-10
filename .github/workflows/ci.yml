@@ -71,7 +71,7 @@ jobs:
           MOODLE_DIR="moodle"
           PLUGIN_DEST="moodle/local/aacuracore"
         fi
-        rm -f "$PLUGIN_DEST"
+        rm -rf "$PLUGIN_DEST"
         cp -R ./plugin "$PLUGIN_DEST"
         if [ "${{ matrix.php }}" = "8.2" ] && [ "${{ matrix.moodle-branch }}" = "main" ]; then
           cd "$MOODLE_DIR"
