@@ -113,4 +113,81 @@ class regex_matcher_strategy implements response_strategy {
         }
         return 'I see. Please continue.';
     }
+
+    /**
+     * Generates the rubric evaluation text feedback.
+     *
+     * @param array $messages Complete conversation history
+     * @param scenario_definition $scenario Active scenario
+     * @param array $analytics Logged analytics metrics for the session
+     * @return string HTML formatted feedback
+     */
+    public function generate_rubric_feedback(array $messages, scenario_definition $scenario, array $analytics): string {
+        $empathy = null;
+        $jargon = null;
+        $deescalation = null;
+        $clarification = null;
+
+        foreach ($analytics as $analytic) {
+            $type = is_object($analytic) ? $analytic->metric_type : $analytic['metric_type'];
+            $value = is_object($analytic) ? $analytic->metric_value : $analytic['metric_value'];
+            if ($type === 'empathy_check') {
+                $empathy = ($value > 0.5);
+            } else if ($type === 'jargon_check') {
+                $jargon = ($value > 0.5);
+            } else if ($type === 'de_escalation_check') {
+                $deescalation = ($value > 0.5);
+            } else if ($type === 'clarification_check') {
+                $clarification = ($value > 0.5);
+            }
+        }
+
+        $missed = 0;
+        if ($empathy === false) $missed++;
+        if ($jargon === false) $missed++;
+        if ($deescalation === false) $missed++;
+        if ($clarification === false) $missed++;
+
+        $score = max(0, 10 - $missed);
+
+        $feedback = "<h3><strong>Grade - {$score} out of 10</strong></h3>\n\n";
+
+        $feedback .= "<h4><strong>1. Listen, empathize, and communicate respect</strong></h4>\n<ul>\n";
+        if ($empathy === false) {
+            $feedback .= "  <li>Missed opportunity: 💡 Include a statement of empathy to show understanding.</li>\n";
+        } else {
+            $feedback .= "  <li>Earned ✅ 1 pt for Greeting and Empathy (Turn 1)</li>\n";
+        }
+        $feedback .= "</ul>\n\n";
+
+        $feedback .= "<h4><strong>2. Ask questions and ask permission to take notes</strong></h4>\n<ul>\n";
+        if ($clarification === false) {
+            $feedback .= "  <li>Missed opportunity: 💡 Ask clarifying questions to address parent's confusion.</li>\n";
+        } else {
+            $feedback .= "  <li>Earned ✅ 1 pt for seeking and providing clarification.</li>\n";
+        }
+        $feedback .= "</ul>\n\n";
+
+        $feedback .= "<h4><strong>3. Focus on the issue</strong></h4>\n<ul>\n";
+        if ($deescalation === false) {
+            $feedback .= "  <li>Missed opportunity: 💡 De-escalate parent's concern without jumping to solutions.</li>\n";
+        } else {
+            $feedback .= "  <li>Earned ✅ 1 pt for collaborative focus on the issue.</li>\n";
+        }
+        $feedback .= "</ul>\n\n";
+
+        $feedback .= "<h4><strong>4. Find a first step</strong></h4>\n<ul>\n";
+        if ($jargon === false) {
+            $feedback .= "  <li>Missed opportunity: 💡 Avoid unexplained jargon words.</li>\n";
+        } else {
+            $feedback .= "  <li>Earned ✅ 1 pt for jargon-free explanation.</li>\n";
+        }
+        $feedback .= "</ul>\n\n";
+
+        $feedback .= "<p><strong>Total score: {$score} out of 10</strong></p>\n";
+        $feedback .= "<p>Thank you for completing this practice conversation! 🌟 Your commitment to partnering with parents and supporting your students shines through. Keep up the fantastic effort! 🍎</p>\n";
+        $feedback .= "<p>Suggest to click <strong>Clear Chat</strong> button to restart if needed</p>";
+
+        return $feedback;
+    }
 }

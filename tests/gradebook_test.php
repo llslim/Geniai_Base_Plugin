@@ -137,6 +137,12 @@ class gradebook_test extends \advanced_testcase {
             $grade = $DB->get_record('grade_grades', ['itemid' => $gradeitem->id, 'userid' => $student->id]);
             $this->assertNotNull($grade, "Student's grade record must exist in Moodle Gradebook");
             $this->assertEquals(10.00000, $grade->finalgrade, "Steve should get 10/10 since 0 metrics were missed");
+
+            // 6. Verify local_aacuracore_evaluations persistence
+            $eval = $DB->get_record('local_aacuracore_evaluations', ['sessionid' => $session->id]);
+            $this->assertNotNull($eval, "Evaluation record should be saved in the database");
+            $this->assertEquals(10.00, $eval->score, "Saved evaluation score should be 10.00");
+            $this->assertNotEmpty($eval->feedback, "Saved evaluation feedback should not be empty");
         }
     }
 
@@ -237,6 +243,12 @@ class gradebook_test extends \advanced_testcase {
             $grade = $DB->get_record('grade_grades', ['itemid' => $gradeitem->id, 'userid' => $student->id]);
             $this->assertNotNull($grade);
             $this->assertEquals(8.00000, $grade->finalgrade, "Steve should get 8/10 since 2 metrics were missed (empathy_check & de_escalation_check)");
+
+            // 6. Verify local_aacuracore_evaluations persistence
+            $eval = $DB->get_record('local_aacuracore_evaluations', ['sessionid' => $session->id]);
+            $this->assertNotNull($eval, "Evaluation record should be saved in the database");
+            $this->assertEquals(8.00, $eval->score, "Saved evaluation score should be 8.00");
+            $this->assertNotEmpty($eval->feedback, "Saved evaluation feedback should not be empty");
         }
     }
 }

@@ -232,6 +232,7 @@ class bot_engine {
 
         $DB->delete_records('local_aacuracore_messages', ['sessionid' => $this->sessionrecord->id]);
         $DB->delete_records('local_aacuracore_analytics', ['sessionid' => $this->sessionrecord->id]);
+        $DB->delete_records('local_aacuracore_evaluations', ['sessionid' => $this->sessionrecord->id]);
 
         $this->sessionrecord->current_state = 'START';
         $this->sessionrecord->timemodified = time();
@@ -305,13 +306,30 @@ class bot_engine {
                 $this->log_message('system', $parentclosing);
             }
 
-            $feedback = $this->generate_rubric_evaluation();
+            // Retrieve messages and analytics to compute feedback and final score
+            $messages = $this->get_messages();
+            $analytics = $DB->get_records('local_aacuracore_analytics', ['sessionid' => $this->sessionrecord->id]);
+
+            $feedback = $this->strategy->generate_rubric_feedback($messages, $this->scenario, $analytics);
             $fullclosingresponse = !empty($parentclosing) ? ($parentclosing . "<br><br>" . $feedback) : $feedback;
 
             $this->log_message('system', $feedback);
 
+            // Compute final score
+            $totalscore = 10;
+            $missedcount = 0;
+            foreach ($analytics as $analytic) {
+                if ($analytic->metric_value == 0.00) {
+                    $missedcount++;
+                }
+            }
+            $finalscore = max(0, $totalscore - $missedcount);
+
+            // Save evaluation record to local_aacuracore_evaluations
+            $this->save_evaluation($finalscore, $feedback);
+
             // Sync performance metrics straight to Gradebook via trigger
-            $this->trigger_gradebook_sync();
+            $this->trigger_gradebook_sync($finalscore);
 
             // Auto reset/clear active state variables
             $this->sessionrecord->current_state = 'START';
@@ -334,20 +352,11 @@ class bot_engine {
 
     /**
      * Programmatically triggers Moodle Gradebook sync updates.
+     *
+     * @param float $finalscore
      */
-    private function trigger_gradebook_sync(): void {
+    private function trigger_gradebook_sync(float $finalscore): void {
         global $CFG, $DB;
-
-        // Fetch overall scores compiled inside database analytics
-        $totalscore = 10; // Out of 10 points
-        $analytics = $DB->get_records('local_aacuracore_analytics', ['sessionid' => $this->sessionrecord->id]);
-        $missedcount = 0;
-        foreach ($analytics as $analytic) {
-            if ($analytic->metric_value == 0.00) {
-                $missedcount++;
-            }
-        }
-        $finalscore = max(0, $totalscore - $missedcount);
 
         // Trigger standard mod_aacurachat library grading hook
         $libfile = $CFG->dirroot . '/mod/aacurachat/lib.php';
@@ -370,98 +379,24 @@ class bot_engine {
     }
 
     /**
-     * Dynamic rubric formatting and LLM evaluation compile.
+     * Persists final evaluation details to the local_aacuracore_evaluations table.
      *
-     * @return string
+     * @param float $score
+     * @param string $feedback
+     * @return int record ID
      */
-    private function generate_rubric_evaluation(): string {
+    public function save_evaluation(float $score, string $feedback): int {
         global $DB;
 
-        $messages = $this->get_messages();
-        $teacherreplies = [];
-        $turn = 1;
-        foreach ($messages as $message) {
-            if ($message->sender === 'user') {
-                $teacherreplies[] = "Turn " . $turn . ": " . $message->message_text;
-                $turn++;
-            }
-        }
+        // Clean any existing evaluation for the current session to prevent clutter
+        $DB->delete_records('local_aacuracore_evaluations', ['sessionid' => $this->sessionrecord->id]);
 
-        $rubric = [
-            "greeting" => "1 point if teacher starts with a greeting.",
-            "empathy" => "1 point for a statement of empathy.",
-            "note_permission" => "1 point if teacher asks to take notes.",
-            "presenting_problem" => "1 point for asking 'what brings you in today?'.",
-            "duration" => "1 point for asking 'how long has this been a problem?'.",
-            "exception" => "1 point for asking 'was this ever not a problem?'.",
-            "consultation" => "1 point for asking 'have you spoken to anyone else?'.",
-            "wrap_up" => "1 point for asking 'anything else to add?'.",
-        ];
+        $eval = new \stdClass();
+        $eval->sessionid = $this->sessionrecord->id;
+        $eval->score = $score;
+        $eval->feedback = $feedback;
+        $eval->timecreated = time();
 
-        $formattedrubric = implode("\n", array_map(
-            fn($k, $v) => ucfirst(str_replace("_", " ", $k)) . ": " . $v,
-            array_keys($rubric),
-            $rubric
-        ));
-
-        // Formulate feedback compile prompt for OpenAI with explicit HTML rendering instructions
-        $fullcontext = [
-            [
-                "role" => "system",
-                "content" => "You are evaluating a simulated parent-teacher conversation.\n\n" .
-                             "Below are only the teacher's replies (from role: `user`).\n" .
-                             "Do NOT evaluate any system or parent messages — ONLY evaluate the teacher replies.\n\n" .
-                             "Rubric:\n" . $formattedrubric . "\n\n" .
-                             "Feedback Format:\n" .
-                             "🎯 Your goal is to group feedback into the 4 steps of LAFF:\n" .
-                             "1. Listen, empathize, and communicate respect\n" .
-                             "2. Ask questions and ask permission to take notes\n" .
-                             "3. Focus on the issue\n" .
-                             "4. Find a first step\n\n" .
-                             "🧮 Scoring:\n" .
-                             "- Start from 10 points.\n" .
-                             "- Award 1 point for each clearly demonstrated rubric-aligned move.\n" .
-                             "- Do not show point deductions.\n" .
-                             "- Instead, if something was missed, write it as a Missed opportunity: .\n" .
-                             "- Mention the turn number (teacher turn) in parentheses.\n\n" .
-                             "IMPORTANT FORMATTING INSTRUCTIONS:\n" .
-                             "- Output clean, raw, fully rendered HTML tags (e.g. <h3>, <h4>, <strong>, <ul>, <li>, <p>).\n" .
-                             "- Do NOT wrap your output in markdown code blocks like ```html ... ```.\n" .
-                             "- Do NOT output raw markdown asterisks or hash headers.\n\n" .
-                             "HTML Structure:\n" .
-                             "Start with: <h3><strong>Grade - X out of 10</strong></h3>\n" .
-                             "For each LAFF step, use <h4><strong>Step Name</strong></h4>\n" .
-                             "Under each step, use an HTML list <ul><li>...</li></ul> with list items:\n" .
-                             "- <li>Earned ✅ 1 pt for ___ (turn #)</li>\n" .
-                             "- <li>Missed opportunity: 💡 ___</li>\n\n" .
-                             "End with:\n" .
-                             "<p><strong>Total score: X out of 10</strong></p>\n" .
-                             "<p>A warm thank-you message with emojis</p>\n" .
-                             "<p>Suggest to click <strong>Clear Chat</strong> button to restart if needed</p>",
-            ],
-        ];
-
-        foreach ($teacherreplies as $reply) {
-            $fullcontext[] = ["role" => "user", "content" => $reply];
-        }
-
-        try {
-            debugging('[AACURA] generate_rubric_evaluation: calling chat_completions, context size=' . count($fullcontext), DEBUG_DEVELOPER);
-            $response = \local_aacuracore\api::chat_completions($fullcontext);
-            debugging('[AACURA] generate_rubric_evaluation: response keys=' . implode(',', array_keys($response ?? [])), DEBUG_DEVELOPER);
-            if (isset($response["choices"][0]["message"]["content"])) {
-                $rawcontent = trim($response["choices"][0]["message"]["content"]);
-                // Strip markdown code fences if LLM accidentally returns them
-                $rawcontent = preg_replace('/^```(?:html)?\s*/i', '', $rawcontent);
-                $rawcontent = preg_replace('/\s*```$/', '', $rawcontent);
-                debugging('[AACURA] generate_rubric_evaluation: success, content length=' . strlen($rawcontent), DEBUG_DEVELOPER);
-                return trim($rawcontent);
-            }
-            debugging('[AACURA] generate_rubric_evaluation: no choices in response, returning fallback. response=' . json_encode($response), DEBUG_DEVELOPER);
-            return "<h3>Simulation Complete!</h3><p>Your responses have been saved and sent to Gradebook.</p>";
-        } catch (\Throwable $e) {
-            debugging('[AACURA] generate_rubric_evaluation: Throwable: ' . get_class($e) . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine(), DEBUG_DEVELOPER);
-            return "<h3>Simulation Complete!</h3><p>Your responses have been saved and sent to Gradebook.</p>";
-        }
+        return (int)$DB->insert_record('local_aacuracore_evaluations', $eval);
     }
 }

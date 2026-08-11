@@ -60,6 +60,11 @@ if ($steve) {
         foreach ($analytics as $an) {
             echo " - Metric: {$an->metric_type}, Value: {$an->metric_value}\n";
         }
+        $evaluations = $DB->get_records('local_aacuracore_evaluations', ['sessionid' => $session->id], 'id ASC');
+        echo "Logged Evaluations:\n";
+        foreach ($evaluations as $ev) {
+            echo " - Score: {$ev->score}, Feedback: " . substr(strip_tags($ev->feedback), 0, 100) . "...\n";
+        }
     } else {
         echo "No session record found for Steve\n";
     }

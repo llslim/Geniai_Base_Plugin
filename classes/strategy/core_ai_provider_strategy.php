@@ -95,4 +95,17 @@ class core_ai_provider_strategy implements response_strategy {
 
         return $stateprompt;
     }
+
+    /**
+     * Generates the rubric evaluation text feedback.
+     *
+     * @param array $messages Complete conversation history
+     * @param scenario_definition $scenario Active scenario
+     * @param array $analytics Logged analytics metrics for the session
+     * @return string HTML formatted feedback
+     */
+    public function generate_rubric_feedback(array $messages, scenario_definition $scenario, array $analytics): string {
+        $fallback = new generative_ai_api_strategy();
+        return $fallback->generate_rubric_feedback($messages, $scenario, $analytics);
+    }
 }

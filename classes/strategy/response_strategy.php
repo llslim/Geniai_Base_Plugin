@@ -47,4 +47,14 @@ interface response_strategy {
      * @return string generated parent prompt response
      */
     public function generate_response(array $messages, scenario_definition $scenario, string $statekey): string;
+
+    /**
+     * Generates the rubric evaluation text feedback.
+     *
+     * @param array $messages Complete conversation history
+     * @param scenario_definition $scenario Active scenario
+     * @param array $analytics Logged analytics metrics for the session
+     * @return string HTML formatted feedback
+     */
+    public function generate_rubric_feedback(array $messages, scenario_definition $scenario, array $analytics): string;
 }

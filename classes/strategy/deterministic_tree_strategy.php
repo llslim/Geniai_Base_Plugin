@@ -57,4 +57,17 @@ class deterministic_tree_strategy implements response_strategy {
         }
         return '';
     }
+
+    /**
+     * Generates the rubric evaluation text feedback.
+     *
+     * @param array $messages Complete conversation history
+     * @param scenario_definition $scenario Active scenario
+     * @param array $analytics Logged analytics metrics for the session
+     * @return string HTML formatted feedback
+     */
+    public function generate_rubric_feedback(array $messages, scenario_definition $scenario, array $analytics): string {
+        $fallback = new regex_matcher_strategy();
+        return $fallback->generate_rubric_feedback($messages, $scenario, $analytics);
+    }
 }
