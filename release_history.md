@@ -1,22 +1,34 @@
-# AACURA Engine Version History & Tagging Log
+# AACURA Engine Release History
 
-### Current Version: **v1.4.0-dev**
+This document records the release history of the `local_aacuracore` Moodle plugin, mapping each git tag to its associated commit, Moodle version number, release string, and commit message.
 
-This log documents the commit history on the `dev` branch, mapping each update to its determined semantic version based on the project's git tagging policy.
+## Versioning Convention
 
-## Release History (Git Tag ↔ Moodle Version ↔ Release Number)
+Each release is identified by three related version fields that must stay in sync:
 
-| Git Tag | Moodle `$plugin->version` | `$plugin->release` | Commit Message / Description |
+| Field | Format | Example | Purpose |
 | :--- | :--- | :--- | :--- |
-| `v1.4.0-dev` | `2026081002` | `2.4.2` | feat: add Diagnostics tab to settings page |
-| `v1.3.1-dev` | `2026081001` | `2.4.1` | Resolves #2: Save computed scores to evaluations |
-| `v1.3.0-dev` | `2026052517` | `2.4.1` | Resolves #1: Fix analytics logging and Gradebook integration |
-| `v1.2.4-dev` | `2026052517` | `2.4.1` | fix: correct naming in CLI migration script |
+| **Git tag** | `vX.Y.Z-dev` | `v1.4.0-dev` | Semantic version tag on the `dev` branch (source of truth). |
+| **`$plugin->version`** | `YYYYMMDDNN` | `2026081002` | Moodle's internal upgrade trigger. Must be incremented on every release. |
+| **`$plugin->release`** | `X.Y.Z` | `2.4.2` | Human-readable release string. |
+
+## Release History
+
+| Git Tag | Commit | `$plugin->version` | `$plugin->release` | Commit Message / Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `v1.4.0-dev` | `8be42e6` | `2026081002` | `2.4.2` | feat: add Diagnostics tab to settings page showing configs, connected provider, and scenario graphs |
+| `v1.3.1-dev` | `32846fe` | `2026081001` | `2.4.1` | feat: save score to evaluations table and implement regex strategy score feedback |
+| `v1.3.0-dev` | `1c0e614` | `2026052517` | `2.4.1` | feat: investigate and implement saving student score to gradebook |
+| `v1.2.4-dev` | `f2e910e` | `2026052517` | `2.4.1` | docs: finalize commit hash in version log |
+| `v1.2.3-dev` | `e60bd20` | `2026052517` | `2.4.1` | chore: add composer.json for Composer installation |
 
 ## Commit History (Semantic Version Mapping)
 
+The following table maps individual commits on the `dev` branch to their determined semantic version, based on the project's git tagging policy.
+
 | Commit Hash | Version | Commit Message / Description | Version Type |
 | :--- | :--- | :--- | :--- |
+| `8c4f53f` | **v1.4.1** | ci: add PHP 8.5 to test matrix | Revision (Patch) |
 | `4d86eb3` | **v1.4.1** | fix: repair accordion behavior and reorder settings page fields (Resolves #3) | Revision (Fix) |
 | `2141989` | **v1.4.0** | fix: register mod_aacurachat plugin metadata in gradebook test | Revision (Fix) |
 | `3d02642` | **v1.4.0** | fix: make gradebook_test.php self-contained for CI | Revision (Fix) |
