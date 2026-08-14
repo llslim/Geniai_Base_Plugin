@@ -31,21 +31,42 @@ if ($hassiteconfig) {
     $settings = new admin_settingpage("local_aacuracore", get_string("pluginname", "local_aacuracore"));
     $ADMIN->add("localplugins", $settings);
 
-    // Diagnostics tab: configs, connected provider, and scenario graphs.
+    // Diagnostics tab bar + panel (rendered via the tab bar; no standalone heading).
     $settings->add(new \local_aacuracore\admin_setting_aacura_html(
         'aacura_diagnostics_tab',
-        '🩺 Diagnostics',
+        '',
         \local_aacuracore\diagnostics_renderer::render_tabbar_and_panel()
     ));
 
-    // Link button to Scenario Builder & Site-Wide Registry
-    $registryurl = new moodle_url('/local/aacuracore/scenario_builder.php');
-    $registryhtml = 'Upload custom JSON scenarios, view registered personas, or remove personas site-wide. ' .
-        '<a href="' . $registryurl->out() . '" target="_blank" class="btn btn-sm btn-primary ml-2" style="background-color: #4f2c11; border-color: #4f2c11; color: white;">' .
-        '🛠️ Manage Personas & Open Scenario Builder' .
-        '</a>';
-    $settings->add(new admin_setting_heading('scenario_registry_heading', 'Custom Persona Scenario Registry', $registryhtml));
+    // 1. ACTIVE SCENARIO PROFILES
+    $scenarios = [
+        "anna" => "Anna Charles (Autism pre-K concern)",
+        "brianna" => "Brianna Mitchell (Apraxia / social isolation)",
+        "cathy" => "Cathy Fratner (Down Syndrome / app concern)",
+        "mary" => "Mary (Mother of Non-Verbal 6-Year-Old)",
+    ];
+    $customrecords = $DB->get_records("local_aacuracore_custom_scenarios", null, "name ASC");
+    foreach ($customrecords as $cr) {
+        $scenarios[$cr->scenariocode] = $cr->name . " (Custom: " . $cr->scenariocode . ")";
+    }
 
+    // Scenario Builder & Site-Wide Registry button + description, appended below the profiles.
+    $registryurl = new moodle_url('/local/aacuracore/scenario_builder.php');
+    $scenariodesc = get_string("active_scenarios_desc", "local_aacuracore") .
+        '<div class="mt-2"><a href="' . $registryurl->out() . '" target="_blank" class="btn btn-sm btn-primary" style="background-color: #4f2c11; border-color: #4f2c11; color: white;">' .
+        '🛠️ Manage Personas & Open Scenario Builder' .
+        '</a></div>' .
+        '<div class="form-text text-muted mt-2">Upload custom JSON scenarios, view registered personas, or remove personas site-wide.</div>';
+
+    $settings->add(new admin_setting_configmultiselect(
+        "local_aacuracore/active_scenarios",
+        get_string("active_scenarios", "local_aacuracore"),
+        $scenariodesc,
+        array_keys($scenarios),
+        $scenarios
+    ));
+
+    // 2. USAGE MODE
     $models = [
         "none" => get_string("mode_name_none", "local_aacuracore"),
         "assistant" => get_string("mode_name_assistant", "local_aacuracore"),
@@ -59,6 +80,7 @@ if ($hassiteconfig) {
         $models
     ));
 
+    // 3. ACTIVE AI ENGINE SOLUTION
     $strategies = [
         "moodle_core_ai" => get_string("engine_strategy_core_ai", "local_aacuracore"),
         "external_llm" => get_string("engine_strategy_external", "local_aacuracore"),
@@ -70,24 +92,6 @@ if ($hassiteconfig) {
         get_string("engine_strategy_desc", "local_aacuracore"),
         "moodle_core_ai",
         $strategies
-    ));
-
-    $scenarios = [
-        "anna" => "Anna Charles (Autism pre-K concern)",
-        "brianna" => "Brianna Mitchell (Apraxia / social isolation)",
-        "cathy" => "Cathy Fratner (Down Syndrome / app concern)",
-        "mary" => "Mary (Mother of Non-Verbal 6-Year-Old)",
-    ];
-    $customrecords = $DB->get_records("local_aacuracore_custom_scenarios", null, "name ASC");
-    foreach ($customrecords as $cr) {
-        $scenarios[$cr->scenariocode] = $cr->name . " (Custom: " . $cr->scenariocode . ")";
-    }
-    $settings->add(new admin_setting_configmultiselect(
-        "local_aacuracore/active_scenarios",
-        get_string("active_scenarios", "local_aacuracore"),
-        get_string("active_scenarios_desc", "local_aacuracore"),
-        array_keys($scenarios),
-        $scenarios
     ));
 
     // Determine current active strategy solution
@@ -124,20 +128,34 @@ if ($hassiteconfig) {
         var sections = [
             {
                 strategyVal: "moodle_core_ai",
-                matchText: "1. Moodle Core AI",
-                fields: ["s_local_aacuracore_core_ai_selected_provider"]
+                matchText: "1. Moodle Core AI"
             },
             {
                 strategyVal: "external_llm",
-                matchText: "2. Google Gemini",
-                fields: ["s_local_aacuracore_api_base_url", "s_local_aacuracore_api_bearer_token", "s_local_aacuracore_model_identifier"]
+                matchText: "2. Google Gemini"
             },
             {
                 strategyVal: "local",
-                matchText: "3. ChatGPT",
-                fields: ["s_local_aacuracore_apikey", "s_local_aacuracore_model", "s_local_aacuracore_voice", "s_local_aacuracore_case"]
+                matchText: "3. ChatGPT"
             }
         ];
+
+        // Collect all sibling content elements between this heading and the next
+        // section heading (or the end of the settings form). This robustly hides
+        // every field and the section description, regardless of the theme markup.
+        function collectSectionContent(titleEl) {
+            var content = [];
+            var el = titleEl.nextElementSibling;
+            while (el && el.tagName !== "H3") {
+                // Stop at the diagnostics panel / tab bar if present.
+                if (el.id === "aacura-panel-diag" || el.id === "aacura-tabbar") {
+                    break;
+                }
+                content.push(el);
+                el = el.nextElementSibling;
+            }
+            return content;
+        }
 
         sections.forEach(function(sec) {
             // Find section header by heading title text
@@ -173,20 +191,16 @@ if ($hassiteconfig) {
 
             titleEl.appendChild(toggleSpan);
 
+            var contentEls = collectSectionContent(titleEl);
+
             function setVisibility(show) {
                 isOpen = show;
                 toggleSpan.textContent = isOpen ? "▼ Collapse" : "► Expand";
                 toggleSpan.style.backgroundColor = isOpen ? "#cbd5e1" : "#ffffff";
                 toggleSpan.style.border = "1px solid #94a3b8";
 
-                sec.fields.forEach(function(fieldName) {
-                    var inputEl = document.querySelector("[name=\'" + fieldName + "\']");
-                    if (inputEl) {
-                        var container = inputEl.closest(".form-item, .setting-item, div.row, fieldset");
-                        if (container) {
-                            container.style.display = isOpen ? "" : "none";
-                        }
-                    }
+                contentEls.forEach(function(el) {
+                    el.style.display = isOpen ? "" : "none";
                 });
             }
 
@@ -222,14 +236,9 @@ if ($hassiteconfig) {
                         toggleSpan.style.backgroundColor = shouldShow ? "#cbd5e1" : "#ffffff";
                     }
 
-                    sec.fields.forEach(function(fieldName) {
-                        var inputEl = document.querySelector("[name=\'" + fieldName + "\']");
-                        if (inputEl) {
-                            var container = inputEl.closest(".form-item, .setting-item, div.row, fieldset");
-                            if (container) {
-                                container.style.display = shouldShow ? "" : "none";
-                            }
-                        }
+                    var contentEls = collectSectionContent(titleEl);
+                    contentEls.forEach(function(el) {
+                        el.style.display = shouldShow ? "" : "none";
                     });
                 });
             });

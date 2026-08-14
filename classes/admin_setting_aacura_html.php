@@ -50,14 +50,14 @@ class admin_setting_aacura_html extends \admin_setting {
     }
 
     /**
-     * Returns the raw HTML.
+     * Returns the raw HTML without any form-item wrapper.
      *
      * @param string $data
      * @param string $query
      * @return string
      */
     public function output_html($data, $query = '') {
-        return format_admin_setting($this, $this->visiblename, $this->html, '', false, '', '', $query);
+        return $this->html;
     }
 
     /**
