@@ -22,6 +22,9 @@ AACURA supports Google Gemini models via two distinct integration paths:
 
 ## 2. Step-by-Step Setup Guide
 
+> [!NOTE]
+> For a detailed, comprehensive walkthrough on configuring both Moodle Core AI Providers and direct REST configurations, refer to the [siteadmin_aacura_setup.md](file:///d:/Antigravity1x_backup/windows-projects/AAC-RERC%20Chatbot/siteadmin_aacura_setup.md) guide.
+
 ### Option A: Direct Gemini REST Setup
 1. Obtain an API Key from [Google AI Studio](https://aistudio.google.com/app/apikey).
 2. Log into Moodle as an Administrator.

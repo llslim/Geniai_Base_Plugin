@@ -31,6 +31,13 @@ if ($hassiteconfig) {
     $settings = new admin_settingpage("local_aacuracore", get_string("pluginname", "local_aacuracore"));
     $ADMIN->add("localplugins", $settings);
 
+    // Diagnostics tab: configs, connected provider, and scenario graphs.
+    $settings->add(new \local_aacuracore\admin_setting_aacura_html(
+        'aacura_diagnostics_tab',
+        '🩺 Diagnostics',
+        \local_aacuracore\diagnostics_renderer::render_tabbar_and_panel()
+    ));
+
     // Link button to Scenario Builder & Site-Wide Registry
     $registryurl = new moodle_url('/local/aacuracore/scenario_builder.php');
     $registryhtml = 'Upload custom JSON scenarios, view registered personas, or remove personas site-wide. ' .

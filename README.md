@@ -87,6 +87,9 @@ composer update
    git clone https://github.com/llslim/moodle-plugin-aacuracore.git local/aacuracore
    ```
 
+### ⚙️ Post-Installation Setup
+Once installed, configure the AI Providers and plugin settings. See [siteadmin_aacura_setup.md](file:///d:/Antigravity1x_backup/windows-projects/AAC-RERC%20Chatbot/siteadmin_aacura_setup.md) for full instructions.
+
 ---
 
 ## 📂 Core Documentation & Specification Map
@@ -95,6 +98,7 @@ Refer to these dedicated guides to understand and manage specific components:
 
 | Documentation Link | Description / Scope |
 | :--- | :--- |
+| ⚙️ **[siteadmin_aacura_setup.md](file:///d:/Antigravity1x_backup/windows-projects/AAC-RERC%20Chatbot/siteadmin_aacura_setup.md)** | Step-by-step Moodle site setup guide for AI providers and AACURA settings. |
 | 🤖 **[ai_strategy.md](ai_strategy.md)** | Explains responses, Google Gemini REST compliance, and rubric scoring. |
 | 💬 **[laff_framework_guide.md](laff_framework_guide.md)** | Overview of the LAFF Don't Cry communication strategy and evaluation checks. |
 | 💯 **[scoring_explained.md](scoring_explained.md)** | Explains how final grading scores are calculated, deducted, and synchronized with Gradebook. |

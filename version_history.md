@@ -1,11 +1,14 @@
 # AACURA Engine Version History & Tagging Log
 
-### Current Version: **v1.2.4**
+### Current Version: **v1.4.0-dev**
 
 This log documents the commit history on the `dev` branch, mapping each update to its determined semantic version based on the project's git tagging policy.
 
 | Commit Hash | Version | Commit Message / Description | Version Type |
 | :--- | :--- | :--- | :--- |
+| `HEAD` | **v1.4.0** | feat: add Diagnostics tab to settings page showing configs, connected provider, and scenario graphs | **Minor Feature** |
+| `7e1f13c` | **v1.3.1** | Resolves #2: Save computed scores to local_aacuracore_evaluations and calculate score in pattern matching strategy | Revision (Fix) |
+| `f9cb35b` | **v1.3.0** | Resolves #1: Fix analytics logging and Gradebook integration | **Minor Feature** |
 | `eeae02b` | **v1.2.4** | fix: correct naming in CLI migration script and fix CI Behat triggers | Revision (Fix) |
 | `72d50da` | **v1.2.3** | docs: rename development branch references to dev | Revision (Patch) |
 | `0aeaa66` | **v1.2.2** | docs: add scenario_test.md and link from README.md and gemini.md | Revision (Patch) |
