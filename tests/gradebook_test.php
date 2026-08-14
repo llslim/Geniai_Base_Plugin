@@ -79,10 +79,24 @@ class gradebook_test extends \advanced_testcase {
         // 3. Provide the mod/aacurachat/lib.php grading hook so the bot engine's
         //    trigger_gradebook_sync() can create the grade item. The real activity
         //    plugin is a separate repository not installed in this plugin's CI.
-        $libdir = $CFG->dirroot . '/mod/aacurachat';
-        $libfile = $libdir . '/lib.php';
+        $moddir = $CFG->dirroot . '/mod/aacurachat';
+        $libfile = $moddir . '/lib.php';
         if (!file_exists($libfile)) {
-            check_dir_exists($libdir, true, true);
+            check_dir_exists($moddir, true, true);
+
+            // Minimal version.php so core_component recognizes mod_aacurachat.
+            $verfile = $moddir . '/version.php';
+            if (!file_exists($verfile)) {
+                file_put_contents($verfile, <<<'PHP'
+<?php
+defined('MOODLE_INTERNAL') || die();
+$plugin->component = 'mod_aacurachat';
+$plugin->version   = 2026081001;
+$plugin->requires  = 2025041400;
+PHP
+                );
+            }
+
             $libcontent = <<<'PHP'
 <?php
 defined('MOODLE_INTERNAL') || die();
@@ -109,6 +123,9 @@ function aacurachat_grade_item_update(stdClass $aacurachat, $grades = null): int
 PHP;
             file_put_contents($libfile, $libcontent);
         }
+
+        // 4. Reset the core_component cache so it picks up the new plugin.
+        \core_component::reset();
     }
 
     /**
