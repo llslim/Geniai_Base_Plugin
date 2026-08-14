@@ -304,8 +304,40 @@
             <input type="text" id="learning_objectives" value="active_listening, de_escalation" placeholder="e.g., active_listening, de_escalation, jargon_free_explanation" required>
         </div>
 
-        <!-- 2. Directed Dialogue Graph -->
-        <div class="section-title">🔄 2. Directed Dialogue Graph Nodes</div>
+        <!-- 2. Prompt Template -->
+        <div class="section-title" style="margin-top: 1.25rem;">🧠 2. LLM Prompt Template</div>
+        <div class="node-card" style="background-color: #f0f7ff; border-color: #93c5fd;">
+            <div class="node-header" style="color: #1d4ed8; margin-bottom: 0.5rem;">System Prompt Template (Optional)</div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                Customize the LLM system prompt that controls the parent persona's behavior. Use <code>{{placeholder}}</code> tokens to inject scenario fields. If left empty, the default hardcoded template is used.
+                <br><strong>Available placeholders:</strong>
+                <code>{{persona_name}}</code> <code>{{backstory}}</code> <code>{{pronoun}}</code> <code>{{communication_style}}</code>
+                <code>{{initial_mood}}</code> <code>{{statekey}}</code> <code>{{stateprompt}}</code>
+                <code>{{scenario_id}}</code> <code>{{learning_objectives}}</code>
+            </p>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="prompt_template">Prompt Template Text</label>
+                <textarea id="prompt_template" style="min-height: 140px; font-family: SFMono-Regular, Consolas, monospace; font-size: 0.85rem;" placeholder="Leave empty to use the default hardcoded prompt template.">Your name is {{persona_name}}. Backstory:
+{{backstory}}
+
+Child Preferred Pronoun: {{pronoun}}
+Your communication style is: {{communication_style}}
+
+Current dialogue state requirement:
+You are in the '{{statekey}}' state of the conversation.
+On this turn, you must convey the following core concern: "{{stateprompt}}"
+
+CRITICAL RULES:
+- Stay strictly in character as the parent.
+- Always refer to your child using their preferred pronoun ({{pronoun}}). Do NOT substitute incorrect gender pronouns.
+- NEVER start your response with 'I understand', 'I understand your concern', 'I understand your concerns', 'That makes sense', 'I see', or 'Thank you'.
+- NEVER validate or praise the teacher's explanation.
+- Jump straight into your emotional reaction or concern in character as the parent in 2-4 concise sentences.</textarea>
+            </div>
+        </div>
+
+        <!-- 3. Directed Dialogue Graph -->
+        <div class="section-title">🔄 3. Directed Dialogue Graph Nodes</div>
 
         <!-- START Node -->
         <div class="node-card">
@@ -438,8 +470,9 @@
     function buildJsonObject() {
         const objectivesStr = document.getElementById('learning_objectives').value;
         const objectives = objectivesStr.split(',').map(item => item.trim()).filter(item => item.length > 0);
+        const template = document.getElementById('prompt_template').value.trim();
 
-        return {
+        const json = {
             "scenario_id": document.getElementById('scenario_id').value.trim(),
             "persona": {
                 "name": document.getElementById('persona_name').value.trim(),
@@ -449,6 +482,7 @@
                 "communication_style": document.getElementById('communication_style').value.trim()
             },
             "learning_objectives": objectives,
+            "prompt_template": template.length > 0 ? template : undefined,
             "states": {
                 "START": {
                     "bot_prompt": document.getElementById('prompt_start').value.trim(),

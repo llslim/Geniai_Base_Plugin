@@ -38,6 +38,9 @@ class scenario_definition {
     /** @var array Map of state details */
     private $states;
 
+    /** @var string|null Optional LLM prompt template with {{placeholder}} tokens */
+    private $prompttemplate;
+
     /**
      * Constructor.
      *
@@ -45,12 +48,15 @@ class scenario_definition {
      * @param array $persona
      * @param array $learningobjectives
      * @param array $states
+     * @param string|null $prompttemplate Optional LLM prompt template
      */
-    public function __construct(string $id, array $persona, array $learningobjectives, array $states) {
+    public function __construct(string $id, array $persona, array $learningobjectives, array $states,
+            ?string $prompttemplate = null) {
         $this->id = $id;
         $this->persona = $persona;
         $this->learningobjectives = $learningobjectives;
         $this->states = $states;
+        $this->prompttemplate = $prompttemplate;
     }
 
     /**
@@ -107,5 +113,14 @@ class scenario_definition {
      */
     public function get_state(string $statekey): ?array {
         return $this->get_state_node($statekey);
+    }
+
+    /**
+     * Gets the optional LLM prompt template with {{placeholder}} tokens.
+     *
+     * @return string|null
+     */
+    public function get_prompt_template(): ?string {
+        return $this->prompttemplate;
     }
 }

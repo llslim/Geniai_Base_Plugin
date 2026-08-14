@@ -52,24 +52,16 @@ class core_ai_provider_strategy implements response_strategy {
      * @return string
      */
     public function generate_response(array $messages, scenario_definition $scenario, string $statekey): string {
-        $persona = $scenario->get_persona();
         $node = $scenario->get_state_node($statekey);
-
         $stateprompt = $node['bot_prompt'] ?? '';
-        $pronoun = $persona['child_preferred_pronoun'] ?? 'he/him';
 
-        $systeminstruction = "Your name is " . $persona['name'] . ". Backstory:\n" . $persona['backstory'] . "\n\n" .
-                             "Child Preferred Pronoun: " . $pronoun . "\n" .
-                             "Your communication style is: " . $persona['communication_style'] . "\n\n" .
-                             "Current dialogue state requirement:\n" .
-                             "You are in the '" . $statekey . "' state of the conversation.\n" .
-                             "On this turn, you must convey the following core concern: \"" . $stateprompt . "\"\n" .
-                             "CRITICAL RULES:\n" .
-                             "- Stay strictly in character as the parent.\n" .
-                             "- Always refer to your child using their preferred pronoun (" . $pronoun . "). Do NOT substitute incorrect gender pronouns.\n" .
-                             "- NEVER start your response with 'I understand', 'I understand your concern', 'I understand your concerns', 'That makes sense', 'I see', or 'Thank you'.\n" .
-                             "- NEVER validate or praise the teacher's explanation.\n" .
-                             "- Jump straight into your emotional reaction or concern in character as the parent in 2-4 concise sentences.";
+        // Resolve the prompt template: use scenario's embedded template if present,
+        // otherwise fall back to the default hardcoded template.
+        $template = $scenario->get_prompt_template();
+        if (empty($template)) {
+            $template = \local_aacuracore\prompt_renderer::DEFAULT_TEMPLATE;
+        }
+        $systeminstruction = \local_aacuracore\prompt_renderer::render($template, $scenario, $statekey);
 
         $fullcontext = [
             ["role" => "system", "content" => $systeminstruction],

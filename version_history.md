@@ -1,6 +1,6 @@
 # AACURA Engine Version History & Tagging Log
 
-### Current Version: **v1.4.0-dev**
+### Current Version: **v1.5.0-dev**
 
 This log documents the commit history on the `dev` branch, mapping each update to its determined semantic version based on the project's git tagging policy.
 
@@ -8,6 +8,7 @@ This log documents the commit history on the `dev` branch, mapping each update t
 
 | Git Tag | Moodle `$plugin->version` | `$plugin->release` | Commit Message / Description |
 | :--- | :--- | :--- | :--- |
+| *pending* | `2026081003` | `2.4.3` | feat: embed configurable LLM prompt template in scenario JSON |
 | `v1.4.0-dev` | `2026081002` | `2.4.2` | feat: add Diagnostics tab to settings page |
 | `v1.3.1-dev` | `2026081001` | `2.4.1` | Resolves #2: Save computed scores to evaluations |
 | `v1.3.0-dev` | `2026052517` | `2.4.1` | Resolves #1: Fix analytics logging and Gradebook integration |
