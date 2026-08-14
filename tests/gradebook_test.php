@@ -34,6 +34,81 @@ class gradebook_test extends \advanced_testcase {
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
+        $this->ensure_aacurachat_plugin();
+    }
+
+    /**
+     * Ensures the aacurachat table and module record exist.
+     *
+     * The gradebook integration depends on the separate mod_aacurachat activity
+     * plugin, which is not installed in this plugin's CI environment. This helper
+     * creates the minimal table and module registration needed for the tests to
+     * run self-contained.
+     */
+    private function ensure_aacurachat_plugin(): void {
+        global $DB, $CFG;
+
+        // 1. Create the aacurachat table if it does not exist.
+        if (!$DB->get_manager()->table_exists('aacurachat')) {
+            $dbman = $DB->get_manager();
+            $table = new \xmldb_table('aacurachat');
+            $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+            $table->add_field('course', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('intro', XMLDB_TYPE_TEXT, null, null, null, null, null);
+            $table->add_field('introformat', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('scenariocode', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, 'anna');
+            $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $dbman->create_table($table);
+        }
+
+        // 2. Register the aacurachat module if it does not exist.
+        if (!$DB->record_exists('modules', ['name' => 'aacurachat'])) {
+            $module = new \stdClass();
+            $module->name = 'aacurachat';
+            $module->cron = 0;
+            $module->lastcron = 0;
+            $module->search = '';
+            $module->visible = 1;
+            $module->version = 2026081001;
+            $DB->insert_record('modules', $module);
+        }
+
+        // 3. Provide the mod/aacurachat/lib.php grading hook so the bot engine's
+        //    trigger_gradebook_sync() can create the grade item. The real activity
+        //    plugin is a separate repository not installed in this plugin's CI.
+        $libdir = $CFG->dirroot . '/mod/aacurachat';
+        $libfile = $libdir . '/lib.php';
+        if (!file_exists($libfile)) {
+            check_dir_exists($libdir, true, true);
+            $libcontent = <<<'PHP'
+<?php
+defined('MOODLE_INTERNAL') || die();
+
+function aacurachat_grade_item_update(stdClass $aacurachat, $grades = null): int {
+    global $CFG;
+    require_once($CFG->libdir . '/gradelib.php');
+
+    $params = [
+        'itemname' => $aacurachat->name,
+        'idnumber' => $aacurachat->idnumber ?? '',
+        'gradetype' => GRADE_TYPE_VALUE,
+        'grademax' => 10,
+        'grademin' => 0,
+    ];
+
+    if ($grades === 'reset') {
+        $params['reset'] = true;
+        $grades = null;
+    }
+
+    return grade_update('mod/aacurachat', $aacurachat->course, 'mod', 'aacurachat', $aacurachat->id, 0, $grades, $params);
+}
+PHP;
+            file_put_contents($libfile, $libcontent);
+        }
     }
 
     /**
