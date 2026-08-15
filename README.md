@@ -103,7 +103,8 @@ Refer to these dedicated guides to understand and manage specific components:
 | 💬 **[laff_framework_guide.md](laff_framework_guide.md)** | Overview of the LAFF Don't Cry communication strategy and evaluation checks. |
 | 💯 **[scoring_explained.md](scoring_explained.md)** | Explains how final grading scores are calculated, deducted, and synchronized with Gradebook. |
 | 📖 **[scenario_creation_guide.md](scenario_creation_guide.md)** | Guidelines on preloaded scenario configurations and custom JSON schema. |
-| 🧪 **[scenario_test.md](scenario_test.md)** | Diagnostics for crawler routing and dialogue graph checks. |
+| � **[ai_scenario_builder_PRD.md](ai_scenario_builder_PRD.md)** | PRD for the AI-driven interactive scenario builder (interviewer-mode scenario creation). |
+| �🧪 **[scenario_test.md](scenario_test.md)** | Diagnostics for crawler routing and dialogue graph checks. |
 | 🧪 **[test_suite_guide.md](test_suite_guide.md)** | Guide for executing PHPUnit test suites and QA validation rules. |
 | 🏷️ **[version_history.md](version_history.md)** | Release notes mapping commit hashes to semantic release versions. |
 | 🛠️ **[REFACTORING_GUIDE.md](REFACTORING_GUIDE.md)** | Rationale and step-by-step notes on the renaming refactoring. |
