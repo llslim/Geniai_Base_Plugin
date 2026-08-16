@@ -6,18 +6,18 @@ This document details the pedagogical foundation of EDURA: the **LAFF Don't Cry*
 
 ## 1. Overview of the LAFF Don't Cry Framework
 
-The **LAFF Don't Cry** strategy is an evidence-based communication framework designed for educators, Speech-Language Pathologists (SLPs), and specialists when communicating with parents of children who use Augmentative and Alternative Communication (AAC).
+The **LAFF Don't Cry** strategy is an evidence-based communication framework designed for educators, Speech-Language Pathologists (SLPs), and specialists when communicating with parents of children who use Augmentative and Alternative Communication (AAC). With the role expansion (see [role_expansion_PRD.md](role_expansion_PRD.md)), the same principles now govern interactions with **any** professional or client role — parents, doctors, device manufacturers, AAC Users, school administrators, IEP teams, and insurance representatives.
 
 ### The **LAFF** Principles (What Students SHOULD Do)
-* **L — Listen, Empathize & Validate**: Actively listen without interrupting. Acknowledge parent frustration and validate their emotional experience before jumping into clinical solutions.
-* **A — Ask Open-Ended Questions**: Ask open, supportive questions to understand the parent's home routines, challenges, and concerns rather than asking yes/no questions.
-* **F — Focus on the Issues**: Keep conversations centered on practical, functional communication goals rather than abstract clinical metrics.
-* **F — Find First Steps**: Partner with the parent to establish small, manageable action steps that fit naturally into daily home life.
+* **L — Listen, Empathize & Validate**: Actively listen without interrupting. Acknowledge the other party's frustration, perspective, or expertise and validate their experience before advancing clinical solutions.
+* **A — Ask Open-Ended Questions**: Ask open, supportive questions to understand the other party's routines, constraints, priorities, or concerns rather than asking yes/no questions.
+* **F — Focus on the Issues**: Keep conversations centered on practical, functional, patient-centered goals rather than abstract clinical metrics.
+* **F — Find First Steps**: Partner with the other party to establish small, manageable action steps that fit naturally into their context.
 
 ### The **Don't Cry** Rules (What Students SHOULD NOT Do)
-* **C — Criticize / Compare**: Never criticize past parent efforts or compare the child's progress to other children.
-* **R — React / Escalation**: Avoid getting defensive when parents express anger, guilt, or anxiety regarding diagnosis or device choices.
-* **Y — Yack / Clinical Jargon**: Avoid using dense clinical acronyms or unexplained jargon (e.g., *SGD*, *gaze-select*, *modalities*, *modeling ratio*) without clear, accessible explanation.
+* **C — Criticize / Compare**: Never criticize the other party's past efforts or compare progress to others.
+* **R — React / Escalation**: Avoid getting defensive when the other party expresses frustration, skepticism, or resistance.
+* **Y — Yack / Jargon**: Avoid using dense clinical acronyms or unexplained jargon (e.g., *SGD*, *gaze-select*, *modalities*, *modeling ratio*) unless clearly explained in accessible language.
 
 ---
 

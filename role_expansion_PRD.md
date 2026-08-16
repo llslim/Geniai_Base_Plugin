@@ -20,6 +20,7 @@ Future SLPs need to practice communicating with **doctors, device manufacturers,
 * **Generalize the evaluation criteria** so validation types are configurable per scenario (not hardcoded parent-teacher checks).
 * **Generalize the prompt template defaults** so the hardcoded rules (e.g., "NEVER validate the teacher") are removed from the default template and replaced with role-appropriate defaults.
 * **Generalize the chat UI** so the persona label reflects the actual role (not just "Parent Persona").
+* **Maintain the LAFF "Don't Cry" framework as a universal pedagogical foundation** across **every** role interaction — the training goals (Listen & Empathize, Ask & Focus, Find First Steps; Criticize-React-Yack rules) remain constant whether the trainee is speaking with a parent, doctor, manufacturer, AAC User, or administrator.
 * **Maintain backward compatibility** — existing parent scenarios continue to work unchanged.
 
 ---
@@ -57,6 +58,32 @@ No field exists for:
 - Role type (parent, doctor, manufacturer, admin, AAC User, etc.)
 - Role-specific traits (formality level, power dynamic, technical expertise)
 - Relationship to the trainee (client, supervisor, colleague, patient)
+
+---
+
+## 2.6. LAFF "Don't Cry" is the Pedagogical Anchor (Universal Across Roles)
+While the *persona* roles expand, the **LAFF "Don't Cry"** communication framework remains the **constant pedagogical foundation** for evaluation. It is not parent-specific — it is a universal model for **interprofessional and client-centered communication** that should govern how the trainee interacts with **every** role:
+
+### The LAFF Principles (Applied to Any Role)
+| Principle | Original (Parent) | Generalized (Any Role) |
+| :--- | :--- | :--- |
+| **L — Listen, Empathize & Validate** | Validate parent's frustration | Validate the other party's perspective, concern, or expertise before advancing the agenda |
+| **A — Ask Open-Ended Questions** | Ask about home routines | Ask open questions to understand the party's context, constraints, and priorities |
+| **F — Focus on the Issues** | Focus on functional communication goals | Keep the conversation centered on practical, patient-centered priorities |
+| **F — Find First Steps** | Partner on home action steps | Partner on concrete, mutually-agreed next actions appropriate to the role context |
+
+### The "Don't Cry" Rules (Always Prohibited)
+| Rule | Definition |
+| :--- | :--- |
+| **C — Criticize / Compare** | Never criticize the party's prior efforts or compare to others |
+| **R — React / Escalation** | Avoid becoming defensive when the party expresses frustration, skepticism, or resistance |
+| **Y — Yack / Jargon** | Avoid unexplained clinical/acronym-heavy language — always explain in plain, accessible terms |
+
+### What This Means for the Role Expansion
+* The **LAFF principles** are baked into the **default prompt template** and **default validation guideline** regardless of role type.
+* Scenario authors may **surface** LAFF checks for any role (e.g., `empathy_check`, `jargon_check`, `de_escalation_check`) and may add **role-specific** validation types that complement (never replace) the LAFF core.
+* The **default templates** must present LAFF rules generically (e.g., "Use plain language, do not use unexplained jargon") rather than parent-specific phrasing ("NEVER validate the teacher").
+* The bot **may** respond in a role-appropriate voice (formal doctor, sales-oriented manufacturer), but the trainee is always evaluated against LAFF-aligned communication competence.
 
 ---
 
@@ -257,10 +284,16 @@ No field exists for:
 * **FR-11:** The message sender label should use the role display label (e.g., "Physician" instead of "Parent Persona").
 * **FR-12:** The student/trainee label should be configurable per scenario (e.g., "You (Clinician)" instead of hardcoded "You (Teacher)").
 
-### 4.5. Backward Compatibility
-* **FR-13:** All existing parent scenarios (anna, brianna, cathy, mary) must continue to work without any field changes.
-* **FR-14:** The default template must fall back to the current parent-behavior rules when no `role` is specified.
-* **FR-15:** The scenario builder must allow creating scenarios with new role types (the role expansion should be compatible with the AI builder from issue #7).
+### 4.5. Universal LAFF "Don't Cry" Foundation
+* **FR-13:** The **LAFF "Don't Cry"** framework must remain the universal pedagogical foundation applied to **every** role interaction — parents, doctors, manufacturers, AAC Users, admins, IEP teams, and insurance reps.
+* **FR-14:** The **default prompt template** must present LAFF rules in a **role-generic** form (e.g., "Use plain language; explain any unavoidable jargon") rather than parent-specific phrasing ("NEVER validate the teacher"), so the rules hold for any role.
+* **FR-15:** The **default validation guidelines** for `empathy_check`, `jargon_check`, `de_escalation_check`, and `clarification_check` must be framed generically so they apply to any role's communication, not just parent interactions.
+* **FR-16:** Scenario authors **may** add role-specific validation types, but these **complement** (never replace) the LAFF core checks. The LAFF-aligned checks (`empathy_check`, `jargon_check`, `de_escalation_check`, `clarification_check`) remain available for all scenarios.
+
+### 4.6. Backward Compatibility
+* **FR-17:** All existing parent scenarios (anna, brianna, cathy, mary) must continue to work without any field changes.
+* **FR-18:** The default template must fall back to the current parent-behavior rules when no `role` is specified (preserving the original LAFF-aligned parent experience).
+* **FR-19:** The scenario builder must allow creating scenarios with new role types (the role expansion should be compatible with the AI builder from issue #7).
 
 ---
 
@@ -320,6 +353,8 @@ if ($role['type'] !== 'parent') {
 * **AC-4:** All 4 preloaded parent scenarios work unchanged with no `role` field.
 * **AC-5:** The new `{{role_*}}` placeholders resolve correctly in prompt templates.
 * **AC-6:** All existing PHPUnit tests + scenario crawler still pass.
+* **AC-7:** **LAFF "Don't Cry"** rules (Listen/Empathize, Ask, Focus, Find First Steps; no Criticize/React/Yack) are present in the default prompt template and default evaluation guidelines for **all** role types — parent, doctor, manufacturer, AAC User, admin, IEP team, and insurance rep.
+* **AC-8:** Scenario authors can apply the core LAFF checks (`empathy_check`, `jargon_check`, `de_escalation_check`, `clarification_check`) to **any** role scenario, with appropriate role-appropriate validation guidelines.
 
 ---
 
