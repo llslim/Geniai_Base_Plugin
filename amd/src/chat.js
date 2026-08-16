@@ -393,7 +393,7 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                         `;
                     } else {
                         var isUser = !el.hasClass("geniai-server");
-                        var senderName = isUser ? "You (Teacher)" : "Parent Persona";
+                        var senderName = isUser ? "You (Teacher)" : ($("#geniai-mod-popup").attr("data-role-label") || "Parent Persona");
                         var bubbleClass = isUser ? "message-user" : "message-parent";
 
                         transcriptHtml += `
