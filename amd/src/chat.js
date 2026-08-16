@@ -73,8 +73,10 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                         chat.reset_recording();
                     }, 20);
 
-                    // If the AI Builder is active, route the message as a builder turn.
-                    if (builderActive) {
+                    // If the AI Builder is active, route the message as a builder turn,
+                    // EXCEPT the launch trigger itself ($$builder$$) which the API
+                    // uses to return the tool introduction.
+                    if (builderActive && messagesend !== "$$builder$$") {
                         messagesend = "^builder_turn$$" + messagesend;
                     }
 
@@ -256,7 +258,23 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                 builderJson = null;
                 geniaiareamensagens.html("");
                 geniaisendarea.removeClass("geniai-active");
-                geniaitextarea.val("$$builder$$");
+
+                // Show an immediate client-side introduction so the author
+                // knows what the tool does and how to use it.
+                var serverId = "id-" + Math.random().toString(16).slice(2);
+                geniaiareamensagens.append(
+                    '<div id="' + serverId + '" class="geniai-message geniai-server">' +
+                    '<strong>🧠 AI Scenario Builder</strong><br>' +
+                    'Welcome! I will interview you to build a new parent-interaction scenario step by step. ' +
+                    'I will ask <strong>one question at a time</strong>. Just type your answer in the chat and press Send. ' +
+                    'When you have answered all questions, type <code>generate</code> (or <code>done</code>) to produce a ' +
+                    'downloadable scenario JSON file.' +
+                    '</div>'
+                );
+                geniaiscrollarea.scrollTop = 10000000000000;
+
+                // Prime the interviewer so it poses the first question.
+                geniaitextarea.val("^builder_turn$$__start__");
                 sendMessage();
             });
 

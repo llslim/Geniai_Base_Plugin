@@ -111,6 +111,12 @@ EOT;
      */
     public static function process_turn(array $history, string $userinput): array {
         $lower = strtolower(trim($userinput));
+        // Map the client __start__ sentinel to a natural starting instruction so
+        // the interviewer poses the first question.
+        if ($lower === '__start__') {
+            $userinput = "Let's begin. Please ask me your first question.";
+            $lower = 'begin';
+        }
         $asking = ($lower === 'generate' || $lower === 'generate json' || $lower === 'done' || $lower === 'yes please');
 
         $messages = [];
@@ -143,7 +149,7 @@ EOT;
                         ['role' => 'assistant', 'content' => $reply],
                         ['role' => 'user', 'content' => "The generated scenario failed validation: {$validation}. Please fix the JSON and output only valid JSON."],
                     ];
-                    $fixresponse = api::chat_completions($fix);
+                    $fixresponse = api::chat_completions($fixprompt);
                     $fixreply = $fixresponse['choices'][0]['message']['content'] ?? '';
                     $fixedjson = self::extract_json($fixreply);
                     if ($fixedjson) {
