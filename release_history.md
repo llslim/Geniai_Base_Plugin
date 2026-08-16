@@ -16,8 +16,8 @@ Each release is identified by three related version fields that must stay in syn
 
 | Git Tag | Commit | `$plugin->version` | `$plugin->release` | Commit Message / Description |
 | :--- | :--- | :--- | :--- | :--- |
-| `v1.5.0-dev` | *pending* | `2026081003` | `2.4.3` | feat: embed configurable LLM prompt template in scenario JSON |
-| `v1.4.0-dev` | `8be42e6` | `2026081002` | `2.4.2` | feat: add Diagnostics tab to settings page showing configs, connected provider, and scenario graphs |
+| `v1.5.0-dev` | `7d03757` | `2026081004` | `2.4.4` | feat: role expansion — generalized bot persona types with universal LAFF foundation |
+| `v1.4.0-dev` | `d240b95` | `2026081003` | `2.4.3` | feat: embed configurable LLM prompt template in scenario JSON |
 | `v1.3.1-dev` | `32846fe` | `2026081001` | `2.4.1` | feat: save score to evaluations table and implement regex strategy score feedback |
 | `v1.3.0-dev` | `1c0e614` | `2026052517` | `2.4.1` | feat: investigate and implement saving student score to gradebook |
 | `v1.2.4-dev` | `f2e910e` | `2026052517` | `2.4.1` | docs: finalize commit hash in version log |
