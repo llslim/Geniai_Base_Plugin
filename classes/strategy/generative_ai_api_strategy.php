@@ -38,34 +38,34 @@ class generative_ai_api_strategy implements response_strategy {
      * @return bool
      */
     public function evaluate_input(string $input, string $validationtype, scenario_definition $scenario): bool {
-        // Construct targeted guidelines based on the required validation check
-        switch ($validationtype) {
-            case 'empathy_check':
-                $guideline = "Determine if the teacher expressed genuine empathy, active listening, or validated the parent's feelings/frustration. The teacher must sound supportive and understanding, not defensive or purely technical.";
-                break;
-            case 'jargon_check':
-                $guideline = "Scan the teacher's message for unexplained clinical jargon, acronyms, or professional abbreviations (e.g. 'AAC', 'SGD', 'IEP', 'SLP', 'apraxia'). If jargon was used, the teacher MUST have explained or introduced its definition in a parent-friendly way. If they used unexplained terms, they fail. If no jargon was used at all, they pass.";
-                break;
-            case 'de_escalation_check':
-                $guideline = "Evaluate if the teacher spoke respectfully, apologized or validated the parent's concern, and actively attempted to de-escalate the confrontation. Defensive, dismissive, or passive-aggressive responses fail.";
-                break;
-            case 'clarification_check':
-                $guideline = "Evaluate if the teacher clearly explained the technology/processes or politely asked clarifying questions to address the parent's confusion without overwhelming them with clinical abbreviations.";
-                break;
-            default:
-                $guideline = "Decide if the teacher's statement is professional, respectful, and constructively addresses the parent.";
-        }
+        // Role-generic LAFF "Don't Cry" anchored validation.
+        // The guideline is derived from the validation_type, framed in a
+        // role-neutral way so the same checks apply to any persona role.
+        $role = $scenario->get_role() ?? [];
+        $rolelabel = $role['display_label'] ?? 'counterpart';
+
+        // Build the guideline based on the validation type. Default handles
+        // any custom validation_type a scenario author defines.
+        $guidelines = [
+            'empathy_check' => "Determine if the trainee expressed genuine empathy, active listening, or validated the {$rolelabel}'s feelings, perspective, or expertise. The trainee must sound supportive and understanding, not defensive or purely technical.",
+            'jargon_check' => "Scan the trainee's message for unexplained clinical jargon, acronyms, or professional abbreviations (e.g. 'AAC', 'SGD', 'IEP', 'SLP', 'apraxia'). If jargon was used, the trainee MUST have explained or introduced its definition in accessible, {$rolelabel}-friendly language. If no jargon was used, they pass.",
+            'de_escalation_check' => "Evaluate if the trainee spoke respectfully, validated the {$rolelabel}'s concern, and actively attempted to de-escalate the interaction. Defensive, dismissive, or passive-aggressive responses fail.",
+            'clarification_check' => "Evaluate if the trainee clearly explained the technology/processes or politely asked clarifying questions to address the {$rolelabel}'s confusion without overwhelming them with technical abbreviations.",
+        ];
+
+        // Support scenario-defined custom validation guidelines, else fall back.
+        $guideline = $guidelines[$validationtype] ?? "Decide if the trainee's statement is professional, respectful, constructive, and aligns with the LAFF 'Don't Cry' framework (Listen/Empathize, Ask, Focus, Find First Steps; no criticizing, reacting defensively, or unexplained jargon).";
 
         $prompt = [
             [
                 "role" => "system",
-                "content" => "You are an expert pedagogical evaluator. Your job is to analyze a teacher's message during a simulated parent-teacher roleplay meeting.\n\n" .
+                "content" => "You are an expert pedagogical evaluator. Your job is to analyze a trainee's message during a simulated interaction with a {$rolelabel}.\n\n" .
                              "Pedagogical Guideline to evaluate: " . $guideline . "\n\n" .
                              "Respond with only 'yes' (if they passed/met the criteria) or 'no' (if they failed/missed the opportunity).",
             ],
             [
                 "role" => "user",
-                "content" => "Teacher's statement to evaluate: \"" . strip_tags($input) . "\"",
+                "content" => "Trainee's statement to evaluate: \"" . strip_tags($input) . "\"",
             ],
         ];
 

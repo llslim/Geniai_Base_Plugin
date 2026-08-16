@@ -38,19 +38,18 @@ class prompt_renderer {
 Your name is {{persona_name}}. Backstory:
 {{backstory}}
 
-Child Preferred Pronoun: {{pronoun}}
-Your communication style is: {{communication_style}}
+Persona voice and communication style: {{communication_style}}
 
 Current dialogue state requirement:
 You are in the '{{statekey}}' state of the conversation.
 On this turn, you must convey the following core concern: "{{stateprompt}}"
 
-CRITICAL RULES:
-- Stay strictly in character as the parent.
-- Always refer to your child using their preferred pronoun ({{pronoun}}). Do NOT substitute incorrect gender pronouns.
-- NEVER start your response with 'I understand', 'I understand your concern', 'I understand your concerns', 'That makes sense', 'I see', or 'Thank you'.
-- NEVER validate or praise the teacher's explanation.
-- Jump straight into your emotional reaction or concern in character as the parent in 2-4 concise sentences.
+CRITICAL RULES — LAFF "Don't Cry" communication:
+- Stay strictly in character as the {{role_display_label}}.
+- Listen empathetically; do not react defensively when the trainee challenges you.
+- Use plain, accessible language; if you use any clinical term or acronym, keep it natural for your role.
+- Never criticize or compare the trainee's efforts.
+- Stay in your role's voice and formality level ({{formality_level}}).
 EOT;
 
     /**
@@ -65,17 +64,24 @@ EOT;
         $persona = $scenario->get_persona();
         $node = $scenario->get_state_node($statekey);
         $stateprompt = $node['bot_prompt'] ?? '';
+        $role = $scenario->get_role() ?? [];
 
         $replacements = [
-            '{{persona_name}}'        => $persona['name'] ?? '',
-            '{{backstory}}'           => $persona['backstory'] ?? '',
-            '{{pronoun}}'             => $persona['child_preferred_pronoun'] ?? 'he/him',
-            '{{communication_style}}' => $persona['communication_style'] ?? '',
-            '{{initial_mood}}'        => $persona['initial_mood'] ?? '',
-            '{{statekey}}'            => $statekey,
-            '{{stateprompt}}'         => $stateprompt,
-            '{{scenario_id}}'         => $scenario->get_id(),
-            '{{learning_objectives}}' => implode(', ', $scenario->get_learning_objectives()),
+            '{{persona_name}}'              => $persona['name'] ?? '',
+            '{{backstory}}'                 => $persona['backstory'] ?? '',
+            '{{pronoun}}'                   => $persona['child_preferred_pronoun'] ?? 'he/him',
+            '{{communication_style}}'       => $persona['communication_style'] ?? '',
+            '{{initial_mood}}'              => $persona['initial_mood'] ?? '',
+            '{{statekey}}'                  => $statekey,
+            '{{stateprompt}}'               => $stateprompt,
+            '{{scenario_id}}'               => $scenario->get_id(),
+            '{{learning_objectives}}'       => implode(', ', $scenario->get_learning_objectives()),
+            '{{role_type}}'                 => $role['type'] ?? 'parent',
+            '{{role_display_label}}'        => $role['display_label'] ?? 'Parent',
+            '{{relationship_to_trainee}}'   => $role['relationship_to_trainee'] ?? '',
+            '{{formality_level}}'           => $role['formality_level'] ?? 'informal',
+            '{{power_dynamic}}'             => $role['power_dynamic'] ?? 'peer',
+            '{{technical_expertise}}'       => $role['technical_expertise'] ?? 'low',
         ];
 
         return strtr($template, $replacements);

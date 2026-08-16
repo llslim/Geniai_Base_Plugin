@@ -100,8 +100,9 @@ class scenario_loader {
         $objectives = $data['learning_objectives'] ?? [];
         $states = $data['states'] ?? [];
         $prompttemplate = $data['prompt_template'] ?? null;
+        $role = $persona['role'] ?? null;
 
-        return new scenario_definition($id, $persona, $objectives, $states, $prompttemplate);
+        return new scenario_definition($id, $persona, $objectives, $states, $prompttemplate, $role);
     }
 
     /**

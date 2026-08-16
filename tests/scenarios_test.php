@@ -198,4 +198,124 @@ class scenarios_test extends \advanced_testcase {
         // The render() method itself requires a string; the strategy classes handle
         // the null → DEFAULT_TEMPLATE fallback before calling render().
     }
+
+    /**
+     * Test role expansion: parsing, get_role(), and role placeholders.
+     */
+    public function test_role_expansion() {
+        $data = [
+            'scenario_id' => 'doctor_consult',
+            'persona' => [
+                'name' => 'Dr. Sarah Chen (Developmental Pediatrician)',
+                'role' => [
+                    'type' => 'doctor',
+                    'display_label' => 'Physician',
+                    'relationship_to_trainee' => 'Referring provider',
+                    'formality_level' => 'formal',
+                    'power_dynamic' => 'hierarchical_superior',
+                    'technical_expertise' => 'high',
+                ],
+                'backstory' => 'You are a developmental pediatrician.',
+                'initial_mood' => 'professional',
+                'communication_style' => 'Precise, evidence-based.',
+            ],
+            'learning_objectives' => ['history_taking'],
+            'states' => [
+                'START' => [
+                    'bot_prompt' => 'Tell me about your concerns.',
+                    'expected_criteria' => null,
+                ],
+            ],
+        ];
+
+        // 1. Role metadata is parsed and retrievable.
+        $sc = \local_aacuracore\scenario\scenario_loader::from_array($data);
+        $role = $sc->get_role();
+        $this->assertNotNull($role, 'get_role() should return the role array');
+        $this->assertEquals('doctor', $role['type']);
+        $this->assertEquals('Physician', $role['display_label']);
+        $this->assertEquals('formal', $role['formality_level']);
+
+        // 2. Role placeholders resolve in the rendered prompt template.
+        $rendered = \local_aacuracore\prompt_renderer::render(
+            \local_aacuracore\prompt_renderer::DEFAULT_TEMPLATE,
+            $sc,
+            'START'
+        );
+        $this->assertStringContainsString('Physician', $rendered);
+        $this->assertStringContainsString('formal', $rendered);
+        $this->assertStringNotContainsString('{{role_', $rendered);
+        $this->assertStringNotContainsString('{{', $rendered);
+
+        // 3. Backward compat: absent role yields null and default "Parent" label renders.
+        $noRole = [
+            'scenario_id' => 'no_role',
+            'persona' => [
+                'name' => 'Mary (Parent)',
+                'backstory' => 'Backstory',
+                'initial_mood' => 'defensive',
+                'communication_style' => 'Blunt.',
+            ],
+            'learning_objectives' => [],
+            'states' => [
+                'START' => [
+                    'bot_prompt' => 'Testing.',
+                    'expected_criteria' => null,
+                ],
+            ],
+        ];
+        $sc2 = \local_aacuracore\scenario\scenario_loader::from_array($noRole);
+        $this->assertNull($sc2->get_role());
+        $rendered2 = \local_aacuracore\prompt_renderer::render(
+            \local_aacuracore\prompt_renderer::DEFAULT_TEMPLATE,
+            $sc2,
+            'START'
+        );
+        // Default placeholders resolve to parent defaults when role is absent.
+        $this->assertStringNotContainsString('{{role_', $rendered2);
+        $this->assertStringNotContainsString('{{', $rendered2);
+    }
+
+    /**
+     * Test LAFF "Don't Cry" universality in the default template.
+     */
+    public function test_laff_universal_in_default_template() {
+        $data = [
+            'scenario_id' => 'manufacturer',
+            'persona' => [
+                'name' => 'James Wilson (AAC Specialist)',
+                'role' => [
+                    'type' => 'manufacturer_rep',
+                    'display_label' => 'Manufacturer Rep',
+                    'formality_level' => 'professional',
+                    'power_dynamic' => 'peer',
+                    'technical_expertise' => 'high',
+                ],
+                'backstory' => 'You work for an AAC device company.',
+                'initial_mood' => 'helpful',
+                'communication_style' => 'Sales-oriented.',
+            ],
+            'learning_objectives' => ['vendor_evaluation'],
+            'states' => [
+                'START' => [
+                    'bot_prompt' => 'Let me show you our device.',
+                    'expected_criteria' => null,
+                ],
+            ],
+        ];
+
+        $sc = \local_aacuracore\scenario\scenario_loader::from_array($data);
+        $default = \local_aacuracore\prompt_renderer::DEFAULT_TEMPLATE;
+
+        // LAFF universality: the default template contains the LAFF anchor and no
+        // parent-specific prohibitions ("NEVER praise the teacher").
+        $this->assertStringNotContainsString('praise the teacher', $default);
+        $this->assertStringNotContainsString('teacher', $default);
+        $this->assertStringContainsString('LAFF', $default);
+
+        // Rendering applies the role label and no placeholders remain.
+        $rendered = \local_aacuracore\prompt_renderer::render($default, $sc, 'START');
+        $this->assertStringContainsString('Manufacturer Rep', $rendered);
+        $this->assertStringNotContainsString('{{', $rendered);
+    }
 }

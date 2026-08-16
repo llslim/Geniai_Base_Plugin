@@ -41,6 +41,9 @@ class scenario_definition {
     /** @var string|null Optional LLM prompt template with {{placeholder}} tokens */
     private $prompttemplate;
 
+    /** @var array|null Optional role metadata (type, display_label, formality, etc.) */
+    private $role;
+
     /**
      * Constructor.
      *
@@ -49,14 +52,16 @@ class scenario_definition {
      * @param array $learningobjectives
      * @param array $states
      * @param string|null $prompttemplate Optional LLM prompt template
+     * @param array|null $role Optional role metadata
      */
     public function __construct(string $id, array $persona, array $learningobjectives, array $states,
-            ?string $prompttemplate = null) {
+            ?string $prompttemplate = null, ?array $role = null) {
         $this->id = $id;
         $this->persona = $persona;
         $this->learningobjectives = $learningobjectives;
         $this->states = $states;
         $this->prompttemplate = $prompttemplate;
+        $this->role = $role;
     }
 
     /**
@@ -75,6 +80,15 @@ class scenario_definition {
      */
     public function get_persona(): array {
         return $this->persona;
+    }
+
+    /**
+     * Gets the optional role metadata for this scenario.
+     *
+     * @return array|null
+     */
+    public function get_role(): ?array {
+        return $this->role;
     }
 
     /**
