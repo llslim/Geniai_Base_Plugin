@@ -65,6 +65,9 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
             function sendMessage() {
                 var messagesend = geniaitextarea.val().trim();
                 if (messagesend.length > 1 || chat.mediaRecordUrl) {
+                    // What the user sees in the chat bubble (clean, human-readable).
+                    var displayMessage = messagesend;
+
                     setTimeout(function() {
                         geniaitextarea.val("");
                         geniaitextarea.css({height: 34});
@@ -73,10 +76,9 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                         chat.reset_recording();
                     }, 20);
 
-                    // If the AI Builder is active, route the message as a builder turn,
-                    // EXCEPT the launch trigger itself ($$builder$$) which the API
-                    // uses to return the tool introduction.
-                    if (builderActive && messagesend !== "$$builder$$") {
+                    // If the AI Builder is active, route the message as a builder turn.
+                    // The handle stays internal; the clean message is shown instead.
+                    if (builderActive) {
                         messagesend = "^builder_turn$$" + messagesend;
                     }
 
@@ -98,8 +100,12 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                         $(`#${geniaiServerId}-send`).html(`
                             <div id="${geniaiServerId}-transcription" class="transcription"></div>`);
                         $(`#${geniaiServerId}-audio`).audioPlayer();
+                    } else if (displayMessage === "__start__") {
+                        // Internal primer sentinel — don't render a bubble.
+                        $(`#${geniaiServerId}-send`).remove();
                     } else {
-                        $(`#${geniaiServerId}-send`).html(messagesend);
+                        // Show the human-readable message, not the internal handle.
+                        $(`#${geniaiServerId}-send`).html(displayMessage);
                     }
                     geniaiscrollarea.scrollTop = 10000000000000;
 
@@ -227,6 +233,10 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
             $("#geniai-persona-select").change(function() {
                 var selected = $(this).val();
                 if (selected) {
+                    // Leaving builder mode returns to normal persona chat.
+                    builderActive = false;
+                    builderJson = null;
+                    setStatus("💬 Conversing with " + ($(this).find("option:selected").text() || "persona"));
                     geniaiareamensagens.html("");
                     startChat();
 
@@ -248,6 +258,14 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                 }
             });
 
+            // Update the status bar to reflect the current conversation mode.
+            function setStatus(text) {
+                var bar = document.getElementById("geniai-status-text");
+                if (bar) {
+                    bar.textContent = text;
+                }
+            }
+
             // AI Scenario Builder: launch interviewer mode.
             var builderJson = null;
             $("#geniai-ai-builder").on("click", function(e) {
@@ -258,6 +276,9 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                 builderJson = null;
                 geniaiareamensagens.html("");
                 geniaisendarea.removeClass("geniai-active");
+
+                // Status bar shows the human-readable mode, never the handle.
+                setStatus("🧠 AI Scenario Builder — answering interview questions");
 
                 // Show an immediate client-side introduction so the author
                 // knows what the tool does and how to use it.
@@ -273,8 +294,8 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                 );
                 geniaiscrollarea.scrollTop = 10000000000000;
 
-                // Prime the interviewer so it poses the first question.
-                geniaitextarea.val("^builder_turn$$__start__");
+                // Prime the interviewer with a bare sentinel; sendMessage hides it.
+                geniaitextarea.val("__start__");
                 sendMessage();
             });
 
