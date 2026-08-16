@@ -59,6 +59,7 @@ class chat_4 extends external_api {
             "format" => new external_value(PARAM_TEXT, "Formato da resposta", VALUE_REQUIRED),
             "content" => new external_value(PARAM_RAW, "The content result", VALUE_REQUIRED),
             "transcription" => new external_value(PARAM_RAW, "The content transcription", VALUE_OPTIONAL),
+            "builder_json" => new external_value(PARAM_RAW, "Generated scenario JSON for export", VALUE_OPTIONAL),
         ]);
     }
 

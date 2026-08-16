@@ -159,6 +159,61 @@ class api {
             ];
         }
 
+        // Intercept the AI scenario builder command (edit-mode interactive interview).
+        if (preg_match('/^\$\$builder\$\$$/', $cleanedMessage)) {
+            $reply = \local_aacuracore\scenario_builder_ai::interviewer_system_prompt();
+            // Return just an intro line; the actual interviewer conversation is
+            // driven by repeated builder_* turns on subsequent messages.
+            return [
+                "result" => "true",
+                "format" => "html",
+                "content" => '<strong>🧠 AI Scenario Builder</strong><br>Interview mode is active. I will ask you one question at a time to build your scenario. Type your answers in the chat. When finished, type <code>generate</code> to produce the scenario JSON.',
+            ];
+        }
+
+        // Route interactive builder turns (history is loaded from the session).
+        if (preg_match('/^\^builder_turn\$\$(.*)$/s', $cleanedMessage, $bt)) {
+            $mood = 'builder';
+            $state = $DB->get_record('local_aacuracore_sessions', ['userid' => $USER->id, 'courseid' => $courseid, 'cmid' => $cmid], '*', IGNORE_MULTIPLE);
+
+            // Gather builder history from the session messages (system sender = builder).
+            $history = [];
+            $builderinput = $bt[1];
+            $historyrows = $DB->get_records('local_aacuracore_messages', ['sessionid' => $state ? $state->id : 0], 'id ASC');
+            if ($historyrows) {
+                foreach ($historyrows as $row) {
+                    $role = ($row->sender === 'user') ? 'author' : 'bot';
+                    $history[] = ['role' => $role, 'content' => $row->message_text];
+                }
+            }
+
+            $result = \local_aacuracore\scenario_builder_ai::process_turn($history, $builderinput);
+            $reply = $result['reply'];
+
+            // Persist author message + bot reply to a transient builder session.
+            if ($state) {
+                $DB->insert_record('local_aacuracore_messages', (object)[
+                    'sessionid' => $state->id,
+                    'sender' => 'user',
+                    'message_text' => $builderinput,
+                    'timestamp' => time(),
+                ]);
+            }
+
+            // If a valid scenario JSON was produced, embed it for export.
+            if (!empty($result['json'])) {
+                $json = json_encode($result['json'], JSON_PRETTY_PRINT);
+                return [
+                    "result" => "true",
+                    "format" => "html",
+                    "builder_json" => $json,
+                    "content" => $reply . "\n\n<div class='alert alert-success'>✅ Scenario generated! Use the 'Export JSON' action to download it.</div>",
+                ];
+            }
+
+            return ["result" => "true", "format" => "html", "content" => $reply];
+        }
+
         // Moderate inappropriate content
         $moderationPrompt = [
             ["role" => "system", "content" => "You're a moderation AI. Decide if the following message contains profanity, foul language, mild insults words like dumb, etc. , or inappropriate content. Reply with only 'yes' or 'no'."],

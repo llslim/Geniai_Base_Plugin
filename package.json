@@ -1,0 +1,32 @@
+{
+  "name": "local_aacuracore",
+  "private": true,
+  "description": "AACURA core plugin - AMD module build (Moodle grunt-shifter)",
+  "version": "2.4.4",
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "grunt": "grunt",
+    "build": "grunt build",
+    "watch": "grunt watch"
+  },
+  "dependencies": {
+    "grunt": "^1.6.1",
+    "grunt-contrib-watch": "^1.1.0",
+    "grunt-contrib-jshint": "^3.2.0"
+  },
+  "devDependencies": {
+    "grunt-contrib-clean": "^2.0.1",
+    "grunt-contrib-requirejs": "^1.0.0",
+    "grunt-contrib-uglify": "^5.2.2"
+  },
+  "moodle-plugin-build": {
+    "name": "local_aacuracore",
+    "amd": "amd/src",
+    "output": "amd/build",
+    "files": [
+      "chat.js",
+      "h5p-index.js",
+      "h5p.js"
+    ]
+  }
+}

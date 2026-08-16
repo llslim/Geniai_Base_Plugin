@@ -23,6 +23,7 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
             var geniaiareamensagens = $("#geniai-area-mensagens");
             var geniaisendarea = $("#geniai-sendarea");
             var geniaitextarea = $("#geniai-textarea");
+            var builderActive = false;
 
             geniaichat.show(200);
             geniaitextarea
@@ -72,6 +73,11 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                         chat.reset_recording();
                     }, 20);
 
+                    // If the AI Builder is active, route the message as a builder turn.
+                    if (builderActive) {
+                        messagesend = "^builder_turn$$" + messagesend;
+                    }
+
                     var geniaiServerId = "id-" + Math.random().toString(16).slice(2);
                     geniaiareamensagens.append(`
                             <div class="geniai-message" id="${geniaiServerId}-send"></div>
@@ -116,7 +122,18 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                                 $(`#${geniaiServerId}-transcription`).html(data.transcription);
                             }
                             $(`#${geniaiServerId}-audio`).audioPlayer();
-                            if (messagesend.indexOf("$$persona=") === 0) {
+                            if (data.builder_json) {
+                                builderJson = data.builder_json;
+                                // Append an Export JSON button.
+                                $(`#${geniaiServerId}`).append(
+                                    `<div class="builder-export-wrap mt-2">
+                                        <button id="geniai-export-json" class="btn btn-sm btn-primary" style="background-color:#4f2c11;border-color:#4f2c11;color:white;">
+                                            📥 Export Scenario JSON
+                                        </button>
+                                    </div>`
+                                );
+                            }
+                            if (messagesend.indexOf("$$persona=") === 0 || messagesend.indexOf("$$builder$$") === 0) {
                                 $(`#${geniaiServerId}-send`).remove();
                             }
                         } else {
@@ -227,6 +244,40 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                         sendMessage();
                     });
                 }
+            });
+
+            // AI Scenario Builder: launch interviewer mode.
+            var builderJson = null;
+            $("#geniai-ai-builder").on("click", function(e) {
+                if (e) {
+                    e.preventDefault();
+                }
+                builderActive = true;
+                builderJson = null;
+                geniaiareamensagens.html("");
+                geniaisendarea.removeClass("geniai-active");
+                geniaitextarea.val("$$builder$$");
+                sendMessage();
+            });
+
+            // Export generated scenario JSON.
+            $("#geniai-export-json").on("click", function(e) {
+                if (e) {
+                    e.preventDefault();
+                }
+                if (!builderJson) {
+                    notification.exception(new Error("No generated scenario JSON available. Complete the AI Builder interview first."));
+                    return;
+                }
+                var blob = new Blob([builderJson], {type: "application/json"});
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement("a");
+                a.href = url;
+                a.download = "scenario.json";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
             });
 
             $("#geniai-generate-pdf").click(function() {

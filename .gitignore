@@ -1,0 +1,3 @@
+# Node dependencies (AMD build tooling)
+node_modules/
+package-lock.json
