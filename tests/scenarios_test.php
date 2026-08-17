@@ -101,9 +101,11 @@ class scenarios_test extends \advanced_testcase {
             $this->assertNotEmpty($default);
             $this->assertStringContainsString('{{persona_name}}', $default);
             $this->assertStringContainsString('{{backstory}}', $default);
-            $this->assertStringContainsString('{{pronoun}}', $default);
+            $this->assertStringContainsString('{{communication_style}}', $default);
             $this->assertStringContainsString('{{statekey}}', $default);
             $this->assertStringContainsString('{{stateprompt}}', $default);
+            $this->assertStringContainsString('{{role_display_label}}', $default);
+            $this->assertStringContainsString('{{formality_level}}', $default);
 
             // Render the default template for each state and verify all placeholders resolve.
             foreach (['START', 'EXPLORATION', 'ESCALATION', 'CONFUSION', 'RESOLUTION', 'FAIL_STATE'] as $statekey) {
