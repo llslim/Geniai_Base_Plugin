@@ -332,7 +332,7 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                 var transcriptHtml = `
                 <html>
                 <head>
-                    <title>EDURA Dialogue Transcript - ${studentName}</title>
+                    <title>AACURA Dialogue Transcript - ${studentName}</title>
                     <style>
                         body {
                             font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -452,7 +452,7 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                 <body>
                     <div class="header">
                         <div class="title-bar">
-                            <h1 class="title">EDURA Dialogue Transcript</h1>
+                            <h1 class="title">AACURA Dialogue Transcript</h1>
                             <span class="badge">AAC-RERC Simulation</span>
                         </div>
                         <div class="metadata-grid">
