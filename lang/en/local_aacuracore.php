@@ -83,6 +83,13 @@ $string['max_tokens'] = 'Maximum words in response (Global)';
 $string['max_tokens_desc'] = 'Maximum number of words that can be generated in each request. Applied to all AI engines.';
 $string['max_turns'] = 'Maximum student turns before grading';
 $string['max_turns_desc'] = 'The number of student turns (exchanges) before the conversation is automatically evaluated and graded. Default is 8.';
+$string['parent_intensity'] = 'Parent Assertiveness / Aggressiveness';
+$string['parent_intensity_desc'] = 'Dial the simulated parent\'s assertiveness and aggressiveness up or down. This injects a behavior instruction into the persona\'s system prompt so the LLM plays the parent more passively or more confrontationally.';
+$string['parent_intensity_very_low'] = 'Very Low (very gentle, passive)';
+$string['parent_intensity_low'] = 'Low (mildly assertive)';
+$string['parent_intensity_medium'] = 'Medium (moderately assertive)';
+$string['parent_intensity_high'] = 'High (assertive & firm)';
+$string['parent_intensity_very_high'] = 'Very High (confrontational, aggressive)';
 $string['message_01'] = 'Hello, {$a}! 🌟';
 $string['message_02_course'] = 'Welcome to the course {$a->coursename} on Moodle {$a->moodlename}!
 

@@ -39,6 +39,7 @@ Your name is {{persona_name}}. Backstory:
 {{backstory}}
 
 Persona voice and communication style: {{communication_style}}
+Parent intensity/assertiveness level: {{parent_intensity}}
 
 Current dialogue state requirement:
 You are in the '{{statekey}}' state of the conversation.
@@ -51,6 +52,27 @@ CRITICAL RULES — LAFF "Don't Cry" communication:
 - Never criticize or compare the trainee's efforts.
 - Stay in your role's voice and formality level ({{formality_level}}).
 EOT;
+
+    /**
+     * Build a natural-language instruction describing how assertive/aggressive
+     * the persona should be, derived from the global parent_intensity setting.
+     *
+     * @param string $intensitylevel One of very_low|low|medium|high|very_high
+     * @return string Instruction line used in the {{parent_intensity}} placeholder.
+     */
+    public static function intensity_instruction(string $intensitylevel = ''): string {
+        if (empty($intensitylevel)) {
+            $intensitylevel = get_config('local_aacuracore', 'parent_intensity') ?: 'medium';
+        }
+        $map = [
+            'very_low'   => 'extremely gentle, deferential, and cooperative; expresses feelings softly and never challenges; assume a very passive, agreeable tone.',
+            'low'        => 'mildly assertive; mostly cooperative and polite, only occasionally expressing mild worry or firmness.',
+            'medium'     => 'moderately assertive; clearly communicate your concerns and stand by your point of view without being rude or hostile.',
+            'high'       => 'assertive and firm; press your wishes strongly, occasionally interrupt, and make your dissatisfaction clear while staying mostly professional.',
+            'very_high'  => 'highly assertive and confrontational; be demanding, frustrated, sharply worded, and prone to expressing anger or ultimatums while still staying in character.',
+        ];
+        return $map[$intensitylevel] ?? $map['medium'];
+    }
 
     /**
      * Substitute placeholders in a template string with scenario values.
@@ -82,6 +104,7 @@ EOT;
             '{{formality_level}}'           => $role['formality_level'] ?? 'informal',
             '{{power_dynamic}}'             => $role['power_dynamic'] ?? 'peer',
             '{{technical_expertise}}'       => $role['technical_expertise'] ?? 'low',
+            '{{parent_intensity}}'           => self::intensity_instruction(),
         ];
 
         return strtr($template, $replacements);

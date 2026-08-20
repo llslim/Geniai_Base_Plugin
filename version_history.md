@@ -8,6 +8,7 @@ This log documents the commit history on the `dev` branch, mapping each update t
 
 | Git Tag | Moodle `$plugin->version` | `$plugin->release` | Commit Message / Description |
 | :--- | :--- | :--- | :--- |
+| *pending* | `2026081009` | `2.4.9` | feat: add global parent assertiveness/aggressiveness setting (parent_intensity) |
 | *pending* | `2026081008` | `2.4.8` | feat: make max student turns configurable (default 8) |
 | *pending* | `2026081007` | `2.4.7` | feat: add Moodle Core AI temperature/top_p override via provider action config injection |
 | *pending* | `2026081006` | `2.4.6` | feat: move generation parameters (use cases, max_tokens, penalties, voice) to global scope for all AI engines |
