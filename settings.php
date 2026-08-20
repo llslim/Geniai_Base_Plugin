@@ -271,6 +271,16 @@ if ($hassiteconfig) {
         $intensitylevels
     ));
 
+    $settings->add(new admin_setting_configtextarea(
+        "local_aacuracore/prompt_template",
+        get_string("prompt_template", "local_aacuracore"),
+        get_string("prompt_template_desc", "local_aacuracore"),
+        \local_aacuracore\prompt_renderer::DEFAULT_TEMPLATE,
+        PARAM_RAW,
+        12,
+        100
+    ));
+
     // Core AI Provider records dropdown options
     $coreaiprovideroptions = [];
     if (class_exists('\\core_ai\\manager')) {

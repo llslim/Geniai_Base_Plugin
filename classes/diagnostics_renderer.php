@@ -41,6 +41,7 @@ class diagnostics_renderer {
 
         $configs = self::render_configs();
         $provider = self::render_provider();
+        $promptpreview = self::render_prompt_preview();
         $graphs = self::render_scenario_graphs();
 
         $html = '
@@ -92,6 +93,7 @@ class diagnostics_renderer {
         <div id="aacura-panel-diag" class="aacura-tab-panel" style="display:none;">
             ' . $provider . '
             ' . $configs . '
+            ' . $promptpreview . '
             ' . $graphs . '
         </div>
 
@@ -168,6 +170,77 @@ class diagnostics_renderer {
                     <thead><tr><th>Setting</th><th>Value</th></tr></thead>
                     <tbody>' . $rows . '</tbody>
                 </table>
+            </div>
+        </div>';
+    }
+
+    /**
+     * Renders a read-only preview of the resolved persona system prompt for
+     * each active scenario (placeholders substituted). This helps admins
+     * verify how the scenario's embedded template, the global prompt_template
+     * setting, or the default fallback resolves at runtime.
+     *
+     * @return string
+     */
+    private static function render_prompt_preview(): string {
+        $active = get_config('local_aacuracore', 'active_scenarios');
+        $codes = $active ? array_map('trim', explode(',', $active)) : ['anna', 'brianna', 'cathy', 'mary'];
+
+        $source = '';
+        $globalsetting = get_config('local_aacuracore', 'prompt_template');
+        if (!empty($globalsetting)) {
+            $source = 'GLOBAL SETTING';
+        } else {
+            $source = 'DEFAULT (hardcoded)';
+        }
+
+        $out = '';
+        foreach ($codes as $code) {
+            try {
+                $sc = \local_aacuracore\scenario\scenario_loader::load($code, 0);
+                $persona = $sc->get_persona();
+                $name = $persona['name'] ?? ucfirst($code);
+
+                // Resolve which template applies to this scenario.
+                $template = $sc->get_prompt_template();
+                if (!empty($template)) {
+                    $localsource = 'SCENARIO';
+                } else if (!empty($globalsetting)) {
+                    $localsource = 'GLOBAL';
+                } else {
+                    $localsource = 'DEFAULT';
+                }
+
+                $rendered = \local_aacuracore\prompt_renderer::render(
+                    \local_aacuracore\prompt_renderer::resolve_template($sc),
+                    $sc,
+                    'START'
+                );
+
+                $out .= '
+                <div class="aacura-diag-card">
+                    <div class="aacura-diag-head">🧠 System Prompt: ' . s(strtoupper($code)) . ' — ' . s($name) . '</div>
+                    <div class="aacura-diag-body">
+                        <p class="aacura-muted">Source: <strong>' . s($localsource) . '</strong></p>
+                        <pre style="background:#f8f9fa;border:1px solid #e9ecef;padding:12px;border-radius:6px;
+                                    white-space:pre-wrap;word-break:break-word;font-size:12px;max-height:320px;overflow-y:auto;">' . s($rendered) . '</pre>
+                    </div>
+                </div>';
+            } catch (\Throwable $e) {
+                $out .= '
+                <div class="aacura-diag-card">
+                    <div class="aacura-diag-head">🧠 System Prompt: ' . s(strtoupper($code)) . '</div>
+                    <div class="aacura-diag-body"><p class="aacura-muted">Could not load scenario: ' . s($e->getMessage()) . '</p></div>
+                </div>';
+            }
+        }
+
+        return '
+        <div class="aacura-diag-card">
+            <div class="aacura-diag-head">🧠 Persona System Prompt Preview</div>
+            <div class="aacura-diag-body">
+                <p class="aacura-muted">Template source (site-wide): <strong>' . s($source) . '</strong>. Shows the fully resolved START-state system prompt with placeholders substituted.</p>
+                ' . $out . '
             </div>
         </div>';
     }

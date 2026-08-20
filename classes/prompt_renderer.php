@@ -75,6 +75,29 @@ EOT;
     }
 
     /**
+     * Resolve the effective prompt template for a scenario.
+     *
+     * Fallback chain:
+     *   1. Scenario's embedded prompt_template (most specific)
+     *   2. Site-wide global setting local_aacuracore/prompt_template
+     *   3. Hardcoded DEFAULT_TEMPLATE constant
+     *
+     * @param scenario_definition $scenario The active scenario.
+     * @return string The template to render.
+     */
+    public static function resolve_template(scenario_definition $scenario): string {
+        $template = $scenario->get_prompt_template();
+        if (!empty($template)) {
+            return $template;
+        }
+        $globalsetting = get_config('local_aacuracore', 'prompt_template');
+        if (!empty($globalsetting)) {
+            return $globalsetting;
+        }
+        return self::DEFAULT_TEMPLATE;
+    }
+
+    /**
      * Substitute placeholders in a template string with scenario values.
      *
      * @param string $template    The raw template with {{placeholder}} tokens.

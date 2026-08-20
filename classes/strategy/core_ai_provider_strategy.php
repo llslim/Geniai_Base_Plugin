@@ -55,12 +55,9 @@ class core_ai_provider_strategy implements response_strategy {
         $node = $scenario->get_state_node($statekey);
         $stateprompt = $node['bot_prompt'] ?? '';
 
-        // Resolve the prompt template: use scenario's embedded template if present,
-        // otherwise fall back to the default hardcoded template.
-        $template = $scenario->get_prompt_template();
-        if (empty($template)) {
-            $template = \local_aacuracore\prompt_renderer::DEFAULT_TEMPLATE;
-        }
+        // Resolve the prompt template: scenario's embedded template, then the
+        // site-wide global setting, then the default hardcoded template.
+        $template = \local_aacuracore\prompt_renderer::resolve_template($scenario);
         $systeminstruction = \local_aacuracore\prompt_renderer::render($template, $scenario, $statekey);
 
         $fullcontext = [

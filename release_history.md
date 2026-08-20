@@ -16,6 +16,7 @@ Each release is identified by three related version fields that must stay in syn
 
 | Git Tag | Commit | `$plugin->version` | `$plugin->release` | Commit Message / Description |
 | :--- | :--- | :--- | :--- | :--- |
+| *pending* | *pending* | `2026081010` | `2.4.10` | feat: add global persona system prompt template setting + diagnostics preview |
 | *pending* | *pending* | `2026081009` | `2.4.9` | feat: add global parent assertiveness/aggressiveness setting (parent_intensity) |
 | *pending* | *pending* | `2026081008` | `2.4.8` | feat: make max student turns configurable (default 8) |
 | *pending* | *pending* | `2026081007` | `2.4.7` | feat: add Moodle Core AI temperature/top_p override option (provider action config injection) |
