@@ -285,21 +285,15 @@ $result = \local_aacuracore\scenario_builder_ai::process_turn($history, $builder
                 // Only proceed if at least one provider is actually enabled
                 $enabledproviders = array_filter($allproviders, fn($p) => !empty($p->enabled));
                 if (!empty($enabledproviders)) {
-                    // When enabled, propagate the global temperature/top_p into
-                    // the provider's generate_text action config. Moodle Core AI's
+                    // When enabled, propagate the Use Case profile temperature/top_p
+                    // into the provider's generate_text action config. Moodle Core AI's
                     // generate_text action has no per-call sampling params, so these
                     // are injected where Moodle's own admin forms store them (the
                     // provider action settings).
                     $coreaiapply = get_config('local_aacuracore', 'core_ai_apply_generation');
                     if ($coreaiapply && $coreaiapply !== '0') {
-                        $coreaitemp = get_config('local_aacuracore', 'core_ai_temperature');
-                        $coreaitopp = get_config('local_aacuracore', 'core_ai_top_p');
-                        if ($coreaitemp === false || $coreaitemp === '') {
-                            $coreaitemp = $caseparams['temperature'] ?? 0.5;
-                        }
-                        if ($coreaitopp === false || $coreaitopp === '') {
-                            $coreaitopp = $caseparams['top_p'] ?? 0.8;
-                        }
+                        $coreaitemp = $caseparams['temperature'] ?? 0.5;
+                        $coreaitopp = $caseparams['top_p'] ?? 0.8;
 
                         $providerinstances = $manager->get_provider_instances();
                         foreach ($providerinstances as $providerinstance) {

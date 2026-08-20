@@ -126,29 +126,16 @@ if ($hassiteconfig) {
         $cases
     ));
 
-    // Manual temperature / top_p overrides for the Moodle Core AI framework.
+    // Apply the Use Case profile temperature/top_p to the Moodle Core AI framework.
     // Because the core_ai generate_text action has no per-call sampling params,
-    // these values are written into the enabled provider's generate_text action
-    // configuration (the same place Moodle's own provider admin forms store them).
+    // the selected Use Case profile values are written into the enabled provider's
+    // generate_text action configuration (the same place Moodle's own provider
+    // admin forms store them).
     $settings->add(new admin_setting_configcheckbox(
         "local_aacuracore/core_ai_apply_generation",
         get_string("core_ai_apply_generation", "local_aacuracore"),
         get_string("core_ai_apply_generation_desc", "local_aacuracore"),
         1
-    ));
-    $settings->add(new admin_setting_configtext(
-        "local_aacuracore/core_ai_temperature",
-        get_string("core_ai_temperature", "local_aacuracore"),
-        get_string("core_ai_temperature_desc", "local_aacuracore"),
-        0.5,
-        PARAM_FLOAT
-    ));
-    $settings->add(new admin_setting_configtext(
-        "local_aacuracore/core_ai_top_p",
-        get_string("core_ai_top_p", "local_aacuracore"),
-        get_string("core_ai_top_p_desc", "local_aacuracore"),
-        0.8,
-        PARAM_FLOAT
     ));
 
     $setting = new admin_setting_configtext(

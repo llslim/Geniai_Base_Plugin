@@ -171,11 +171,7 @@ $string['model_identifier'] = 'Model Variant Identifier';
 $string['model_identifier_desc'] = 'The exact model variant string (e.g. gemini-3.5-flash, gemini-2.0-flash).';
 
 $string['core_ai_apply_generation'] = 'Apply generation parameters to Moodle Core AI';
-$string['core_ai_apply_generation_desc'] = 'When enabled, the temperature and Top_p values below are written into the active Moodle Core AI provider\'s "Generate text" action configuration. Moodle Core AI does not accept per-call sampling parameters, so this is the supported way to control sampling for the Core AI path.';
-$string['core_ai_temperature'] = 'Moodle Core AI Temperature';
-$string['core_ai_temperature_desc'] = 'The sampling temperature to apply to the Moodle Core AI Generate text action (0.0 to 1.0). Leave the default to use the value from the selected Use Case profile above.';
-$string['core_ai_top_p'] = 'Moodle Core AI Top_p';
-$string['core_ai_top_p_desc'] = 'The nucleus sampling (top_p) value to apply to the Moodle Core AI Generate text action (0.0 to 1.0). Leave the default to use the value from the selected Use Case profile above.';
+$string['core_ai_apply_generation_desc'] = 'When enabled, the temperature and Top_p values from the selected Use Case profile above are written into the active Moodle Core AI provider\'s "Generate text" action configuration. Moodle Core AI does not accept per-call sampling parameters, so this is the supported way to control sampling for the Core AI path.';
 
 $string['tab_core_ai'] = 'Moodle Core AI';
 $string['tab_gemini'] = 'Google Gemini';
