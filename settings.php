@@ -101,6 +101,166 @@ if ($hassiteconfig) {
     $gemini_badge = ($activestratey === 'external_llm') ? ' <span style="background-color: #198754; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">[✓ ACTIVELY IN USE]</span>' : ' <span style="background-color: #6c757d; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">[INACTIVE]</span>';
     $chatgpt_badge = ($activestratey === 'local') ? ' <span style="background-color: #198754; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">[✓ ACTIVELY IN USE]</span>' : ' <span style="background-color: #6c757d; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">[INACTIVE]</span>';
 
+    // 4. GLOBAL GENERATION PARAMETERS (applied to all AI engines)
+    $settings->add(new admin_setting_heading(
+        'global_generation_section',
+        '⚙️ 4. Global Generation Parameters',
+        'These generation parameters are applied to all AI engines (Moodle Core AI, Google Gemini, and ChatGPT/OpenAI).'
+    ));
+
+    $cases = [
+        "chatbot" => get_string("caseuse_chatbot", "local_aacuracore"),
+        "creative" => get_string("caseuse_creative", "local_aacuracore"),
+        "balanced" => get_string("caseuse_balanced", "local_aacuracore"),
+        "precise" => get_string("caseuse_precise", "local_aacuracore"),
+        "exploration" => get_string("caseuse_exploration", "local_aacuracore"),
+        "formal" => get_string("caseuse_formal", "local_aacuracore"),
+        "informal" => get_string("caseuse_informal", "local_aacuracore"),
+    ];
+    $casedesc = $OUTPUT->render_from_template("local_aacuracore/settings_casedesc", []);
+    $settings->add(new admin_setting_configselect(
+        "local_aacuracore/case",
+        get_string("case", "local_aacuracore"),
+        $casedesc,
+        "chatbot",
+        $cases
+    ));
+
+    // Manual temperature / top_p overrides for the Moodle Core AI framework.
+    // Because the core_ai generate_text action has no per-call sampling params,
+    // these values are written into the enabled provider's generate_text action
+    // configuration (the same place Moodle's own provider admin forms store them).
+    $settings->add(new admin_setting_configcheckbox(
+        "local_aacuracore/core_ai_apply_generation",
+        get_string("core_ai_apply_generation", "local_aacuracore"),
+        get_string("core_ai_apply_generation_desc", "local_aacuracore"),
+        1
+    ));
+    $settings->add(new admin_setting_configtext(
+        "local_aacuracore/core_ai_temperature",
+        get_string("core_ai_temperature", "local_aacuracore"),
+        get_string("core_ai_temperature_desc", "local_aacuracore"),
+        0.5,
+        PARAM_FLOAT
+    ));
+    $settings->add(new admin_setting_configtext(
+        "local_aacuracore/core_ai_top_p",
+        get_string("core_ai_top_p", "local_aacuracore"),
+        get_string("core_ai_top_p_desc", "local_aacuracore"),
+        0.8,
+        PARAM_FLOAT
+    ));
+
+    $setting = new admin_setting_configtext(
+        "local_aacuracore/max_tokens",
+        get_string("max_tokens", "local_aacuracore"),
+        get_string("max_tokens_desc", "local_aacuracore"),
+        200,
+        PARAM_INT
+    );
+    $settings->add($setting);
+
+    $penalty = [
+        "-2.0" => "-2.0",
+        "-1.9" => "-1.9",
+        "-1.8" => "-1.8",
+        "-1.7" => "-1.7",
+        "-1.6" => "-1.6",
+        "-1.5" => "-1.5",
+        "-1.4" => "-1.4",
+        "-1.3" => "-1.3",
+        "-1.2" => "-1.2",
+        "-1.1" => "-1.1",
+        "-1.0" => "-1.0",
+        "-0.9" => "-0.9",
+        "-0.8" => "-0.8",
+        "-0.7" => "-0.7",
+        "-0.6" => "-0.6",
+        "-0.5" => "-0.5",
+        "-0.4" => "-0.4",
+        "-0.3" => "-0.3",
+        "-0.2" => "-0.2",
+        "-0.1" => "-0.1",
+        "0.0" => "0.0",
+        "0.1" => "0.1",
+        "0.2" => "0.2",
+        "0.3" => "0.3",
+        "0.4" => "0.4",
+        "0.5" => "0.5",
+        "0.6" => "0.6",
+        "0.7" => "0.7",
+        "0.8" => "0.8",
+        "0.9" => "0.9",
+        "1.0" => "1.0",
+        "1.1" => "1.1",
+        "1.2" => "1.2",
+        "1.3" => "1.3",
+        "1.4" => "1.4",
+        "1.5" => "1.5",
+        "1.6" => "1.6",
+        "1.7" => "1.7",
+        "1.8" => "1.8",
+        "1.9" => "1.9",
+        "2.0" => "2.0",
+    ];
+    $settings->add(new admin_setting_configselect(
+        "local_aacuracore/frequency_penalty",
+        get_string("frequency_penalty", "local_aacuracore"),
+        get_string("frequency_penalty_desc", "local_aacuracore"),
+        "0.0",
+        $penalty
+    ));
+    $settings->add(new admin_setting_configselect(
+        "local_aacuracore/presence_penalty",
+        get_string("presence_penalty", "local_aacuracore"),
+        get_string("presence_penalty_desc", "local_aacuracore"),
+        "0.0",
+        $penalty
+    ));
+
+    $voices = [
+        "alloy" => "Alloy",
+        "echo" => "Echo",
+        "fable" => "Fable",
+        "onyx" => "Onyx",
+        "nova" => "Nova",
+        "shimmer" => "Shimmer",
+    ];
+    $voicedesc = preg_replace('/\s+</s', "<", '
+            <table>
+                <tr>
+                    <th style="text-align: right;">Alloy:</th>
+                    <td><audio src="https://cdn.openai.com/API/docs/audio/alloy.wav" controls></audio></td>
+                </tr>
+                <tr>
+                    <th style="text-align: right;">Echo:</th>
+                    <td><audio src="https://cdn.openai.com/API/docs/audio/echo.wav" controls></audio></td>
+                </tr>
+                <tr>
+                    <th style="text-align: right;">Fable:</th>
+                    <td><audio src="https://cdn.openai.com/API/docs/audio/fable.wav" controls></audio></td>
+                </tr>
+                <tr>
+                    <th style="text-align: right;">Onyx:</th>
+                    <td><audio src="https://cdn.openai.com/API/docs/audio/onyx.wav" controls></audio></td>
+                </tr>
+                <tr>
+                    <th style="text-align: right;">Nova:</th>
+                    <td><audio src="https://cdn.openai.com/API/docs/audio/nova.wav" controls></audio></td>
+                </tr>
+                <tr>
+                    <th style="text-align: right;">Shimmer:</th>
+                    <td><audio src="https://cdn.openai.com/API/docs/audio/shimmer.wav" controls></audio></td>
+                </tr>
+            </table>');
+    $settings->add(new admin_setting_configselect(
+        "local_aacuracore/voice",
+        get_string("voice", "local_aacuracore"),
+        $voicedesc,
+        "alloy",
+        $voices
+    ));
+
     // Core AI Provider records dropdown options
     $coreaiprovideroptions = [];
     if (class_exists('\\core_ai\\manager')) {
@@ -329,67 +489,6 @@ if ($hassiteconfig) {
         $models
     ));
 
-    $voices = [
-        "alloy" => "Alloy",
-        "echo" => "Echo",
-        "fable" => "Fable",
-        "onyx" => "Onyx",
-        "nova" => "Nova",
-        "shimmer" => "Shimmer",
-    ];
-    $voicedesc = preg_replace('/\s+</s', "<", '
-            <table>
-                <tr>
-                    <th style="text-align: right;">Alloy:</th>
-                    <td><audio src="https://cdn.openai.com/API/docs/audio/alloy.wav" controls></audio></td>
-                </tr>
-                <tr>
-                    <th style="text-align: right;">Echo:</th>
-                    <td><audio src="https://cdn.openai.com/API/docs/audio/echo.wav" controls></audio></td>
-                </tr>
-                <tr>
-                    <th style="text-align: right;">Fable:</th>
-                    <td><audio src="https://cdn.openai.com/API/docs/audio/fable.wav" controls></audio></td>
-                </tr>
-                <tr>
-                    <th style="text-align: right;">Onyx:</th>
-                    <td><audio src="https://cdn.openai.com/API/docs/audio/onyx.wav" controls></audio></td>
-                </tr>
-                <tr>
-                    <th style="text-align: right;">Nova:</th>
-                    <td><audio src="https://cdn.openai.com/API/docs/audio/nova.wav" controls></audio></td>
-                </tr>
-                <tr>
-                    <th style="text-align: right;">Shimmer:</th>
-                    <td><audio src="https://cdn.openai.com/API/docs/audio/shimmer.wav" controls></audio></td>
-                </tr>
-            </table>');
-    $settings->add(new admin_setting_configselect(
-        "local_aacuracore/voice",
-        get_string("voice", "local_aacuracore"),
-        $voicedesc,
-        "alloy",
-        $voices
-    ));
-
-    $cases = [
-        "chatbot" => get_string("caseuse_chatbot", "local_aacuracore"),
-        "creative" => get_string("caseuse_creative", "local_aacuracore"),
-        "balanced" => get_string("caseuse_balanced", "local_aacuracore"),
-        "precise" => get_string("caseuse_precise", "local_aacuracore"),
-        "exploration" => get_string("caseuse_exploration", "local_aacuracore"),
-        "formal" => get_string("caseuse_formal", "local_aacuracore"),
-        "informal" => get_string("caseuse_informal", "local_aacuracore"),
-    ];
-    $casedesc = $OUTPUT->render_from_template("local_aacuracore/settings_casedesc", []);
-    $settings->add(new admin_setting_configselect(
-        "local_aacuracore/case",
-        get_string("case", "local_aacuracore"),
-        $casedesc,
-        "chatbot",
-        $cases
-    ));
-
     $modules = [];
     $records = $DB->get_records("modules", ["visible" => 1], "name", "name");
     foreach ($records as $record) {
@@ -407,74 +506,4 @@ if ($hassiteconfig) {
         ["glossary", "lesson", "forum", "scorm", "feedback", "survey", "quiz", "assign", "wiki", "lti", "workshop"],
         $modules
     ));
-
-    $setting = new admin_setting_configtext(
-        "local_aacuracore/max_tokens",
-        get_string("max_tokens", "local_aacuracore"),
-        get_string("max_tokens_desc", "local_aacuracore"),
-        200,
-        PARAM_INT
-    );
-    $settings->add($setting);
-
-    $penalty = [
-        "-2.0" => "-2.0",
-        "-1.9" => "-1.9",
-        "-1.8" => "-1.8",
-        "-1.7" => "-1.7",
-        "-1.6" => "-1.6",
-        "-1.5" => "-1.5",
-        "-1.4" => "-1.4",
-        "-1.3" => "-1.3",
-        "-1.2" => "-1.2",
-        "-1.1" => "-1.1",
-        "-1.0" => "-1.0",
-        "-0.9" => "-0.9",
-        "-0.8" => "-0.8",
-        "-0.7" => "-0.7",
-        "-0.6" => "-0.6",
-        "-0.5" => "-0.5",
-        "-0.4" => "-0.4",
-        "-0.3" => "-0.3",
-        "-0.2" => "-0.2",
-        "-0.1" => "-0.1",
-        "0.0" => "0.0",
-        "0.1" => "0.1",
-        "0.2" => "0.2",
-        "0.3" => "0.3",
-        "0.4" => "0.4",
-        "0.5" => "0.5",
-        "0.6" => "0.6",
-        "0.7" => "0.7",
-        "0.8" => "0.8",
-        "0.9" => "0.9",
-        "1.0" => "1.0",
-        "1.1" => "1.1",
-        "1.2" => "1.2",
-        "1.3" => "1.3",
-        "1.4" => "1.4",
-        "1.5" => "1.5",
-        "1.6" => "1.6",
-        "1.7" => "1.7",
-        "1.8" => "1.8",
-        "1.9" => "1.9",
-        "2.0" => "2.0",
-    ];
-    $setting = new admin_setting_configselect(
-        "local_aacuracore/frequency_penalty",
-        get_string("frequency_penalty", "local_aacuracore"),
-        get_string("frequency_penalty_desc", "local_aacuracore"),
-        "0.0",
-        $penalty
-    );
-    $settings->add($setting);
-
-    $setting = new admin_setting_configselect(
-        "local_aacuracore/presence_penalty",
-        get_string("presence_penalty", "local_aacuracore"),
-        get_string("presence_penalty_desc", "local_aacuracore"),
-        "0.0",
-        $penalty
-    );
-    $settings->add($setting);
 }

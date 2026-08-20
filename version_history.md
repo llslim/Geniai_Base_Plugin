@@ -8,6 +8,10 @@ This log documents the commit history on the `dev` branch, mapping each update t
 
 | Git Tag | Moodle `$plugin->version` | `$plugin->release` | Commit Message / Description |
 | :--- | :--- | :--- | :--- |
+| *pending* | `2026081007` | `2.4.7` | feat: add Moodle Core AI temperature/top_p override via provider action config injection |
+| *pending* | `2026081006` | `2.4.6` | feat: move generation parameters (use cases, max_tokens, penalties, voice) to global scope for all AI engines |
+| *pending* | `2026081005` | `2.4.5` | feat: add per-state rubric to scenario builder, AI builder, and feedback |
+| *pending* | `2026081003` | `2.4.4` | feat: role expansion — generalized bot persona types with universal LAFF foundation |
 | *pending* | `2026081003` | `2.4.3` | feat: embed configurable LLM prompt template in scenario JSON |
 | `v1.4.0-dev` | `2026081002` | `2.4.2` | feat: add Diagnostics tab to settings page |
 | `v1.3.1-dev` | `2026081001` | `2.4.1` | Resolves #2: Save computed scores to evaluations |

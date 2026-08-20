@@ -361,6 +361,11 @@ CRITICAL RULES:
                     <input type="text" value="Pass: EXPLORATION | Fail: ESCALATION" disabled style="opacity: 0.6;">
                 </div>
             </div>
+            <div class="form-group">
+                <label for="rubric_start">Rubric Criteria (one per line)</label>
+                <textarea id="rubric_start" rows="3" placeholder="1 point if teacher starts with a greeting.&#10;1 point for a statement of empathy.">1 point if teacher starts with a greeting.
+1 point for a statement of empathy.</textarea>
+            </div>
         </div>
 
         <!-- EXPLORATION Node -->
@@ -384,6 +389,11 @@ CRITICAL RULES:
                     <label>Routes (Pass / Fail)</label>
                     <input type="text" value="Pass: RESOLUTION | Fail: CONFUSION" disabled style="opacity: 0.6;">
                 </div>
+            </div>
+            <div class="form-group">
+                <label for="rubric_exploration">Rubric Criteria (one per line)</label>
+                <textarea id="rubric_exploration" rows="3" placeholder="1 point for asking 'what brings you in today?'.">1 point for asking 'what brings you in today?'.
+1 point for asking 'how long has this been a problem?'.</textarea>
             </div>
         </div>
 
@@ -409,6 +419,11 @@ CRITICAL RULES:
                     <input type="text" value="Pass: EXPLORATION | Fail: FAIL_STATE" disabled style="opacity: 0.6;">
                 </div>
             </div>
+            <div class="form-group">
+                <label for="rubric_escalation">Rubric Criteria (one per line)</label>
+                <textarea id="rubric_escalation" rows="3" placeholder="1 point for asking 'was this ever not a problem?'.">1 point for asking 'was this ever not a problem?'.
+1 point for asking 'have you spoken to anyone else?'.</textarea>
+            </div>
         </div>
 
         <!-- CONFUSION Node -->
@@ -433,6 +448,11 @@ CRITICAL RULES:
                     <input type="text" value="Pass: EXPLORATION | Fail: ESCALATION" disabled style="opacity: 0.6;">
                 </div>
             </div>
+            <div class="form-group">
+                <label for="rubric_confusion">Rubric Criteria (one per line)</label>
+                <textarea id="rubric_confusion" rows="3" placeholder="1 point for asking 'anything else to add?'.">1 point for asking 'anything else to add?'.
+1 point for asking 'have you spoken to anyone else?'.</textarea>
+            </div>
         </div>
 
         <!-- Terminal Nodes -->
@@ -442,6 +462,11 @@ CRITICAL RULES:
                 <label for="prompt_resolution">Bot Prompt</label>
                 <textarea id="prompt_resolution" required>Okay, that actually makes sense. Thank you for walking me through this. Let's try it.</textarea>
             </div>
+            <div class="form-group">
+                <label for="rubric_resolution">Rubric Criteria (one per line)</label>
+                <textarea id="rubric_resolution" rows="3" placeholder="1 point for asking 'anything else to add?'.">1 point for asking 'anything else to add?'.
+1 point for wrapping up the conversation.</textarea>
+            </div>
         </div>
 
         <div class="node-card">
@@ -449,6 +474,11 @@ CRITICAL RULES:
             <div class="form-group">
                 <label for="prompt_fail">Bot Prompt</label>
                 <textarea id="prompt_fail" required>This session is complete. The parent has requested formal administrative review.</textarea>
+            </div>
+            <div class="form-group">
+                <label for="rubric_fail">Rubric Criteria (one per line)</label>
+                <textarea id="rubric_fail" rows="3" placeholder="1 point for acknowledging the parent's request.">1 point for acknowledging the parent's request.
+1 point for offering next steps.</textarea>
             </div>
         </div>
 
@@ -472,6 +502,13 @@ CRITICAL RULES:
         const objectives = objectivesStr.split(',').map(item => item.trim()).filter(item => item.length > 0);
         const template = document.getElementById('prompt_template').value.trim();
 
+        function splitLines(id) {
+            return document.getElementById(id).value
+                .split('\n')
+                .map(item => item.trim())
+                .filter(item => item.length > 0);
+        }
+
         const json = {
             "scenario_id": document.getElementById('scenario_id').value.trim(),
             "persona": {
@@ -486,6 +523,7 @@ CRITICAL RULES:
             "states": {
                 "START": {
                     "bot_prompt": document.getElementById('prompt_start').value.trim(),
+                    "rubric": splitLines('rubric_start'),
                     "expected_criteria": {
                         "validation_type": document.getElementById('val_start').value,
                         "pass_route": "EXPLORATION",
@@ -494,6 +532,7 @@ CRITICAL RULES:
                 },
                 "EXPLORATION": {
                     "bot_prompt": document.getElementById('prompt_exploration').value.trim(),
+                    "rubric": splitLines('rubric_exploration'),
                     "expected_criteria": {
                         "validation_type": document.getElementById('val_exploration').value,
                         "pass_route": "RESOLUTION",
@@ -502,6 +541,7 @@ CRITICAL RULES:
                 },
                 "ESCALATION": {
                     "bot_prompt": document.getElementById('prompt_escalation').value.trim(),
+                    "rubric": splitLines('rubric_escalation'),
                     "expected_criteria": {
                         "validation_type": document.getElementById('val_escalation').value,
                         "pass_route": "EXPLORATION",
@@ -510,6 +550,7 @@ CRITICAL RULES:
                 },
                 "CONFUSION": {
                     "bot_prompt": document.getElementById('prompt_confusion').value.trim(),
+                    "rubric": splitLines('rubric_confusion'),
                     "expected_criteria": {
                         "validation_type": document.getElementById('val_confusion').value,
                         "pass_route": "EXPLORATION",
@@ -518,10 +559,12 @@ CRITICAL RULES:
                 },
                 "RESOLUTION": {
                     "bot_prompt": document.getElementById('prompt_resolution').value.trim(),
+                    "rubric": splitLines('rubric_resolution'),
                     "expected_criteria": null
                 },
                 "FAIL_STATE": {
                     "bot_prompt": document.getElementById('prompt_fail').value.trim(),
+                    "rubric": splitLines('rubric_fail'),
                     "expected_criteria": null
                 }
             }

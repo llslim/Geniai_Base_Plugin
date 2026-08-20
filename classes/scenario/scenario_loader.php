@@ -207,6 +207,11 @@ class scenario_loader {
         return [
             'START' => [
                 'bot_prompt' => 'I don\'t understand why we are changing my child\'s communication system again. Every time my child gets used to something, you switch it!',
+                'rubric' => [
+                    '1 point if teacher starts with a greeting.',
+                    '1 point for a statement of empathy.',
+                    '1 point if teacher asks to take notes.',
+                ],
                 'expected_criteria' => [
                     'validation_type' => 'empathy_check',
                     'pass_route' => 'EXPLORATION',
@@ -215,6 +220,10 @@ class scenario_loader {
             ],
             'EXPLORATION' => [
                 'bot_prompt' => 'Well, yes, I suppose it\'s frustrating for my child too. What makes this new approach so much better?',
+                'rubric' => [
+                    '1 point for asking \'what brings you in today?\'',
+                    '1 point for asking \'how long has this been a problem?\'',
+                ],
                 'expected_criteria' => [
                     'validation_type' => 'jargon_check',
                     'pass_route' => 'RESOLUTION',
@@ -223,6 +232,10 @@ class scenario_loader {
             ],
             'ESCALATION' => [
                 'bot_prompt' => 'You specialists always think you know what\'s best without living our daily lives! I want to speak to the principal.',
+                'rubric' => [
+                    '1 point for asking \'was this ever not a problem?\'',
+                    '1 point for asking \'have you spoken to anyone else?\'',
+                ],
                 'expected_criteria' => [
                     'validation_type' => 'de_escalation_check',
                     'pass_route' => 'EXPLORATION',
@@ -231,6 +244,10 @@ class scenario_loader {
             ],
             'CONFUSION' => [
                 'bot_prompt' => 'Wait, what does SGD and high-tech gaze-select mean? You\'re using letters and words I don\'t understand.',
+                'rubric' => [
+                    '1 point for asking \'anything else to add?\'',
+                    '1 point for asking \'have you spoken to anyone else?\'',
+                ],
                 'expected_criteria' => [
                     'validation_type' => 'clarification_check',
                     'pass_route' => 'EXPLORATION',
@@ -239,10 +256,18 @@ class scenario_loader {
             ],
             'RESOLUTION' => [
                 'bot_prompt' => 'Okay, that actually makes sense. Thank you for walking me through this. Let\'s try it.',
+                'rubric' => [
+                    '1 point for asking \'anything else to add?\'',
+                    '1 point for wrapping up the conversation.',
+                ],
                 'expected_criteria' => null,
             ],
             'FAIL_STATE' => [
                 'bot_prompt' => 'This session is complete. The parent has requested formal administrative review.',
+                'rubric' => [
+                    '1 point for acknowledging the parent\'s request.',
+                    '1 point for offering next steps.',
+                ],
                 'expected_criteria' => null,
             ],
         ];

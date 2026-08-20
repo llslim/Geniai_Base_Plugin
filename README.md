@@ -24,7 +24,7 @@ While `local_aacuracore` was historically derived from the legacy `local_geniai`
 
 ## 📝 Scenario Configurations & Example Graph Structure
 
-Conversations in AACURA are driven by structured JSON scenarios defined as directed graphs. Each node represents a conversation state containing prompt templates, expected criteria, and conditional transition links.
+Conversations in AACURA are driven by structured JSON scenarios defined as directed graphs. Each node represents a conversation state containing prompt templates, expected criteria, an optional per-state `rubric` array of scoring criteria, and conditional transition links.
 
 ### Example Scenario Schema Snippet:
 ```json

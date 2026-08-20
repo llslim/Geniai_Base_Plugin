@@ -31,7 +31,7 @@ A scenario JSON contains:
 - `prompt_template` (optional string with `{{placeholder}}` tokens)
 - `persona` (name, child_preferred_pronoun, backstory, initial_mood, communication_style)
 - `learning_objectives` (array)
-- `states` (directed graph: START, EXPLORATION, ESCALATION, CONFUSION, RESOLUTION, FAIL_STATE, each with `bot_prompt` and optional `expected_criteria`)
+- `states` (directed graph: START, EXPLORATION, ESCALATION, CONFUSION, RESOLUTION, FAIL_STATE, each with `bot_prompt`, an optional `rubric` array of per-state scoring criteria, and optional `expected_criteria`)
 
 ### 2.3. LLM prompt infrastructure
 - `local_aacuracore\prompt_renderer` handles placeholder substitution.
@@ -58,6 +58,7 @@ A scenario JSON contains:
   - Communication style
   - Learning objectives
   - Dialogue states and their prompts / validation criteria
+  - **Per-state rubric criteria** (what a trainee must do to earn a point in each state)
   - (Optional) custom prompt template
 * **FR-6:** The interviewer should ask one question at a time and confirm each answer before moving on, allowing the author to correct answers.
 * **FR-7:** The author can type free-form answers; the AI parses and structures them into the scenario schema.
@@ -102,14 +103,15 @@ A dedicated prompt template (reusing `prompt_renderer`) instructs the LLM to act
 The interview itself can be modeled as a small state machine:
 ```
 GREETING -> ASK_SCENARIO_ID -> ASK_PERSONA_NAME -> ASK_BACKSTORY ->
-ASK_PRONOUN -> ASK_MOOD -> ASK_COMM_STYLE -> ASK_OBJECTIVES ->
-ASK_STATES -> ASK_TEMPLATE -> CONFIRM -> GENERATE -> EXPORT
+ASK_PRONOUN -> ASK_MOOD -> ASK_COMM_STYLE -> ASK_ROLE -> ASK_OBJECTIVES ->
+ASK_START_PROMPT -> ASK_RUBRIC -> ASK_TEMPLATE -> CONFIRM -> GENERATE -> EXPORT
 ```
 Each state maps to a question; the AI advances states based on the author's answers.
 
 ### 4.4. JSON Generation & Validation
 - The AI returns a JSON object (or a JSON string embedded in its response).
 - The system extracts and `json_decode`s it, then validates via `scenario_loader::from_array()`.
+- Per-state rubric criteria gathered during the interview are emitted as a `rubric` array on each state node; a non-array rubric value (e.g. a comma/newline string) is normalized to an array during validation.
 - On success, the JSON is stored in a JS variable for export.
 - On failure, error messages are fed back to the AI for correction.
 

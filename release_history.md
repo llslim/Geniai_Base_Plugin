@@ -16,6 +16,9 @@ Each release is identified by three related version fields that must stay in syn
 
 | Git Tag | Commit | `$plugin->version` | `$plugin->release` | Commit Message / Description |
 | :--- | :--- | :--- | :--- | :--- |
+| *pending* | *pending* | `2026081007` | `2.4.7` | feat: add Moodle Core AI temperature/top_p override option (provider action config injection) |
+| *pending* | *pending* | `2026081006` | `2.4.6` | feat: move generation parameters (use cases, max_tokens, penalties, voice) to global scope for all AI engines |
+| *pending* | *pending* | `2026081005` | `2.4.5` | feat: add per-state rubric to scenario builder, AI builder, and feedback |
 | `v1.5.0-dev` | `7d03757` | `2026081004` | `2.4.4` | feat: role expansion — generalized bot persona types with universal LAFF foundation |
 | `v1.4.0-dev` | `d240b95` | `2026081003` | `2.4.3` | feat: embed configurable LLM prompt template in scenario JSON |
 | `v1.3.1-dev` | `32846fe` | `2026081001` | `2.4.1` | feat: save score to evaluations table and implement regex strategy score feedback |

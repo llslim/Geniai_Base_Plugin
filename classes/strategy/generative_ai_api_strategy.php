@@ -159,7 +159,11 @@ class generative_ai_api_strategy implements response_strategy {
             }
         }
 
-        $rubric = [
+        // Build the rubric from the scenario's per-state rubric entries.
+        // Each state may define a "rubric" array of criteria lines. If a state
+        // has no rubric defined, fall back to the default static rubric so
+        // existing scenarios continue to evaluate correctly.
+        $defaultrubric = [
             "greeting" => "1 point if teacher starts with a greeting.",
             "empathy" => "1 point for a statement of empathy.",
             "note_permission" => "1 point if teacher asks to take notes.",
@@ -169,6 +173,18 @@ class generative_ai_api_strategy implements response_strategy {
             "consultation" => "1 point for asking 'have you spoken to anyone else?'.",
             "wrap_up" => "1 point for asking 'anything else to add?'.",
         ];
+
+        $rubric = [];
+        foreach ($scenario->get_states() as $statekey => $node) {
+            if (isset($node['rubric']) && is_array($node['rubric']) && !empty($node['rubric'])) {
+                foreach ($node['rubric'] as $index => $criterion) {
+                    $rubric[strtolower($statekey) . '_' . ($index + 1)] = $criterion;
+                }
+            }
+        }
+        if (empty($rubric)) {
+            $rubric = $defaultrubric;
+        }
 
         $formattedrubric = implode("\n", array_map(
             fn($k, $v) => ucfirst(str_replace("_", " ", $k)) . ": " . $v,

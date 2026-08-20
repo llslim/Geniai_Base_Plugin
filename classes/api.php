@@ -274,6 +274,9 @@ $result = \local_aacuracore\scenario_builder_ai::process_turn($history, $builder
     public static function chat_completions($messages, $ignoremaxtoken = false) {
         global $DB, $USER;
 
+        // Compute the active generation profile (case => temperature/top_p) once.
+        $caseparams = self::get_generation_params();
+
         // Check if Moodle Core AI provider framework is enabled & available
         if (class_exists('\\core_ai\\manager')) {
             try {
@@ -282,6 +285,56 @@ $result = \local_aacuracore\scenario_builder_ai::process_turn($history, $builder
                 // Only proceed if at least one provider is actually enabled
                 $enabledproviders = array_filter($allproviders, fn($p) => !empty($p->enabled));
                 if (!empty($enabledproviders)) {
+                    // When enabled, propagate the global temperature/top_p into
+                    // the provider's generate_text action config. Moodle Core AI's
+                    // generate_text action has no per-call sampling params, so these
+                    // are injected where Moodle's own admin forms store them (the
+                    // provider action settings).
+                    $coreaiapply = get_config('local_aacuracore', 'core_ai_apply_generation');
+                    if ($coreaiapply && $coreaiapply !== '0') {
+                        $coreaitemp = get_config('local_aacuracore', 'core_ai_temperature');
+                        $coreaitopp = get_config('local_aacuracore', 'core_ai_top_p');
+                        if ($coreaitemp === false || $coreaitemp === '') {
+                            $coreaitemp = $caseparams['temperature'] ?? 0.5;
+                        }
+                        if ($coreaitopp === false || $coreaitopp === '') {
+                            $coreaitopp = $caseparams['top_p'] ?? 0.8;
+                        }
+
+                        $providerinstances = $manager->get_provider_instances();
+                        foreach ($providerinstances as $providerinstance) {
+                            $actionconfig = $providerinstance->actionconfig;
+                            $ok = false;
+                            $actionkey = null;
+                            foreach ([
+                                'core_ai\aiactions\generate_text',
+                                \core_ai\aiactions\generate_text::class,
+                            ] as $possiblekey) {
+                                if (isset($actionconfig[$possiblekey])) {
+                                    $actionkey = $possiblekey;
+                                    break;
+                                }
+                            }
+                            if ($actionkey !== null) {
+                                $settings = $actionconfig[$actionkey]['settings'] ?? [];
+                                $settings['temperature'] = $coreaitemp;
+                                $settings['top_p'] = $coreaitopp;
+                                $actionconfig[$actionkey]['settings'] = $settings;
+                                $ok = true;
+                            }
+                            if ($ok) {
+                                try {
+                                    $manager->update_provider_instance(
+                                        provider: $providerinstance,
+                                        actionconfig: $actionconfig
+                                    );
+                                } catch (\Throwable $e) {
+                                    debugging('[AACURA] core_ai inject generation params failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
+                                }
+                            }
+                        }
+                    }
+
                     // core_ai generate_text only accepts a single plaintext prompt.
                     // Flatten the full message array (system instructions + all turns) into one combined string.
                     $promptparts = [];
@@ -349,39 +402,8 @@ $result = \local_aacuracore\scenario_builder_ai::process_turn($history, $builder
         $frequencypenalty = get_config("local_aacuracore", "frequency_penalty");
         $presencepenalty = get_config("local_aacuracore", "presence_penalty");
 
-        switch (get_config("local_aacuracore", "case")) {
-            case "creative":
-                $temperature = .7;
-                $topp = .8;
-                break;
-            case "balanced":
-                $temperature = .5;
-                $topp = .7;
-                break;
-            case "precise":
-                $temperature = .0;
-                $topp = 1.0;
-                break;
-            case "exploration":
-                $temperature = .8;
-                $topp = .9;
-                break;
-            case "formal":
-                $temperature = .3;
-                $topp = .6;
-                break;
-            case "informal":
-                $temperature = .7;
-                $topp = .8;
-                break;
-            case "chatbot":
-                $temperature = .2;
-                $topp = .8;
-                break;
-            default:
-                $temperature = .5;
-                $topp = .5;
-        }
+        $temperature = $caseparams['temperature'];
+        $topp = $caseparams['top_p'];
 
         $messagesok = [];
         foreach ($messages as $message) {
@@ -455,6 +477,37 @@ $result = \local_aacuracore\scenario_builder_ai::process_turn($history, $builder
         }
 
         return $gpt;
+    }
+
+    /**
+     * Resolve the active generation profile (use-case => temperature/top_p).
+     *
+     * The "case" setting maps a named generation profile to concrete sampling
+     * parameters. These are used as the defaults for the direct REST path and
+     * as the fallback for the Moodle Core AI path when no manual override is set.
+     *
+     * @return array {temperature: float, top_p: float}
+     */
+    public static function get_generation_params(): array {
+        $case = get_config("local_aacuracore", "case");
+        switch ($case) {
+            case "creative":
+                return ['temperature' => .7, 'top_p' => .8];
+            case "balanced":
+                return ['temperature' => .5, 'top_p' => .7];
+            case "precise":
+                return ['temperature' => .0, 'top_p' => 1.0];
+            case "exploration":
+                return ['temperature' => .8, 'top_p' => .9];
+            case "formal":
+                return ['temperature' => .3, 'top_p' => .6];
+            case "informal":
+                return ['temperature' => .7, 'top_p' => .8];
+            case "chatbot":
+                return ['temperature' => .2, 'top_p' => .8];
+            default:
+                return ['temperature' => .5, 'top_p' => .5];
+        }
     }
 
     /**

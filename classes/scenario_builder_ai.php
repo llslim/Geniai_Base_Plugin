@@ -44,6 +44,7 @@ class scenario_builder_ai {
         'ASK_ROLE',
         'ASK_OBJECTIVES',
         'ASK_START_PROMPT',
+        'ASK_RUBRIC',
         'ASK_OPTIONAL_TEMPLATE',
         'CONFIRM',
         'GENERATE',
@@ -71,11 +72,13 @@ Request the following fields in this order (do not ask all at once - ONE per tur
 7. role (type + display label among: parent, doctor, manufacturer_rep, aac_user, school_admin, iep_coordinator, insurance_rep, other_therapist; plus formality and power dynamic)
 8. learning_objectives (comma separated)
 9. START state bot_prompt (the persona's opening line)
-10. OPTIONAL custom prompt_template (or say 'default')
+10. Per-state rubric criteria (for EACH dialogue state, ask the author what the trainee must do to earn a point; accept one criterion per line or a short list)
+11. OPTIONAL custom prompt_template (or say 'default')
 
 RULES:
 - Ask exactly ONE question per turn.
 - After each answer, briefly confirm, then ask the next field.
+- For field 10 (rubric), ask for the rubric criteria state by state (START, EXPLORATION, ESCALATION, CONFUSION, RESOLUTION, FAIL_STATE). The author may give them all at once or one state at a time.
 - Do NOT generate the final JSON until ALL fields are gathered.
 - After you have all fields, ask the user to say "generate" to create the JSON.
 When the user says "generate", output ONLY a valid JSON object (no markdown fences) that matches the AACURA scenario schema:
@@ -88,14 +91,15 @@ When the user says "generate", output ONLY a valid JSON object (no markdown fenc
   },
   "learning_objectives": [...],
   "states": {
-    "START": {"bot_prompt":"...", "expected_criteria": {"validation_type":"empathy_check","pass_route":"EXPLORATION","fail_route":"ESCALATION"}},
-    "EXPLORATION": {"bot_prompt":"...", "expected_criteria": {"validation_type":"jargon_check","pass_route":"RESOLUTION","fail_route":"CONFUSION"}},
-    "ESCALATION": {"bot_prompt":"...", "expected_criteria": {"validation_type":"de_escalation_check","pass_route":"EXPLORATION","fail_route":"FAIL_STATE"}},
-    "CONFUSION": {"bot_prompt":"...", "expected_criteria": {"validation_type":"clarification_check","pass_route":"EXPLORATION","fail_route":"ESCALATION"}},
-    "RESOLUTION": {"bot_prompt":"...", "expected_criteria": null},
-    "FAIL_STATE": {"bot_prompt":"...", "expected_criteria": null}
+    "START": {"bot_prompt":"...", "rubric":["1 point if ...", "..."], "expected_criteria": {"validation_type":"empathy_check","pass_route":"EXPLORATION","fail_route":"ESCALATION"}},
+    "EXPLORATION": {"bot_prompt":"...", "rubric": ["1 point if ...", "..."], "expected_criteria": {"validation_type":"jargon_check","pass_route":"RESOLUTION","fail_route":"CONFUSION"}},
+    "ESCALATION": {"bot_prompt":"...", "rubric": ["1 point if ...", "..."], "expected_criteria": {"validation_type":"de_escalation_check","pass_route":"EXPLORATION","fail_route":"FAIL_STATE"}},
+    "CONFUSION": {"bot_prompt":"...", "rubric": ["1 point if ...", "..."], "expected_criteria": {"validation_type":"clarification_check","pass_route":"EXPLORATION","fail_route":"ESCALATION"}},
+    "RESOLUTION": {"bot_prompt":"...", "rubric": ["1 point if ...", "..."], "expected_criteria": null},
+    "FAIL_STATE": {"bot_prompt":"...", "rubric": ["1 point if ...", "..."], "expected_criteria": null}
   }
 }
+Each state's "rubric" MUST be an array of strings describing concrete trainee moves that earn a point in that state. If the author provided no rubric for a state, use an empty array [] for that state.
 If the author supplies a custom prompt_template, include it; otherwise omit it.
 Always keep the LAFF 'Don't Cry' framework in mind (Listen/Empathize, Ask, Focus, First Steps; no criticism, no defensive reaction, no unexplained jargon) for the learning objectives.
 EOT;
@@ -207,6 +211,19 @@ EOT;
         }
         if (empty($json['states']['START']['bot_prompt'])) {
             return 'missing states.START.bot_prompt';
+        }
+        // Normalize per-state rubric values to arrays and validate their shape.
+        foreach ($json['states'] ?? [] as $statekey => $node) {
+            if (isset($node['rubric'])) {
+                // Accept a comma/newline-separated string and split it into an array.
+                if (is_string($node['rubric'])) {
+                    $json['states'][$statekey]['rubric'] = array_values(array_filter(array_map('trim',
+                        preg_split('/[\r\n,]+/', $node['rubric']))));
+                }
+                if (!is_array($json['states'][$statekey]['rubric'])) {
+                    return "states.{$statekey}.rubric must be an array";
+                }
+            }
         }
         try {
             $sc = scenario_loader::from_array($json);
