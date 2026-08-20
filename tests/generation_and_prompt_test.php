@@ -36,7 +36,16 @@ use local_aacuracore\api;
  * @copyright   2026 AAC-RERC Chatbot Team
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class today_features_test extends \advanced_testcase {
+class generation_and_prompt_test extends \advanced_testcase {
+
+    /**
+     * Set up tests: reset DB state after every test so set_config() calls
+     * (which write to the config table) are rolled back.
+     */
+    protected function setUp(): void {
+        parent::setUp();
+        $this->resetAfterTest(true);
+    }
 
     /**
      * Returns a sample scenario array with per-state rubric entries.
