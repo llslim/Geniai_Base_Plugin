@@ -81,6 +81,8 @@ $string['h5p-return'] = 'Back to Content Bank';
 $string['h5p-title'] = 'Manage GeniAI Content Bank';
 $string['max_tokens'] = 'Maximum words in response (Global)';
 $string['max_tokens_desc'] = 'Maximum number of words that can be generated in each request. Applied to all AI engines.';
+$string['max_turns'] = 'Maximum student turns before grading';
+$string['max_turns_desc'] = 'The number of student turns (exchanges) before the conversation is automatically evaluated and graded. Default is 8.';
 $string['message_01'] = 'Hello, {$a}! 🌟';
 $string['message_02_course'] = 'Welcome to the course {$a->coursename} on Moodle {$a->moodlename}!
 

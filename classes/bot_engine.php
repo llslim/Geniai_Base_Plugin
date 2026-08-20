@@ -297,8 +297,15 @@ class bot_engine {
 
         $turncount = $this->get_turn_count();
 
-        // 3. Check for final Turn 10 Rubric grading completion or terminal state
-        if ($turncount >= 10 || $nextstatekey === 'RESOLUTION' || $nextstatekey === 'FAIL_STATE') {
+        // Resolve the maximum number of student turns before rubric grading.
+        // Defaults to 8 (configurable via local_aacuracore/max_turns).
+        $maxturns = (int)get_config('local_aacuracore', 'max_turns');
+        if ($maxturns <= 0) {
+            $maxturns = 8;
+        }
+
+        // 3. Check for final rubric grading completion or terminal state
+        if ($turncount >= $maxturns || $nextstatekey === 'RESOLUTION' || $nextstatekey === 'FAIL_STATE') {
             $terminalnode = $this->scenario->get_state_node($nextstatekey);
             $parentclosing = ($terminalnode && !empty($terminalnode['bot_prompt'])) ? $terminalnode['bot_prompt'] : '';
 

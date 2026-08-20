@@ -16,6 +16,7 @@ Each release is identified by three related version fields that must stay in syn
 
 | Git Tag | Commit | `$plugin->version` | `$plugin->release` | Commit Message / Description |
 | :--- | :--- | :--- | :--- | :--- |
+| *pending* | *pending* | `2026081008` | `2.4.8` | feat: make max student turns configurable (default 8) |
 | *pending* | *pending* | `2026081007` | `2.4.7` | feat: add Moodle Core AI temperature/top_p override option (provider action config injection) |
 | *pending* | *pending* | `2026081006` | `2.4.6` | feat: move generation parameters (use cases, max_tokens, penalties, voice) to global scope for all AI engines |
 | *pending* | *pending* | `2026081005` | `2.4.5` | feat: add per-state rubric to scenario builder, AI builder, and feedback |

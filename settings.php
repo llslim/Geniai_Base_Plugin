@@ -248,6 +248,14 @@ if ($hassiteconfig) {
         $voices
     ));
 
+    $settings->add(new admin_setting_configtext(
+        "local_aacuracore/max_turns",
+        get_string("max_turns", "local_aacuracore"),
+        get_string("max_turns_desc", "local_aacuracore"),
+        8,
+        PARAM_INT
+    ));
+
     // Core AI Provider records dropdown options
     $coreaiprovideroptions = [];
     if (class_exists('\\core_ai\\manager')) {
