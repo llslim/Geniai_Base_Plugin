@@ -51,14 +51,14 @@ class core_ai_provider_strategy implements response_strategy {
      * @param string $statekey
      * @return string
      */
-    public function generate_response(array $messages, scenario_definition $scenario, string $statekey): string {
+    public function generate_response(array $messages, scenario_definition $scenario, string $statekey, string $parentintensity = ''): string {
         $node = $scenario->get_state_node($statekey);
         $stateprompt = $node['bot_prompt'] ?? '';
 
         // Resolve the prompt template: scenario's embedded template, then the
         // site-wide global setting, then the default hardcoded template.
         $template = \local_aacuracore\prompt_renderer::resolve_template($scenario);
-        $systeminstruction = \local_aacuracore\prompt_renderer::render($template, $scenario, $statekey);
+        $systeminstruction = \local_aacuracore\prompt_renderer::render($template, $scenario, $statekey, $parentintensity);
 
         $fullcontext = [
             ["role" => "system", "content" => $systeminstruction],

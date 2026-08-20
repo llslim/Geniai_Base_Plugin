@@ -55,6 +55,12 @@ class bot_engine {
     /** @var \stdClass $sessionrecord */
     private \stdClass $sessionrecord;
 
+    /** @var int $max_turns Maximum student turns before grading (activity-level override, else global). */
+    private int $max_turns;
+
+    /** @var string $parentIntensity Assertiveness/aggressiveness level (activity-level override, else global). */
+    private string $parent_intensity;
+
     /**
      * Constructor.
      *
@@ -78,7 +84,61 @@ class bot_engine {
             $this->strategy = new \local_aacuracore\strategy\generative_ai_api_strategy();
         }
 
+        $this->resolve_activity_settings();
+
         $this->sessionrecord = $this->lookup_or_create_session($userid, $courseid, $scenariocode);
+    }
+
+    /**
+     * Resolve per-activity max_turns and parent_intensity overrides.
+     *
+     * Reads the aacurachat activity record for this course (when present) and
+     * uses its max_turns/parent_intensity columns if set; otherwise falls back
+     * to the site-wide global settings (or defaults).
+     */
+    private function resolve_activity_settings(): void {
+        global $DB;
+
+        // Defaults (global config, then hardcoded).
+        $maxturns = (int)get_config('local_aacuracore', 'max_turns');
+        $intensity = get_config('local_aacuracore', 'parent_intensity') ?: 'medium';
+        if ($maxturns <= 0) {
+            $maxturns = 8;
+        }
+
+        // Try activity-level overrides.
+        if ($this->courseid > 0) {
+            $aacurachat = $DB->get_record('aacurachat', ['course' => $this->courseid]);
+            if ($aacurachat) {
+                if (property_exists($aacurachat, 'max_turns') && !empty($aacurachat->max_turns)) {
+                    $maxturns = (int)$aacurachat->max_turns;
+                }
+                if (property_exists($aacurachat, 'parent_intensity') && !empty($aacurachat->parent_intensity)) {
+                    $intensity = $aacurachat->parent_intensity;
+                }
+            }
+        }
+
+        $this->max_turns = $maxturns;
+        $this->parent_intensity = $intensity;
+    }
+
+    /**
+     * Gets the resolved max student turns for this activity/scenario.
+     *
+     * @return int
+     */
+    public function get_max_turns(): int {
+        return $this->max_turns;
+    }
+
+    /**
+     * Gets the resolved parent assertiveness/aggressiveness level.
+     *
+     * @return string
+     */
+    public function get_parent_intensity(): string {
+        return $this->parent_intensity;
     }
 
     /**
@@ -297,12 +357,8 @@ class bot_engine {
 
         $turncount = $this->get_turn_count();
 
-        // Resolve the maximum number of student turns before rubric grading.
-        // Defaults to 8 (configurable via local_aacuracore/max_turns).
-        $maxturns = (int)get_config('local_aacuracore', 'max_turns');
-        if ($maxturns <= 0) {
-            $maxturns = 8;
-        }
+        // Use the resolved max turns (activity-level override, else global/default 8).
+        $maxturns = $this->max_turns;
 
         // 3. Check for final rubric grading completion or terminal state
         if ($turncount >= $maxturns || $nextstatekey === 'RESOLUTION' || $nextstatekey === 'FAIL_STATE') {
@@ -347,7 +403,7 @@ class bot_engine {
 
         // 4. Regular response generation using active strategy
         $messages = $this->get_messages();
-        $botreply = $this->strategy->generate_response($messages, $this->scenario, $nextstatekey);
+        $botreply = $this->strategy->generate_response($messages, $this->scenario, $nextstatekey, $this->parent_intensity);
 
         if (!empty($botreply)) {
             // Log parent response in history

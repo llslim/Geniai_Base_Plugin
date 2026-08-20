@@ -8,6 +8,7 @@ This log documents the commit history on the `dev` branch, mapping each update t
 
 | Git Tag | Moodle `$plugin->version` | `$plugin->release` | Commit Message / Description |
 | :--- | :--- | :--- | :--- |
+| *pending* | `2026081011` | `2.4.11` | feat: editable evaluation prompt + per-activity max_turns/parent_intensity overrides |
 | *pending* | `2026081010` | `2.4.10` | feat: add global persona system prompt template setting + diagnostics preview |
 | *pending* | `2026081009` | `2.4.9` | feat: add global parent assertiveness/aggressiveness setting (parent_intensity) |
 | *pending* | `2026081008` | `2.4.8` | feat: make max student turns configurable (default 8) |

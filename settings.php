@@ -281,6 +281,16 @@ if ($hassiteconfig) {
         100
     ));
 
+    $settings->add(new admin_setting_configtextarea(
+        "local_aacuracore/evaluation_prompt_template",
+        get_string("evaluation_prompt_template", "local_aacuracore"),
+        get_string("evaluation_prompt_template_desc", "local_aacuracore"),
+        \local_aacuracore\prompt_renderer::DEFAULT_EVALUATION_TEMPLATE,
+        PARAM_RAW,
+        12,
+        100
+    ));
+
     // Core AI Provider records dropdown options
     $coreaiprovideroptions = [];
     if (class_exists('\\core_ai\\manager')) {

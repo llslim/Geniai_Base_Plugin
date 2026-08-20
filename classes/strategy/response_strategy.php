@@ -44,9 +44,10 @@ interface response_strategy {
      * @param array $messages Complete interleaved message history
      * @param scenario_definition $scenario Active scenario definition
      * @param string $statekey Current active dialogue state key
+     * @param string $parentintensity Optional assertiveness/aggressiveness level override
      * @return string generated parent prompt response
      */
-    public function generate_response(array $messages, scenario_definition $scenario, string $statekey): string;
+    public function generate_response(array $messages, scenario_definition $scenario, string $statekey, string $parentintensity = ''): string;
 
     /**
      * Generates the rubric evaluation text feedback.

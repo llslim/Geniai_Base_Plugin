@@ -92,6 +92,8 @@ $string['parent_intensity_high'] = 'High (assertive & firm)';
 $string['parent_intensity_very_high'] = 'Very High (confrontational, aggressive)';
 $string['prompt_template'] = 'Persona System Prompt Template (Global)';
 $string['prompt_template_desc'] = 'A site-wide default LLM system prompt for the persona. This applies to all scenarios unless a scenario defines its own <code>prompt_template</code> in its JSON. Use <code>{{placeholder}}</code> tokens: <code>{{persona_name}}</code>, <code>{{backstory}}</code>, <code>{{pronoun}}</code>, <code>{{communication_style}}</code>, <code>{{initial_mood}}</code>, <code>{{statekey}}</code>, <code>{{stateprompt}}</code>, <code>{{scenario_id}}</code>, <code>{{learning_objectives}}</code>, <code>{{parent_intensity}}</code>.';
+$string['evaluation_prompt_template'] = 'Evaluation (Rubric) System Prompt (Global)';
+$string['evaluation_prompt_template_desc'] = 'The LLM system prompt used in the second call that evaluates the conversation and produces rubric feedback. This is called after the parent-persona dialogue completes (when the max turn count is reached or a terminal state is hit). Use the <code>{{rubric}}</code> placeholder to inject the scenario\'s per-state rubric criteria.';
 $string['message_01'] = 'Hello, {$a}! 🌟';
 $string['message_02_course'] = 'Welcome to the course {$a->coursename} on Moodle {$a->moodlename}!
 

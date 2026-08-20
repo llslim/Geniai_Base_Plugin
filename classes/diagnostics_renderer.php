@@ -42,6 +42,7 @@ class diagnostics_renderer {
         $configs = self::render_configs();
         $provider = self::render_provider();
         $promptpreview = self::render_prompt_preview();
+        $evaluationpreview = self::render_evaluation_preview();
         $graphs = self::render_scenario_graphs();
 
         $html = '
@@ -94,6 +95,7 @@ class diagnostics_renderer {
             ' . $provider . '
             ' . $configs . '
             ' . $promptpreview . '
+            ' . $evaluationpreview . '
             ' . $graphs . '
         </div>
 
@@ -241,6 +243,42 @@ class diagnostics_renderer {
             <div class="aacura-diag-body">
                 <p class="aacura-muted">Template source (site-wide): <strong>' . s($source) . '</strong>. Shows the fully resolved START-state system prompt with placeholders substituted.</p>
                 ' . $out . '
+            </div>
+        </div>';
+    }
+
+    /**
+     * Renders a read-only preview of the resolved evaluation (rubric) prompt.
+     * This prompt is used in the second LLM call that grades the conversation
+     * after the persona dialogue completes.
+     *
+     * @return string
+     */
+    private static function render_evaluation_preview(): string {
+        $globalsetting = get_config('local_aacuracore', 'evaluation_prompt_template');
+        $source = !empty($globalsetting) ? 'GLOBAL SETTING' : 'DEFAULT (hardcoded)';
+        $template = \local_aacuracore\prompt_renderer::resolve_evaluation_template();
+
+        // Build a sample rubric to demonstrate the {{rubric}} substitution.
+        $samplerubric = implode("\n", array_map(
+            fn($k, $v) => ucfirst(str_replace("_", " ", $k)) . ": " . $v,
+            array_keys($sample = [
+                "greeting" => "1 point if teacher starts with a greeting.",
+                "empathy" => "1 point for a statement of empathy.",
+                "wrap_up" => "1 point for asking 'anything else to add?'.",
+            ]),
+            $sample
+        ));
+
+        $rendered = str_replace('{{rubric}}', $samplerubric, $template);
+
+        return '
+        <div class="aacura-diag-card">
+            <div class="aacura-diag-head">🧪 Evaluation (Rubric) System Prompt</div>
+            <div class="aacura-diag-body">
+                <p class="aacura-muted">Template source: <strong>' . s($source) . '</strong>. This prompt is used in the second LLM call that grades the teacher\'s replies after the parent-persona dialogue ends (called when the max turn count is reached or a terminal state is hit). <code>{{rubric}}</code> is substituted with the scenario\'s per-state rubric.</p>
+                <pre style="background:#f8f9fa;border:1px solid #e9ecef;padding:12px;border-radius:6px;
+                            white-space:pre-wrap;word-break:break-word;font-size:12px;max-height:320px;overflow-y:auto;">' . s($rendered) . '</pre>
             </div>
         </div>';
     }

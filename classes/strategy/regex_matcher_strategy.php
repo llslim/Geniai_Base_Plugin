@@ -106,7 +106,7 @@ class regex_matcher_strategy implements response_strategy {
      * @param string $statekey
      * @return string
      */
-    public function generate_response(array $messages, scenario_definition $scenario, string $statekey): string {
+    public function generate_response(array $messages, scenario_definition $scenario, string $statekey, string $parentintensity = ''): string {
         $node = $scenario->get_state_node($statekey);
         if ($node && !empty($node['bot_prompt'])) {
             return $node['bot_prompt'];

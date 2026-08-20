@@ -96,14 +96,14 @@ class generative_ai_api_strategy implements response_strategy {
      * @param string $statekey
      * @return string
      */
-    public function generate_response(array $messages, scenario_definition $scenario, string $statekey): string {
+    public function generate_response(array $messages, scenario_definition $scenario, string $statekey, string $parentintensity = ''): string {
         $node = $scenario->get_state_node($statekey);
         $stateprompt = $node['bot_prompt'] ?? '';
 
         // Resolve the prompt template: scenario's embedded template, then the
         // site-wide global setting, then the default hardcoded template.
         $template = \local_aacuracore\prompt_renderer::resolve_template($scenario);
-        $systeminstruction = \local_aacuracore\prompt_renderer::render($template, $scenario, $statekey);
+        $systeminstruction = \local_aacuracore\prompt_renderer::render($template, $scenario, $statekey, $parentintensity);
 
         $fullcontext = [
             ["role" => "system", "content" => $systeminstruction],
@@ -189,40 +189,15 @@ class generative_ai_api_strategy implements response_strategy {
             $rubric
         ));
 
+        // Resolve and render the editable evaluation (rubric) prompt template.
+        $evaluationtemplate = \local_aacuracore\prompt_renderer::resolve_evaluation_template();
+        $evaluationtemplate = str_replace('{{rubric}}', $formattedrubric, $evaluationtemplate);
+
         // Formulate feedback compile prompt for OpenAI with explicit HTML rendering instructions
         $fullcontext = [
             [
                 "role" => "system",
-                "content" => "You are evaluating a simulated parent-teacher conversation.\n\n" .
-                             "Below are only the teacher's replies (from role: `user`).\n" .
-                             "Do NOT evaluate any system or parent messages — ONLY evaluate the teacher replies.\n\n" .
-                             "Rubric:\n" . $formattedrubric . "\n\n" .
-                             "Feedback Format:\n" .
-                             "🎯 Your goal is to group feedback into the 4 steps of LAFF:\n" .
-                             "1. Listen, empathize, and communicate respect\n" .
-                             "2. Ask questions and ask permission to take notes\n" .
-                             "3. Focus on the issue\n" .
-                             "4. Find a first step\n\n" .
-                             "🧮 Scoring:\n" .
-                             "- Start from 10 points.\n" .
-                             "- Award 1 point for each clearly demonstrated rubric-aligned move.\n" .
-                             "- Do not show point deductions.\n" .
-                             "- Instead, if something was missed, write it as a Missed opportunity: .\n" .
-                             "- Mention the turn number (teacher turn) in parentheses.\n\n" .
-                             "IMPORTANT FORMATTING INSTRUCTIONS:\n" .
-                             "- Output clean, raw, fully rendered HTML tags (e.g. <h3>, <h4>, <strong>, <ul>, <li>, <p>).\n" .
-                             "- Do NOT wrap your output in markdown code blocks like ```html ... ```.\n" .
-                             "- Do NOT output raw markdown asterisks or hash headers.\n\n" .
-                             "HTML Structure:\n" .
-                             "Start with: <h3><strong>Grade - X out of 10</strong></h3>\n" .
-                             "For each LAFF step, use <h4><strong>Step Name</strong></h4>\n" .
-                             "Under each step, use an HTML list <ul><li>...</li></ul> with list items:\n" .
-                             "- <li>Earned ✅ 1 pt for ___ (turn #)</li>\n" .
-                             "- <li>Missed opportunity: 💡 ___</li>\n\n" .
-                             "End with:\n" .
-                             "<p><strong>Total score: X out of 10</strong></p>\n" .
-                             "<p>A warm thank-you message with emojis</p>\n" .
-                             "<p>Suggest to click <strong>Clear Chat</strong> button to restart if needed</p>",
+                "content" => $evaluationtemplate,
             ],
         ];
 

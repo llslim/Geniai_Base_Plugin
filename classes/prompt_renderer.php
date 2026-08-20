@@ -53,6 +53,65 @@ CRITICAL RULES — LAFF "Don't Cry" communication:
 - Stay in your role's voice and formality level ({{formality_level}}).
 EOT;
 
+    /** @var string Default evaluation (rubric feedback) prompt template. */
+    const DEFAULT_EVALUATION_TEMPLATE = <<<'EOT'
+You are evaluating a simulated parent-teacher conversation.
+
+Below are only the teacher's replies (from role: `user`).
+Do NOT evaluate any system or parent messages — ONLY evaluate the teacher replies.
+
+Rubric:
+{{rubric}}
+
+Feedback Format:
+🎯 Your goal is to group feedback into the 4 steps of LAFF:
+1. Listen, empathize, and communicate respect
+2. Ask questions and ask permission to take notes
+3. Focus on the issue
+4. Find a first step
+
+🧮 Scoring:
+- Start from 10 points.
+- Award 1 point for each clearly demonstrated rubric-aligned move.
+- Do not show point deductions.
+- Instead, if something was missed, write it as a Missed opportunity: .
+- Mention the turn number (teacher turn) in parentheses.
+
+IMPORTANT FORMATTING INSTRUCTIONS:
+- Output clean, raw, fully rendered HTML tags (e.g. <h3>, <h4>, <strong>, <ul>, <li>, <p>).
+- Do NOT wrap your output in markdown code blocks.
+- Do NOT output raw markdown asterisks or hash headers.
+
+HTML Structure:
+Start with: <h3><strong>Grade - X out of 10</strong></h3>
+For each LAFF step, use <h4><strong>Step Name</strong></h4>
+Under each step, use an HTML list <ul><li>...</li></ul> with list items:
+- <li>Earned ✅ 1 pt for ___ (turn #)</li>
+- <li>Missed opportunity: 💡 ___</li>
+
+End with:
+<p><strong>Total score: X out of 10</strong></p>
+<p>A warm thank-you message with emojis</p>
+<p>Suggest to click <strong>Clear Chat</strong> button to restart if needed</p>
+EOT;
+
+    /**
+     * Resolve the effective evaluation (rubric) prompt template.
+     *
+     * Fallback chain:
+     *   1. Site-wide global setting local_aacuracore/evaluation_prompt_template
+     *   2. Hardcoded DEFAULT_EVALUATION_TEMPLATE constant
+     *
+     * @return string The evaluation template to render.
+     */
+    public static function resolve_evaluation_template(): string {
+        $globalsetting = get_config('local_aacuracore', 'evaluation_prompt_template');
+        if (!empty($globalsetting)) {
+            return $globalsetting;
+        }
+        return self::DEFAULT_EVALUATION_TEMPLATE;
+    }
+
     /**
      * Build a natural-language instruction describing how assertive/aggressive
      * the persona should be, derived from the global parent_intensity setting.
@@ -103,9 +162,10 @@ EOT;
      * @param string $template    The raw template with {{placeholder}} tokens.
      * @param scenario_definition $scenario The active scenario.
      * @param string $statekey    The current dialogue state key.
+     * @param string $intensitylevel Optional per-activity/global intensity override.
      * @return string The rendered template with all placeholders replaced.
      */
-    public static function render(string $template, scenario_definition $scenario, string $statekey): string {
+    public static function render(string $template, scenario_definition $scenario, string $statekey, string $intensitylevel = ''): string {
         $persona = $scenario->get_persona();
         $node = $scenario->get_state_node($statekey);
         $stateprompt = $node['bot_prompt'] ?? '';
@@ -127,7 +187,7 @@ EOT;
             '{{formality_level}}'           => $role['formality_level'] ?? 'informal',
             '{{power_dynamic}}'             => $role['power_dynamic'] ?? 'peer',
             '{{technical_expertise}}'       => $role['technical_expertise'] ?? 'low',
-            '{{parent_intensity}}'           => self::intensity_instruction(),
+            '{{parent_intensity}}'           => self::intensity_instruction($intensitylevel),
         ];
 
         return strtr($template, $replacements);
