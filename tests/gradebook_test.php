@@ -191,7 +191,8 @@ PHP;
             $moduleinfo->groupmode = 0;
             $moduleinfo->groupingid = 0;
             $moduleinfo->completion = 0;
-            $cmid = \add_moduleinfo($moduleinfo, $course);
+            $moduleinfo = \add_moduleinfo($moduleinfo, $course);
+            $cmid = (int)$moduleinfo->coursemodule;
 
             rebuild_course_cache($course->id);
 
@@ -300,7 +301,8 @@ PHP;
             $moduleinfo->groupmode = 0;
             $moduleinfo->groupingid = 0;
             $moduleinfo->completion = 0;
-            $cmid = \add_moduleinfo($moduleinfo, $course);
+            $moduleinfo = \add_moduleinfo($moduleinfo, $course);
+            $cmid = (int)$moduleinfo->coursemodule;
 
             rebuild_course_cache($course->id);
 
