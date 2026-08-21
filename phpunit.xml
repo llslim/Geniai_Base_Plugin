@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    bootstrap="../../lib/phpunit/bootstrap.php"
+    colors="true"
+    convertDeprecationsToExceptions="false"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+    failOnRisky="true"
+    failOnWarning="true"
+    displayDetailsOnTestsThatTriggerNotices="true"
+    displayDetailsOnTestsThatTriggerWarnings="true"
+    displayDetailsOnTestsThatTriggerDeprecations="false"
+    displayDetailsOnTestsThatTriggerErrors="true"
+    cacheResult="false"
+>
+    <testsuites>
+        <testsuite name="local_aacuracore_testsuite">
+            <directory suffix="_test.php">tests</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

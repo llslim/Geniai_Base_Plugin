@@ -1,10 +1,22 @@
 name: Moodle Plugin CI
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      phpunit_debug:
+        description: 'Use phpunit-debug.xml (show extra test detail: deprecations, skipped, risky)'
+        required: false
+        default: 'false'
+        type: boolean
 
 jobs:
   test:
     runs-on: ubuntu-22.04
+
+    env:
+      PHPUNIT_CONFIG: ${{ (github.event_name == 'workflow_dispatch' && inputs.phpunit_debug == true) && 'phpunit-debug.xml' || 'phpunit.xml' }}
 
     services:
       postgres:
@@ -109,7 +121,7 @@ jobs:
 
     - name: PHPUnit tests
       if: ${{ !cancelled() }}
-      run: moodle-plugin-ci phpunit -m moodle --fail-on-warning ${{ env.PLUGIN_DEST }}
+      run: moodle-plugin-ci phpunit -m moodle --fail-on-warning --configuration ${{ env.PHPUNIT_CONFIG }} ${{ env.PLUGIN_DEST }}
 
     - name: Behat features
       id: behat
