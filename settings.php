@@ -248,29 +248,6 @@ if ($hassiteconfig) {
         $voices
     ));
 
-    $settings->add(new admin_setting_configtext(
-        "local_aacuracore/max_turns",
-        get_string("max_turns", "local_aacuracore"),
-        get_string("max_turns_desc", "local_aacuracore"),
-        8,
-        PARAM_INT
-    ));
-
-    $intensitylevels = [
-        "very_low" => get_string("parent_intensity_very_low", "local_aacuracore"),
-        "low" => get_string("parent_intensity_low", "local_aacuracore"),
-        "medium" => get_string("parent_intensity_medium", "local_aacuracore"),
-        "high" => get_string("parent_intensity_high", "local_aacuracore"),
-        "very_high" => get_string("parent_intensity_very_high", "local_aacuracore"),
-    ];
-    $settings->add(new admin_setting_configselect(
-        "local_aacuracore/parent_intensity",
-        get_string("parent_intensity", "local_aacuracore"),
-        get_string("parent_intensity_desc", "local_aacuracore"),
-        "medium",
-        $intensitylevels
-    ));
-
     $settings->add(new admin_setting_configtextarea(
         "local_aacuracore/prompt_template",
         get_string("prompt_template", "local_aacuracore"),
