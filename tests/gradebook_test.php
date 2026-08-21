@@ -101,6 +101,17 @@ PHP
 <?php
 defined('MOODLE_INTERNAL') || die();
 
+function aacurachat_add_instance(stdClass $data, $mform = null): int {
+    global $DB;
+    // The test pre-inserts the aacurachat record; add_moduleinfo() calls this
+    // to create the instance. Return the existing instance id.
+    return (int)($data->instance ?? 0);
+}
+
+function aacurachat_update_instance(stdClass $data, $mform = null): bool {
+    return true;
+}
+
 function aacurachat_grade_item_update(stdClass $aacurachat, $grades = null): int {
     global $CFG;
     require_once($CFG->libdir . '/gradelib.php');
@@ -160,25 +171,24 @@ PHP;
             $record->timemodified = time();
             $record->id = $DB->insert_record('aacurachat', $record);
 
-            // Create Moodle Course Module
+            // Create Moodle Course Module using the proper API so the section
+            // assignment and course cache stay consistent (avoids the
+            // "Failed integrity check" debugging() notice from rebuild_course_cache()).
             $module = $DB->get_record('modules', ['name' => 'aacurachat'], '*', MUST_EXIST);
-            $cm = new \stdClass();
-            $cm->course = $course->id;
-            $cm->module = $module->id;
-            $cm->instance = $record->id;
-            $cm->section = 1;
-            $cm->added = time();
-            $cmid = add_course_module($cm);
+            $moduleinfo = new \stdClass();
+            $moduleinfo->modulename = 'aacurachat';
+            $moduleinfo->course = $course->id;
+            $moduleinfo->name = "Chatbot - {$scenario}";
+            $moduleinfo->instance = $record->id;
+            $moduleinfo->section = 0;
+            $moduleinfo->visible = 1;
+            $moduleinfo->visibleoncoursepage = 1;
+            $moduleinfo->groupmode = 0;
+            $moduleinfo->groupingid = 0;
+            $moduleinfo->completion = 0;
+            $moduleinfo->coursemodule = $module->id;
+            $cmid = add_moduleinfo($moduleinfo, $course);
 
-            // Add course module to section 1 sequence
-            $section = $DB->get_record('course_sections', ['course' => $course->id, 'section' => 1]);
-            if (!$section) {
-                $section = $DB->get_record('course_sections', ['course' => $course->id, 'section' => 0]);
-            }
-            if ($section) {
-                $section->sequence = trim($section->sequence . ',' . $cmid, ',');
-                $DB->update_record('course_sections', $section);
-            }
             rebuild_course_cache($course->id);
 
             // Set global user context to Steve
@@ -270,25 +280,24 @@ PHP;
             $record->timemodified = time();
             $record->id = $DB->insert_record('aacurachat', $record);
 
-            // Create Moodle Course Module
+            // Create Moodle Course Module using the proper API so the section
+            // assignment and course cache stay consistent (avoids the
+            // "Failed integrity check" debugging() notice from rebuild_course_cache()).
             $module = $DB->get_record('modules', ['name' => 'aacurachat'], '*', MUST_EXIST);
-            $cm = new \stdClass();
-            $cm->course = $course->id;
-            $cm->module = $module->id;
-            $cm->instance = $record->id;
-            $cm->section = 1;
-            $cm->added = time();
-            $cmid = add_course_module($cm);
+            $moduleinfo = new \stdClass();
+            $moduleinfo->modulename = 'aacurachat';
+            $moduleinfo->course = $course->id;
+            $moduleinfo->name = "Chatbot - {$scenario}";
+            $moduleinfo->instance = $record->id;
+            $moduleinfo->section = 0;
+            $moduleinfo->visible = 1;
+            $moduleinfo->visibleoncoursepage = 1;
+            $moduleinfo->groupmode = 0;
+            $moduleinfo->groupingid = 0;
+            $moduleinfo->completion = 0;
+            $moduleinfo->coursemodule = $module->id;
+            $cmid = add_moduleinfo($moduleinfo, $course);
 
-            // Add course module to section 1 sequence
-            $section = $DB->get_record('course_sections', ['course' => $course->id, 'section' => 1]);
-            if (!$section) {
-                $section = $DB->get_record('course_sections', ['course' => $course->id, 'section' => 0]);
-            }
-            if ($section) {
-                $section->sequence = trim($section->sequence . ',' . $cmid, ',');
-                $DB->update_record('course_sections', $section);
-            }
             rebuild_course_cache($course->id);
 
             // Set global user context to Steve
