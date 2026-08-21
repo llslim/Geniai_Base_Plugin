@@ -104,8 +104,12 @@ defined('MOODLE_INTERNAL') || die();
 function aacurachat_add_instance(stdClass $data, $mform = null): int {
     global $DB;
     // The test pre-inserts the aacurachat record; add_moduleinfo() calls this
-    // to create the instance. Return the existing instance id.
-    return (int)($data->instance ?? 0);
+    // to create the instance. Return the existing instance id for this course.
+    $record = $DB->get_record('aacurachat', ['course' => $data->course]);
+    if ($record) {
+        return (int)$record->id;
+    }
+    return 0;
 }
 
 function aacurachat_update_instance(stdClass $data, $mform = null): bool {
