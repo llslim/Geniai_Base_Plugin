@@ -2,10 +2,6 @@
 <phpunit
     bootstrap="../../lib/phpunit/bootstrap.php"
     colors="true"
-    convertDeprecationsToExceptions="false"
-    convertErrorsToExceptions="true"
-    convertNoticesToExceptions="true"
-    convertWarningsToExceptions="true"
     failOnRisky="true"
     failOnWarning="true"
     displayDetailsOnTestsThatTriggerNotices="true"
