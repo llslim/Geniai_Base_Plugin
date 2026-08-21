@@ -144,7 +144,7 @@ PHP;
      */
     public function test_gradebook_save_success_path() {
         global $DB, $CFG;
-        require_once($CFG->dirroot . '/course/lib.php');
+        require_once($CFG->dirroot . '/course/modlib.php');
 
         $scenarios = ['anna', 'brianna', 'cathy', 'mary'];
 
@@ -253,7 +253,7 @@ PHP;
      */
     public function test_gradebook_save_fail_path() {
         global $DB, $CFG;
-        require_once($CFG->dirroot . '/course/lib.php');
+        require_once($CFG->dirroot . '/course/modlib.php');
 
         $scenarios = ['anna', 'brianna', 'cathy', 'mary'];
 
