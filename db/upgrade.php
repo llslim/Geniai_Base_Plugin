@@ -197,5 +197,20 @@ function xmldb_local_aacuracore_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026081001, 'local', 'aacuracore');
     }
 
+    if ($oldversion < 2026082501) {
+        // Seed the AI scenario builder interviewer prompt default if not set.
+        require_once(__DIR__ . '/../classes/scenario_builder_ai.php');
+        $current = get_config('local_aacuracore', 'ai_builder_prompt_template');
+        if (empty($current)) {
+            set_config(
+                'ai_builder_prompt_template',
+                \local_aacuracore\scenario_builder_ai::interviewer_system_prompt(),
+                'local_aacuracore'
+            );
+        }
+
+        upgrade_plugin_savepoint(true, 2026082501, 'local', 'aacuracore');
+    }
+
     return true;
 }
