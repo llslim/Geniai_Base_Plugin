@@ -55,7 +55,7 @@ class bot_engine {
     /** @var \stdClass $sessionrecord */
     private \stdClass $sessionrecord;
 
-    /** @var int $max_turns Maximum student turns before grading (activity-level override, else global). */
+    /** @var int $max_turns Minimum student turns before grading (activity-level override, else global). */
     private int $max_turns;
 
     /** @var string $parentIntensity Assertiveness/aggressiveness level (activity-level override, else global). */
@@ -94,7 +94,8 @@ class bot_engine {
      *
      * Reads the aacurachat activity record for this course (when present) and
      * uses its max_turns/parent_intensity columns if set; otherwise falls back
-     * to the site-wide global settings (or defaults).
+     * to the site-wide global settings (or defaults). The turn count acts as a
+     * MINIMUM: the conversation is graded only after this many student turns.
      */
     private function resolve_activity_settings(): void {
         global $DB;
@@ -124,7 +125,7 @@ class bot_engine {
     }
 
     /**
-     * Gets the resolved max student turns for this activity/scenario.
+     * Gets the resolved minimum student turns before grading for this activity/scenario.
      *
      * @return int
      */
@@ -357,11 +358,25 @@ class bot_engine {
 
         $turncount = $this->get_turn_count();
 
-        // Use the resolved max turns (activity-level override, else global/default 8).
-        $maxturns = $this->max_turns;
+        // Use the resolved minimum turns (activity-level override, else global/default 8).
+        // This is treated as a MINIMUM: the conversation must run for at least this
+        // many student turns before it is graded and terminated. Reaching a
+        // terminal state early does NOT end the conversation early; instead the
+        // dialogue continues until the minimum turn count is satisfied.
+        $minturns = $this->max_turns;
 
-        // 3. Check for final rubric grading completion or terminal state
-        if ($turncount >= $maxturns || $nextstatekey === 'RESOLUTION' || $nextstatekey === 'FAIL_STATE') {
+        // If a terminal state (RESOLUTION/FAIL_STATE) was reached but we are still
+        // below the minimum turn count, keep the conversation going by cycling back
+        // into EXPLORATION so the parent persona continues engaging.
+        if (($nextstatekey === 'RESOLUTION' || $nextstatekey === 'FAIL_STATE') && $turncount < $minturns) {
+            $nextstatekey = 'EXPLORATION';
+            $this->sessionrecord->current_state = $nextstatekey;
+            $this->sessionrecord->timemodified = time();
+            $DB->update_record('local_aacuracore_sessions', $this->sessionrecord);
+        }
+
+        // 3. Check for final rubric grading completion (only once min turns reached)
+        if ($turncount >= $minturns) {
             $terminalnode = $this->scenario->get_state_node($nextstatekey);
             $parentclosing = ($terminalnode && !empty($terminalnode['bot_prompt'])) ? $terminalnode['bot_prompt'] : '';
 

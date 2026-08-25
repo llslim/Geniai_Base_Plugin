@@ -171,6 +171,7 @@ PHP;
             $record->scenariocode = $scenario;
             $record->intro = 'Test Intro';
             $record->introformat = FORMAT_HTML;
+            $record->max_turns = 2; // Keep the test fast: minimum 2 turns before grading.
             $record->timecreated = time();
             $record->timemodified = time();
             $record->id = $DB->insert_record('aacurachat', $record);
@@ -281,6 +282,7 @@ PHP;
             $record->scenariocode = $scenario;
             $record->intro = 'Test Intro';
             $record->introformat = FORMAT_HTML;
+            $record->max_turns = 2; // Keep the test fast: minimum 2 turns before grading.
             $record->timecreated = time();
             $record->timemodified = time();
             $record->id = $DB->insert_record('aacurachat', $record);

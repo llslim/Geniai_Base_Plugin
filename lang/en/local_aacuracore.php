@@ -81,8 +81,8 @@ $string['h5p-return'] = 'Back to Content Bank';
 $string['h5p-title'] = 'Manage GeniAI Content Bank';
 $string['max_tokens'] = 'Maximum words in response (Global)';
 $string['max_tokens_desc'] = 'Maximum number of words that can be generated in each request. Applied to all AI engines.';
-$string['max_turns'] = 'Maximum student turns before grading';
-$string['max_turns_desc'] = 'The number of student turns (exchanges) before the conversation is automatically evaluated and graded. Default is 8.';
+$string['max_turns'] = 'Minimum student turns before grading';
+$string['max_turns_desc'] = 'The minimum number of student turns (exchanges) the conversation must run before it is automatically evaluated and graded. The dialogue continues for at least this many turns even if a terminal state is reached early. Default is 8.';
 $string['parent_intensity'] = 'Parent Assertiveness / Aggressiveness';
 $string['parent_intensity_desc'] = 'Dial the simulated parent\'s assertiveness and aggressiveness up or down. This injects a behavior instruction into the persona\'s system prompt so the LLM plays the parent more passively or more confrontationally.';
 $string['parent_intensity_very_low'] = 'Very Low (very gentle, passive)';
@@ -103,7 +103,7 @@ I am AACURA — your AAC Understanding & Reflective Assistant — and I’m here
 
 This AI-powered chatbot is designed to help you practice and demonstrate effective communication with parents of children who use AAC (Augmentative and Alternative Communication) tools. As a pre-service teacher, your task is to carry out a simulated parent-teacher conversation using the LAFF don’t CRY strategy.
 
-🗣️ You will engage in a structured, 8-turn back-and-forth dialogue with a simulated parent persona. After the final exchange, your responses will be automatically evaluated based on the LAFF framework.
+🗣️ You will engage in a structured back-and-forth dialogue with a simulated parent persona of at least 8 turns. After the minimum number of exchanges, your responses will be automatically evaluated based on the LAFF framework.
 
 📊 Your score (out of 10) will be displayed and automatically recorded in the Moodle gradebook.
 
