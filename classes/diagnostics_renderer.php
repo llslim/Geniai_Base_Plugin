@@ -120,15 +120,17 @@ class diagnostics_renderer {
                 while (form.firstChild) { configPanel.appendChild(form.firstChild); }
 
                 // Create the Prompt Templates panel and move the two prompt
-                // template settings (persona + evaluation) into it.
+                // template settings (persona + evaluation) into it. The items
+                // are inside configPanel (not yet in the document), so query
+                // them from configPanel directly.
                 var promptsPanel = document.createElement("div");
                 promptsPanel.className = "aacura-tab-panel";
                 promptsPanel.id = "aacura-panel-prompts";
                 promptsPanel.style.display = "none";
 
                 var promptItems = [
-                    document.getElementById("admin-prompt_template"),
-                    document.getElementById("admin-evaluation_prompt_template")
+                    configPanel.querySelector("#admin-prompt_template"),
+                    configPanel.querySelector("#admin-evaluation_prompt_template")
                 ];
                 promptItems.forEach(function(item) {
                     if (item && item.parentNode) {
