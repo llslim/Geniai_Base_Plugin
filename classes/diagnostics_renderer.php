@@ -88,6 +88,7 @@ class diagnostics_renderer {
 
         <div id="aacura-tabbar" class="aacura-tabbar">
             <button type="button" class="aacura-tab active" data-tab="config">⚙️ Configuration</button>
+            <button type="button" class="aacura-tab" data-tab="prompts">📝 Prompt Templates</button>
             <button type="button" class="aacura-tab" data-tab="diag">🩺 Diagnostics</button>
         </div>
 
@@ -118,15 +119,36 @@ class diagnostics_renderer {
                 configPanel.id = "aacura-panel-config";
                 while (form.firstChild) { configPanel.appendChild(form.firstChild); }
 
+                // Create the Prompt Templates panel and move the two prompt
+                // template settings (persona + evaluation) into it.
+                var promptsPanel = document.createElement("div");
+                promptsPanel.className = "aacura-tab-panel";
+                promptsPanel.id = "aacura-panel-prompts";
+                promptsPanel.style.display = "none";
+
+                var promptItems = [
+                    document.getElementById("admin-prompt_template"),
+                    document.getElementById("admin-evaluation_prompt_template")
+                ];
+                promptItems.forEach(function(item) {
+                    if (item && item.parentNode) {
+                        item.parentNode.removeChild(item);
+                        promptsPanel.appendChild(item);
+                    }
+                });
+
                 form.appendChild(tabbar);
                 form.appendChild(configPanel);
+                form.appendChild(promptsPanel);
                 form.appendChild(diagPanel);
 
                 var tabs = tabbar.querySelectorAll(".aacura-tab");
                 function showTab(name) {
                     var cfg = document.getElementById("aacura-panel-config");
+                    var prompts = document.getElementById("aacura-panel-prompts");
                     var diag = document.getElementById("aacura-panel-diag");
                     if (cfg) { cfg.style.display = (name === "config") ? "" : "none"; }
+                    if (prompts) { prompts.style.display = (name === "prompts") ? "" : "none"; }
                     if (diag) { diag.style.display = (name === "diag") ? "" : "none"; }
                     tabs.forEach(function(b) { b.classList.toggle("active", b.getAttribute("data-tab") === name); });
                 }
