@@ -94,6 +94,8 @@ $string['prompt_template'] = 'Persona System Prompt Template (Global)';
 $string['prompt_template_desc'] = 'A site-wide default LLM system prompt for the persona. This applies to all scenarios unless a scenario defines its own <code>prompt_template</code> in its JSON. Use <code>{{placeholder}}</code> tokens: <code>{{persona_name}}</code>, <code>{{backstory}}</code>, <code>{{pronoun}}</code>, <code>{{communication_style}}</code>, <code>{{initial_mood}}</code>, <code>{{statekey}}</code>, <code>{{stateprompt}}</code>, <code>{{scenario_id}}</code>, <code>{{learning_objectives}}</code>, <code>{{parent_intensity}}</code>.';
 $string['evaluation_prompt_template'] = 'Evaluation (Rubric) System Prompt (Global)';
 $string['evaluation_prompt_template_desc'] = 'The LLM system prompt used in the second call that evaluates the conversation and produces rubric feedback. This is called after the parent-persona dialogue completes (when the max turn count is reached or a terminal state is hit). Use the <code>{{rubric}}</code> placeholder to inject the scenario\'s per-state rubric criteria.';
+$string['ai_builder_prompt_template'] = 'AI Scenario Builder Interviewer Prompt';
+$string['ai_builder_prompt_template_desc'] = 'The system prompt used by the AI-driven scenario builder (InterviewBot) to guide an author through creating a roleplay scenario interactively. This is the `interviewer_system_prompt()` returned by `scenario_builder_ai`. Changes here take effect the next time the AI builder is started.';
 $string['message_01'] = 'Hello, {$a}! 🌟';
 $string['message_02_course'] = 'Welcome to the course {$a->coursename} on Moodle {$a->moodlename}!
 

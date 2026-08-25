@@ -54,9 +54,17 @@ class scenario_builder_ai {
      * Builds the interviewer system prompt instructing the LLM to guide the
      * author through scenario creation using the LAFF-informed, structured flow.
      *
+     * The prompt is configurable via the site-wide admin setting
+     * `ai_builder_prompt_template`; if empty, the built-in default is used.
+     *
      * @return string
      */
     public static function interviewer_system_prompt(): string {
+        $custom = get_config('local_aacuracore', 'ai_builder_prompt_template');
+        if (!empty($custom) && trim($custom) !== '{{default}}') {
+            return $custom;
+        }
+
         return <<<'EOT'
 You are InterviewBot, a friendly scenario interviewer for the AACURA training system.
 Your job is to guide the author through creating a complete roleplay scenario by asking

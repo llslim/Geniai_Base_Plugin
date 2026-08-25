@@ -54,6 +54,9 @@ class diagnostics_renderer {
             }
             .aacura-tabbar .aacura-tab.active { background: #4f2c11; color: #ffffff; border-color: #4f2c11; }
             .aacura-tab-panel { padding: 4px 2px; }
+            #aacura-panel-prompts textarea.form-control {
+                height: auto; max-height: 260px; min-height: 90px; resize: vertical; overflow-y: auto;
+            }
             .aacura-diag-card {
                 border: 1px solid #dee2e6; border-radius: 8px; margin-bottom: 18px; overflow: hidden;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.06);
@@ -130,7 +133,8 @@ class diagnostics_renderer {
 
                 var promptItems = [
                     configPanel.querySelector("#admin-prompt_template"),
-                    configPanel.querySelector("#admin-evaluation_prompt_template")
+                    configPanel.querySelector("#admin-evaluation_prompt_template"),
+                    configPanel.querySelector("#admin-ai_builder_prompt_template")
                 ];
                 promptItems.forEach(function(item) {
                     if (item && item.parentNode) {

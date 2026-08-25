@@ -254,7 +254,7 @@ if ($hassiteconfig) {
         get_string("prompt_template_desc", "local_aacuracore"),
         \local_aacuracore\prompt_renderer::DEFAULT_TEMPLATE,
         PARAM_RAW,
-        12,
+        8,
         100
     ));
 
@@ -264,7 +264,17 @@ if ($hassiteconfig) {
         get_string("evaluation_prompt_template_desc", "local_aacuracore"),
         \local_aacuracore\prompt_renderer::DEFAULT_EVALUATION_TEMPLATE,
         PARAM_RAW,
-        12,
+        8,
+        100
+    ));
+
+    $settings->add(new admin_setting_configtextarea(
+        "local_aacuracore/ai_builder_prompt_template",
+        get_string("ai_builder_prompt_template", "local_aacuracore"),
+        get_string("ai_builder_prompt_template_desc", "local_aacuracore"),
+        \local_aacuracore\scenario_builder_ai::interviewer_system_prompt(),
+        PARAM_RAW,
+        8,
         100
     ));
 
