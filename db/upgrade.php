@@ -198,7 +198,7 @@ function xmldb_local_aacuracore_upgrade($oldversion) {
     }
 
     if ($oldversion < 2026082501) {
-        // Seed the AI scenario builder interviewer prompt default if not set.
+        // Seed the AI Assistant builder interviewer prompt default if not configured.
         require_once(__DIR__ . '/../classes/scenario_builder_ai.php');
         $current = get_config('local_aacuracore', 'ai_builder_prompt_template');
         if (empty($current)) {
@@ -210,6 +210,16 @@ function xmldb_local_aacuracore_upgrade($oldversion) {
         }
 
         upgrade_plugin_savepoint(true, 2026082501, 'local', 'aacuracore');
+    }
+
+    if ($oldversion < 2026082502) {
+        // Rename the assistant display name from "AURA Tutor" to "AACURA Tutor".
+        $geniainame = get_config('local_aacuracore', 'geniainame');
+        if ($geniainame === 'AURA Tutor') {
+            set_config('geniainame', 'AACURA Tutor', 'local_aacuracore');
+        }
+
+        upgrade_plugin_savepoint(true, 2026082502, 'local', 'aacuracore');
     }
 
     return true;

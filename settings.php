@@ -101,10 +101,29 @@ if ($hassiteconfig) {
     $gemini_badge = ($activestratey === 'external_llm') ? ' <span style="background-color: #198754; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">[✓ ACTIVELY IN USE]</span>' : ' <span style="background-color: #6c757d; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">[INACTIVE]</span>';
     $chatgpt_badge = ($activestratey === 'local') ? ' <span style="background-color: #198754; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">[✓ ACTIVELY IN USE]</span>' : ' <span style="background-color: #6c757d; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">[INACTIVE]</span>';
 
-    // 4. GLOBAL GENERATION PARAMETERS (applied to all AI engines)
+    // MODULES TO HIDE FROM AACURA TUTOR
+    $modules = [];
+    $records = $DB->get_records("modules", ["visible" => 1], "name", "name");
+    foreach ($records as $record) {
+        if (file_exists("{$CFG->dirroot}/mod/{$record->name}/lib.php")) {
+            if (!(plugin_supports("mod", $record->name, FEATURE_MOD_ARCHETYPE) === MOD_ARCHETYPE_SYSTEM)) {
+                $modules[$record->name] = get_string("pluginname", $record->name);
+            }
+        }
+    }
+    $geniainame = get_config("local_aacuracore", "geniainame") ?: get_string("geniainame", "local_aacuracore");
+    $settings->add(new admin_setting_configmultiselect(
+        "local_aacuracore/modules",
+        get_string("modules", "local_aacuracore", $geniainame),
+        get_string("modules_desc", "local_aacuracore", $geniainame),
+        ["glossary", "lesson", "forum", "scorm", "feedback", "survey", "quiz", "assign", "wiki", "lti", "workshop"],
+        $modules
+    ));
+
+    // GLOBAL AI GENERATION PARAMETERS (applied to all AI engines)
     $settings->add(new admin_setting_heading(
         'global_generation_section',
-        '⚙️ 4. Global Generation Parameters',
+        '⚙️ Global AI generation Parameters',
         'These generation parameters are applied to all AI engines (Moodle Core AI, Google Gemini, and ChatGPT/OpenAI).'
     ));
 
@@ -305,17 +324,23 @@ if ($hassiteconfig) {
         var sections = [
             {
                 strategyVal: "moodle_core_ai",
-                matchText: "1. Moodle Core AI"
+                matchText: "Moodle Core AI"
             },
             {
                 strategyVal: "external_llm",
-                matchText: "2. Google Gemini"
+                matchText: "Google Gemini"
             },
             {
                 strategyVal: "local",
-                matchText: "3. ChatGPT"
+                matchText: "ChatGPT"
             }
         ];
+
+        // Global AI generation Parameters section: always open by default but
+        // toggleable (not tied to any engine strategy).
+        var globalSection = {
+            matchText: "Global AI generation Parameters"
+        };
 
         // Collect all sibling content elements between this heading and the next
         // section heading (or the end of the settings form). This robustly hides
@@ -389,6 +414,57 @@ if ($hassiteconfig) {
             });
         });
 
+        // Global AI generation Parameters toggle (always open by default).
+        (function() {
+            var titleEl = null;
+            var allHeadings = document.querySelectorAll("h3, legend, .form-header");
+            for (var i = 0; i < allHeadings.length; i++) {
+                if (allHeadings[i].textContent && allHeadings[i].textContent.indexOf(globalSection.matchText) !== -1) {
+                    titleEl = allHeadings[i];
+                    break;
+                }
+            }
+            if (!titleEl) return;
+
+            titleEl.style.cursor = "pointer";
+            titleEl.style.userSelect = "none";
+            titleEl.style.display = "flex";
+            titleEl.style.justifyContent = "space-between";
+            titleEl.style.alignItems = "center";
+            titleEl.style.padding = "10px 14px";
+            titleEl.style.backgroundColor = "#e9ecef";
+            titleEl.style.border = "1px solid #ced4da";
+            titleEl.style.borderRadius = "6px";
+            titleEl.style.marginTop = "20px";
+
+            var isOpen = true;
+            var toggleSpan = document.createElement("span");
+            toggleSpan.className = "aacura-toggle-badge";
+            toggleSpan.style.fontWeight = "bold";
+            toggleSpan.style.fontSize = "13px";
+            toggleSpan.style.padding = "3px 10px";
+            toggleSpan.style.borderRadius = "4px";
+            titleEl.appendChild(toggleSpan);
+
+            var contentEls = collectSectionContent(titleEl);
+
+            function setVisibility(show) {
+                isOpen = show;
+                toggleSpan.textContent = isOpen ? "▼ Collapse" : "► Expand";
+                toggleSpan.style.backgroundColor = isOpen ? "#cbd5e1" : "#ffffff";
+                toggleSpan.style.border = "1px solid #94a3b8";
+                contentEls.forEach(function(el) {
+                    el.style.display = isOpen ? "" : "none";
+                });
+            }
+
+            setVisibility(true);
+            titleEl.addEventListener("click", function(e) {
+                e.preventDefault();
+                setVisibility(!isOpen);
+            });
+        })();
+
         // Dynamic change listener on strategy select dropdown
         var strategySelect = document.querySelector("select[name=\'s_local_aacuracore_engine_strategy\']") || document.querySelector("select[name*=\'engine_strategy\']");
         if (strategySelect) {
@@ -423,10 +499,10 @@ if ($hassiteconfig) {
     });
     </script>';
 
-    // 1. MOODLE CORE AI SUB-SYSTEM CONFIGURATION SECTION
+    // MOODLE CORE AI SUB-SYSTEM CONFIGURATION SECTION
     $settings->add(new admin_setting_heading(
         'core_ai_section_heading',
-        '🔌 1. Moodle Core AI Framework' . $coreai_badge,
+        '🔌 Moodle Core AI Framework' . $coreai_badge,
         'Site-wide provider manager integration (\core_ai\manager).' . $visibilityscript
     ));
 
@@ -438,10 +514,10 @@ if ($hassiteconfig) {
         $coreaiprovideroptions
     ));
 
-    // 2. GOOGLE GEMINI DIRECT REST CONFIGURATION SECTION
+    // GOOGLE GEMINI DIRECT REST CONFIGURATION SECTION
     $settings->add(new admin_setting_heading(
         'gemini_section_heading',
-        '✨ 2. Google Gemini Direct REST API' . $gemini_badge,
+        '✨ Google Gemini Direct REST API' . $gemini_badge,
         'Direct cURL REST API connection to Google Gemini models (gemini-3.5-flash).'
     ));
 
@@ -468,10 +544,10 @@ if ($hassiteconfig) {
         PARAM_RAW
     ));
 
-    // 3. CHATGPT (OPENAI) DIRECT API CONFIGURATION SECTION
+    // CHATGPT (OPENAI) DIRECT API CONFIGURATION SECTION
     $settings->add(new admin_setting_heading(
         'chatgpt_section_heading',
-        '🤖 3. ChatGPT (OpenAI Direct API)' . $chatgpt_badge,
+        '🤖 ChatGPT (OpenAI Direct API)' . $chatgpt_badge,
         'Direct API connection to OpenAI ChatGPT endpoints.'
     ));
 
@@ -506,21 +582,4 @@ if ($hassiteconfig) {
         $models
     ));
 
-    $modules = [];
-    $records = $DB->get_records("modules", ["visible" => 1], "name", "name");
-    foreach ($records as $record) {
-        if (file_exists("{$CFG->dirroot}/mod/{$record->name}/lib.php")) {
-            if (!(plugin_supports("mod", $record->name, FEATURE_MOD_ARCHETYPE) === MOD_ARCHETYPE_SYSTEM)) {
-                $modules[$record->name] = get_string("pluginname", $record->name);
-            }
-        }
     }
-    $geniainame = get_config("local_aacuracore", "geniainame") ?: get_string("geniainame", "local_aacuracore");
-    $settings->add(new admin_setting_configmultiselect(
-        "local_aacuracore/modules",
-        get_string("modules", "local_aacuracore", $geniainame),
-        get_string("modules_desc", "local_aacuracore", $geniainame),
-        ["glossary", "lesson", "forum", "scorm", "feedback", "survey", "quiz", "assign", "wiki", "lti", "workshop"],
-        $modules
-    ));
-}
