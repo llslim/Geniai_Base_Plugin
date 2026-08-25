@@ -152,7 +152,7 @@ class diagnostics_renderer {
                 });
 
                 // Keep the prompt textareas short. Add an Expand/Hide toggle button to
-                // each prompt's form-defaultinfo (the read-only default text
+                // each prompt form-defaultinfo (the read-only default text
                 // block) so admins can expand the full default prompt when
                 // needed and collapse it back to avoid long page scroll.
                 var DEFAULT_COLLAPSED = 120; // px
