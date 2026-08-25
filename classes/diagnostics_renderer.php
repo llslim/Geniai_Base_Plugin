@@ -55,10 +55,13 @@ class diagnostics_renderer {
             .aacura-tabbar .aacura-tab.active { background: #4f2c11; color: #ffffff; border-color: #4f2c11; }
             .aacura-tab-panel { padding: 4px 2px; }
             #aacura-panel-prompts textarea.form-control {
-                height: auto; min-height: 90px; resize: vertical; overflow-y: auto; transition: max-height 0.25s ease;
+                height: auto; min-height: 90px; max-height: 180px; resize: vertical; overflow-y: auto;
+            }
+            #aacura-panel-prompts .form-defaultinfo {
+                overflow-y: auto; transition: max-height 0.25s ease;
             }
             #aacura-panel-prompts .aacura-textarea-toggle {
-                display: inline-block; margin: 4px 0 0 0; padding: 2px 10px; font-size: 12px; font-weight: 600;
+                display: inline-block; margin: 6px 0 0 0; padding: 2px 10px; font-size: 12px; font-weight: 600;
                 border: 1px solid #ced4da; border-radius: 4px; background: #f8f9fa; color: #495057; cursor: pointer;
             }
             #aacura-panel-prompts .aacura-textarea-toggle:hover { background: #e9ecef; }
@@ -148,22 +151,24 @@ class diagnostics_renderer {
                     }
                 });
 
-                // Add an Expand/Hide toggle button to each prompt textarea so
-                // admins can expand the full prompt when needed and collapse
-                // it back to avoid long page scroll.
-                var COLLAPSED = 260; // px
-                promptsPanel.querySelectorAll("textarea").forEach(function(ta) {
-                    var wrapper = ta.closest(".form-item") || ta.parentElement;
+                // Keep the prompt textareas short. Add an Expand/Hide toggle button to
+                // each prompt's form-defaultinfo (the read-only default text
+                // block) so admins can expand the full default prompt when
+                // needed and collapse it back to avoid long page scroll.
+                var DEFAULT_COLLAPSED = 120; // px
+                promptsPanel.querySelectorAll(".form-item").forEach(function(item) {
+                    var defaultInfo = item.querySelector(".form-defaultinfo");
+                    if (!defaultInfo) return;
                     var btn = document.createElement("button");
                     btn.type = "button";
                     btn.className = "aacura-textarea-toggle";
                     var expanded = false;
                     function refresh() {
                         if (expanded) {
-                            ta.style.maxHeight = "";
+                            defaultInfo.style.maxHeight = "";
                             btn.textContent = "▲ Hide";
                         } else {
-                            ta.style.maxHeight = COLLAPSED + "px";
+                            defaultInfo.style.maxHeight = DEFAULT_COLLAPSED + "px";
                             btn.textContent = "▼ Expand";
                         }
                     }
@@ -171,7 +176,7 @@ class diagnostics_renderer {
                         expanded = !expanded;
                         refresh();
                     });
-                    wrapper.appendChild(btn);
+                    defaultInfo.appendChild(btn);
                     refresh();
                 });
 
