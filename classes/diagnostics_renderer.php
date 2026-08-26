@@ -603,6 +603,22 @@ class diagnostics_renderer {
     private static function render_full_turn_simulation(): string {
         global $DB;
 
+        // Guard: the simulation constructs a bot_engine which queries the
+        // `aacurachat` activity table. That table only exists when the separate
+        // mod_aacurachat plugin is installed. During a fresh Moodle/PHPUnit
+        // install (or on a site without the activity module) it is absent, so
+        // bail out gracefully instead of throwing a dml_exception that would
+        // break the settings page and the whole install.
+        if (!$DB->get_manager()->table_exists('aacurachat')) {
+            return '
+            <div class="aacura-diag-card">
+                <div class="aacura-diag-head">🔄 Full Minimum-Turn Simulation</div>
+                <div class="aacura-diag-body">
+                    <p class="aacura-muted">Simulation unavailable: the <code>mod_aacurachat</code> activity plugin is not installed, so the <code>aacurachat</code> table does not exist.</p>
+                </div>
+            </div>';
+        }
+
         $rows = '';
         $scenariocodes = ['anna', 'brianna', 'cathy', 'mary'];
 
