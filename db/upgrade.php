@@ -242,5 +242,24 @@ function xmldb_local_aacuracore_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026082503, 'local', 'aacuracore');
     }
 
+    if ($oldversion < 2026082504) {
+        // Persistent log of full minimum-turn simulation runs so admins can
+        // review the last N-turn test results for each persona.
+        $table = new xmldb_table('local_aacuracore_sim_log');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('scenariocode', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('minturns', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '8');
+        $table->add_field('status', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('detail', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('created', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_plugin_savepoint(true, 2026082504, 'local', 'aacuracore');
+    }
+
     return true;
 }

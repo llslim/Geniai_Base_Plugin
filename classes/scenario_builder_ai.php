@@ -45,6 +45,8 @@ class scenario_builder_ai {
         'ASK_OBJECTIVES',
         'ASK_START_PROMPT',
         'ASK_RUBRIC',
+        'ASK_MIN_TURNS',
+        'ASK_PARENT_INTENSITY',
         'ASK_OPTIONAL_TEMPLATE',
         'CONFIRM',
         'GENERATE',
@@ -81,17 +83,23 @@ Request the following fields in this order (do not ask all at once - ONE per tur
 8. learning_objectives (comma separated)
 9. START state bot_prompt (the persona's opening line)
 10. Per-state rubric criteria (for EACH dialogue state, ask the author what the trainee must do to earn a point; accept one criterion per line or a short list)
-11. OPTIONAL custom prompt_template (or say 'default')
+11. min_turns (the minimum number of student turns the conversation must run before grading; default 8)
+12. parent_intensity (one of: very_low, low, medium, high, very_high; controls parent assertiveness/aggressiveness)
+13. OPTIONAL custom prompt_template (or say 'default')
 
 RULES:
 - Ask exactly ONE question per turn.
 - After each answer, briefly confirm, then ask the next field.
 - For field 10 (rubric), ask for the rubric criteria state by state (START, EXPLORATION, ESCALATION, CONFUSION, RESOLUTION, FAIL_STATE). The author may give them all at once or one state at a time.
+- For field 11 (min_turns), accept a number (e.g. 8); if the author has no preference, default to 8.
+- For field 12 (parent_intensity), accept one of the listed levels; if the author has no preference, default to 'medium'.
 - Do NOT generate the final JSON until ALL fields are gathered.
 - After you have all fields, ask the user to say "generate" to create the JSON.
 When the user says "generate", output ONLY a valid JSON object (no markdown fences) that matches the AACURA scenario schema:
 {
   "scenario_id": "...",
+  "min_turns": 8 (optional, default 8),
+  "parent_intensity": "medium" (optional, one of very_low|low|medium|high|very_high),
   "prompt_template": "..." (optional),
   "persona": {
     "name": "...", "backstory": "...", "initial_mood": "...", "communication_style": "...",
@@ -220,6 +228,22 @@ EOT;
         if (empty($json['states']['START']['bot_prompt'])) {
             return 'missing states.START.bot_prompt';
         }
+        // Normalize the optional conversation settings.
+        if (isset($json['min_turns'])) {
+            $minturns = (int)$json['min_turns'];
+            if ($minturns <= 0) {
+                unset($json['min_turns']);
+            } else {
+                $json['min_turns'] = $minturns;
+            }
+        }
+        $validintensities = ['very_low', 'low', 'medium', 'high', 'very_high'];
+        if (isset($json['parent_intensity'])) {
+            if (!in_array($json['parent_intensity'], $validintensities, true)) {
+                unset($json['parent_intensity']);
+            }
+        }
+
         // Normalize per-state rubric values to arrays and validate their shape.
         foreach ($json['states'] ?? [] as $statekey => $node) {
             if (isset($node['rubric'])) {

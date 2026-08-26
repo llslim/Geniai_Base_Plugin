@@ -76,7 +76,7 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                         chat.reset_recording();
                     }, 20);
 
-                    // If the AI Builder is active, route the message as a builder turn.
+                    // If the Automated Scenario Builder is active, route the message as a builder turn.
                     // The handle stays internal; the clean message is shown instead.
                     if (builderActive) {
                         messagesend = "^builder_turn$$" + messagesend;
@@ -266,7 +266,7 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                 }
             }
 
-            // AI Scenario Builder: launch interviewer mode.
+            // Automated Scenario Builder: launch interviewer mode.
             var builderJson = null;
             $("#geniai-ai-builder").on("click", function(e) {
                 if (e) {
@@ -278,14 +278,14 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                 geniaisendarea.removeClass("geniai-active");
 
                 // Status bar shows the human-readable mode, never the handle.
-                setStatus("🧠 AI Scenario Builder — answering interview questions");
+                setStatus("🧠 Automated Scenario Builder — answering interview questions");
 
                 // Show an immediate client-side introduction so the author
                 // knows what the tool does and how to use it.
                 var serverId = "id-" + Math.random().toString(16).slice(2);
                 geniaiareamensagens.append(
                     '<div id="' + serverId + '" class="geniai-message geniai-server">' +
-                    '<strong>🧠 AI Scenario Builder</strong><br>' +
+                    '<strong>🧠 Automated Scenario Builder</strong><br>' +
                     'Welcome! I will interview you to build a new parent-interaction scenario step by step. ' +
                     'I will ask <strong>one question at a time</strong>. Just type your answer in the chat and press Send. ' +
                     'When you have answered all questions, type <code>generate</code> (or <code>done</code>) to produce a ' +
@@ -305,7 +305,7 @@ define(["jquery", "core/ajax", "core/notification"], function($, ajax, notificat
                     e.preventDefault();
                 }
                 if (!builderJson) {
-                    notification.exception(new Error("No generated scenario JSON available. Complete the AI Builder interview first."));
+                    notification.exception(new Error("No generated scenario JSON available. Complete the Automated Scenario Builder interview first."));
                     return;
                 }
                 var blob = new Blob([builderJson], {type: "application/json"});

@@ -659,18 +659,49 @@ class diagnostics_renderer {
                 $detail = 'Exception: ' . $e->getMessage();
             }
 
+            // Persist the result to the simulation log for admin review.
+            $log = new \stdClass();
+            $log->scenariocode = $code;
+            $log->minturns = $minturns;
+            $log->status = $status;
+            $log->detail = $detail;
+            $log->created = time();
+            $DB->insert_record('local_aacuracore_sim_log', $log);
+
             $badge = '<span class="aacura-badge ' . ($status === 'OK' ? 'aacura-badge-active' : ($status === 'WARN' ? 'aacura-badge-selected' : 'aacura-badge-inactive')) . '">' . $status . '</span>';
             $rows .= '<tr><td><code>' . s(strtoupper($code)) . '</code></td><td>' . $minturns . ' turns</td><td>' . $badge . '</td><td>' . s($detail) . '</td></tr>';
+        }
+
+        // Recent simulation log history (most recent run per scenario).
+        $historyrows = '';
+        $recent = $DB->get_records_sql(
+            'SELECT sl.* FROM {local_aacuracore_sim_log} sl
+             WHERE sl.id = (SELECT MAX(sl2.id) FROM {local_aacuracore_sim_log} sl2 WHERE sl2.scenariocode = sl.scenariocode)
+             ORDER BY sl.scenariocode ASC'
+        );
+        foreach ($recent as $l) {
+            $lbadge = '<span class="aacura-badge ' . ($l->status === 'OK' ? 'aacura-badge-active' : ($l->status === 'WARN' ? 'aacura-badge-selected' : 'aacura-badge-inactive')) . '">' . s($l->status) . '</span>';
+            $historyrows .= '<tr><td><code>' . s(strtoupper($l->scenariocode)) . '</code></td><td>' . (int)$l->minturns . ' turns</td><td>' . $lbadge . '</td><td>' . s($l->detail) . '</td><td>' . userdate($l->created) . '</td></tr>';
         }
 
         return '
         <div class="aacura-diag-card">
             <div class="aacura-diag-head">🔄 Full Minimum-Turn Simulation</div>
             <div class="aacura-diag-body">
-                <p class="aacura-muted">Runs a deterministic (regex-strategy) conversation for the full <strong>N-turn minimum</strong> (default 8) on each persona to verify the conversation does not terminate early before reaching the minimum turn count. This complements the fast 3-turn CI tests.</p>
+                <p class="aacura-muted">Runs a deterministic (regex-strategy) conversation for the full <strong>N-turn minimum</strong> (default 8) on each persona to verify the conversation does not terminate early before reaching the minimum turn count. This complements the fast 3-turn CI tests. Each run is recorded to the simulation log.</p>
                 <table class="aacura-diag-table">
                     <thead><tr><th>Scenario</th><th>Minimum Turns</th><th>Status</th><th>Detail</th></tr></thead>
                     <tbody>' . $rows . '</tbody>
+                </table>
+            </div>
+        </div>
+        <div class="aacura-diag-card">
+            <div class="aacura-diag-head">🗂️ Simulation Log (most recent run per persona)</div>
+            <div class="aacura-diag-body">
+                <p class="aacura-muted">Latest persisted N-turn test result for each persona, saved to <code>local_aacuracore_sim_log</code> for admin review.</p>
+                <table class="aacura-diag-table">
+                    <thead><tr><th>Scenario</th><th>Minimum Turns</th><th>Status</th><th>Detail</th><th>Run At</th></tr></thead>
+                    <tbody>' . $historyrows . '</tbody>
                 </table>
             </div>
         </div>';

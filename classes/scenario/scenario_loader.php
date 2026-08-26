@@ -101,8 +101,10 @@ class scenario_loader {
         $states = $data['states'] ?? [];
         $prompttemplate = $data['prompt_template'] ?? null;
         $role = $persona['role'] ?? null;
+        $minturns = isset($data['min_turns']) ? (int)$data['min_turns'] : null;
+        $parentintensity = $data['parent_intensity'] ?? null;
 
-        return new scenario_definition($id, $persona, $objectives, $states, $prompttemplate, $role);
+        return new scenario_definition($id, $persona, $objectives, $states, $prompttemplate, $role, $minturns, $parentintensity);
     }
 
     /**

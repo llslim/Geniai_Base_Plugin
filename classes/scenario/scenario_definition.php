@@ -44,6 +44,12 @@ class scenario_definition {
     /** @var array|null Optional role metadata (type, display_label, formality, etc.) */
     private $role;
 
+    /** @var int|null Optional minimum student turn count (N) before grading. */
+    private $minturns;
+
+    /** @var string|null Optional parent intensity/assertiveness level. */
+    private $parentintensity;
+
     /**
      * Constructor.
      *
@@ -53,15 +59,19 @@ class scenario_definition {
      * @param array $states
      * @param string|null $prompttemplate Optional LLM prompt template
      * @param array|null $role Optional role metadata
+     * @param int|null $minturns Optional minimum student turn count before grading
+     * @param string|null $parentintensity Optional parent assertiveness level
      */
     public function __construct(string $id, array $persona, array $learningobjectives, array $states,
-            ?string $prompttemplate = null, ?array $role = null) {
+            ?string $prompttemplate = null, ?array $role = null, ?int $minturns = null, ?string $parentintensity = null) {
         $this->id = $id;
         $this->persona = $persona;
         $this->learningobjectives = $learningobjectives;
         $this->states = $states;
         $this->prompttemplate = $prompttemplate;
         $this->role = $role;
+        $this->minturns = $minturns;
+        $this->parentintensity = $parentintensity;
     }
 
     /**
@@ -136,5 +146,23 @@ class scenario_definition {
      */
     public function get_prompt_template(): ?string {
         return $this->prompttemplate;
+    }
+
+    /**
+     * Gets the optional minimum student turn count (N) before grading.
+     *
+     * @return int|null
+     */
+    public function get_min_turns(): ?int {
+        return $this->minturns;
+    }
+
+    /**
+     * Gets the optional parent intensity/assertiveness level.
+     *
+     * @return string|null
+     */
+    public function get_parent_intensity(): ?string {
+        return $this->parentintensity;
     }
 }

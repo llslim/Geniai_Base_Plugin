@@ -120,6 +120,14 @@ class bot_engine {
             }
         }
 
+        // Scenario-level fallback (from the scenario JSON) when no activity override set.
+        if ($maxturns === 8 && $this->scenario->get_min_turns() !== null && $this->scenario->get_min_turns() > 0) {
+            $maxturns = $this->scenario->get_min_turns();
+        }
+        if ($intensity === 'medium' && !empty($this->scenario->get_parent_intensity())) {
+            $intensity = $this->scenario->get_parent_intensity();
+        }
+
         $this->max_turns = $maxturns;
         $this->parent_intensity = $intensity;
     }

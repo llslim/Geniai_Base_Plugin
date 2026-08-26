@@ -206,8 +206,24 @@ function run_full_turn_simulation() {
                     break;
                 }
             }
+            // Persist the result to the simulation log for admin review.
+            $log = new \stdClass();
+            $log->scenariocode = $code;
+            $log->minturns = $minturns;
+            $log->status = $status;
+            $log->detail = $detail;
+            $log->created = time();
+            $DB->insert_record('local_aacuracore_sim_log', $log);
+
             echo sprintf("  %-9s min=%d status=[%s] %s\n", strtoupper($code), $minturns, $status, $detail);
         } catch (\Throwable $e) {
+            $log = new \stdClass();
+            $log->scenariocode = $code;
+            $log->minturns = 8;
+            $log->status = 'FAIL';
+            $log->detail = 'Exception: ' . $e->getMessage();
+            $log->created = time();
+            $DB->insert_record('local_aacuracore_sim_log', $log);
             echo "  " . strtoupper($code) . " status=[FAIL] Exception: " . $e->getMessage() . "\n";
         }
     }
