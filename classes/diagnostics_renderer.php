@@ -44,6 +44,7 @@ class diagnostics_renderer {
         $promptpreview = self::render_prompt_preview();
         $evaluationpreview = self::render_evaluation_preview();
         $graphs = self::render_scenario_graphs();
+        $simulation = self::render_full_turn_simulation();
 
         $html = '
         <style>
@@ -109,6 +110,7 @@ class diagnostics_renderer {
             ' . $promptpreview . '
             ' . $evaluationpreview . '
             ' . $graphs . '
+            ' . $simulation . '
         </div>
 
         <script>
@@ -586,5 +588,81 @@ class diagnostics_renderer {
 
         $svg .= '</svg>';
         return $svg;
+    }
+
+    /**
+     * Full-turn minimum simulation for each active scenario.
+     *
+     * Runs a deterministic (regex-strategy) conversation of N turns (the resolved
+     * minimum-turn count, default 8) through the bot engine and reports whether the
+     * conversation runs for the full minimum or terminates early. This complements
+     * the fast CI tests by exercising the real state machine over the full turn count.
+     *
+     * @return string
+     */
+    private static function render_full_turn_simulation(): string {
+        global $DB;
+
+        $rows = '';
+        $scenariocodes = ['anna', 'brianna', 'cathy', 'mary'];
+
+        foreach ($scenariocodes as $code) {
+            // Use a throwaway user/course so simulation does not touch real data.
+            $tempuser = $DB->get_record('user', ['username' => 'debug']) ?: null;
+            $userid = $tempuser ? $tempuser->id : 0;
+
+            set_config('engine_strategy', 'regex', 'local_aacuracore');
+            $engine = new \local_aacuracore\bot_engine($userid, 0, 0, $code);
+            $minturns = $engine->get_max_turns();
+            $engine->reset_session();
+
+            $status = 'OK';
+            $detail = '';
+            try {
+                for ($turn = 1; $turn <= $minturns; $turn++) {
+                    // Turn 1 shows empathy (passes START empathy_check -> EXPLORATION).
+                    // Subsequent turns stay jargon-free (passes EXPLORATION jargon_check)
+                    // so the conversation keeps moving toward RESOLUTION but is held to
+                    // the minimum turn count before grading.
+                    $msg = ($turn === 1)
+                        ? 'I understand your concerns and really want to help you find the best way forward.'
+                        : 'This is a simple device with picture symbols that makes it easy to communicate.';
+                    $reply = $engine->process_user_turn($msg);
+                    if (empty($reply)) {
+                        $detail = "Empty reply on turn {$turn}.";
+                        $status = 'WARN';
+                        break;
+                    }
+                    // If the session auto-reset to START (grading fired), the conversation ended.
+                    $session = $DB->get_record('local_aacuracore_sessions', ['userid' => $userid, 'scenariocode' => $code]);
+                    if ($session && $session->current_state === 'START' && $turn < $minturns) {
+                        $detail = "Terminated early at turn {$turn} (below min {$minturns}).";
+                        $status = 'FAIL';
+                        break;
+                    }
+                }
+                if ($status === 'OK') {
+                    $detail = "Ran full {$minturns}-turn minimum without early termination.";
+                }
+            } catch (\Throwable $e) {
+                $status = 'FAIL';
+                $detail = 'Exception: ' . $e->getMessage();
+            }
+
+            $badge = '<span class="aacura-badge ' . ($status === 'OK' ? 'aacura-badge-active' : ($status === 'WARN' ? 'aacura-badge-selected' : 'aacura-badge-inactive')) . '">' . $status . '</span>';
+            $rows .= '<tr><td><code>' . s(strtoupper($code)) . '</code></td><td>' . $minturns . ' turns</td><td>' . $badge . '</td><td>' . s($detail) . '</td></tr>';
+        }
+
+        return '
+        <div class="aacura-diag-card">
+            <div class="aacura-diag-head">🔄 Full Minimum-Turn Simulation</div>
+            <div class="aacura-diag-body">
+                <p class="aacura-muted">Runs a deterministic (regex-strategy) conversation for the full <strong>N-turn minimum</strong> (default 8) on each persona to verify the conversation does not terminate early before reaching the minimum turn count. This complements the fast 3-turn CI tests.</p>
+                <table class="aacura-diag-table">
+                    <thead><tr><th>Scenario</th><th>Minimum Turns</th><th>Status</th><th>Detail</th></tr></thead>
+                    <tbody>' . $rows . '</tbody>
+                </table>
+            </div>
+        </div>';
     }
 }

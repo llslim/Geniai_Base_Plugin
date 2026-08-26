@@ -18,6 +18,7 @@ $longopts = [
     "disable-debug",  // Turns developer debugging OFF
     "check-configs",  // Verifies database and AI provider settings
     "phpunit",        // Triggers PHPUnit tests
+    "simulate",       // Runs a full N-turn (default 8) minimum-turn simulation on each persona
     "all"             // Runs everything (enable-debug, check-configs, all scenarios, phpunit)
 ];
 $options = getopt($shortopts, $longopts);
@@ -156,6 +157,55 @@ function run_phpunit() {
     echo "====================================\n\n";
 }
 
+/**
+ * Run a full N-turn minimum-turn simulation on each persona.
+ *
+ * Uses the deterministic regex strategy so no live LLM is needed. Sends a
+ * scripted conversation for the resolved minimum-turn count (default 8) and
+ * reports whether the conversation runs the full minimum or terminates early.
+ */
+function run_full_turn_simulation() {
+    global $DB;
+    echo "=== [SIMULATE] Full Minimum-Turn Simulation (default 8) ===\n";
+
+    $debuguser = $DB->get_record('user', ['username' => 'debug']);
+    $userid = $debuguser ? $debuguser->id : 0;
+
+    set_config('engine_strategy', 'regex', 'local_aacuracore');
+
+    foreach (['anna', 'brianna', 'cathy', 'mary'] as $code) {
+        try {
+            $engine = new \local_aacuracore\bot_engine($userid, 0, 0, $code);
+            $minturns = $engine->get_max_turns();
+            $engine->reset_session();
+
+            $status = 'OK';
+            $detail = "Ran full {$minturns}-turn minimum without early termination.";
+            for ($turn = 1; $turn <= $minturns; $turn++) {
+                $msg = ($turn === 1)
+                    ? 'I understand your concerns and really want to help you find the best way forward.'
+                    : 'This is a simple device with picture symbols that makes it easy to communicate.';
+                $reply = $engine->process_user_turn($msg);
+                if (empty($reply)) {
+                    $status = 'WARN';
+                    $detail = "Empty reply on turn {$turn}.";
+                    break;
+                }
+                $session = $DB->get_record('local_aacuracore_sessions', ['userid' => $userid, 'scenariocode' => $code]);
+                if ($session && $session->current_state === 'START' && $turn < $minturns) {
+                    $status = 'FAIL';
+                    $detail = "Terminated early at turn {$turn} (below min {$minturns}).";
+                    break;
+                }
+            }
+            echo sprintf("  %-9s min=%d status=[%s] %s\n", strtoupper($code), $minturns, $status, $detail);
+        } catch (\Throwable $e) {
+            echo "  " . strtoupper($code) . " status=[FAIL] Exception: " . $e->getMessage() . "\n";
+        }
+    }
+    echo "====================================\n\n";
+}
+
 // Determine what steps to execute
 $runall = isset($options['all']);
 $runconfigs = $runall || isset($options['check-configs']);
@@ -216,4 +266,10 @@ if ($scenariocode || (!$runconfigs && !$runphpunit && !isset($options['enable-de
 // Run PHPUnit tests
 if ($runphpunit) {
     run_phpunit();
+}
+
+// Run full minimum-turn simulation
+$runsimulate = $runall || isset($options['simulate']);
+if ($runsimulate) {
+    run_full_turn_simulation();
 }
