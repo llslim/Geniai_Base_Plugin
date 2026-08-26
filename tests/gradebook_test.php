@@ -58,6 +58,8 @@ class gradebook_test extends \advanced_testcase {
             $table->add_field('intro', XMLDB_TYPE_TEXT, null, null, null, null, null);
             $table->add_field('introformat', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0');
             $table->add_field('scenariocode', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, 'anna');
+            $table->add_field('max_turns', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+            $table->add_field('parent_intensity', XMLDB_TYPE_CHAR, '20', null, null, null, null);
             $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
             $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
             $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
@@ -171,7 +173,7 @@ PHP;
             $record->scenariocode = $scenario;
             $record->intro = 'Test Intro';
             $record->introformat = FORMAT_HTML;
-            $record->max_turns = 2; // Keep the test fast: minimum 2 turns before grading.
+            $record->max_turns = 3; // Minimum 3 turns before grading; verifies no early termination at a terminal state below the minimum.
             $record->timecreated = time();
             $record->timemodified = time();
             $record->id = $DB->insert_record('aacurachat', $record);
@@ -221,13 +223,15 @@ PHP;
             $this->assertNotNull($analytic1);
             $this->assertEquals(1.00, $analytic1->metric_value);
 
-            // 4. Send Turn 2: Should pass jargon_check (triggers transition EXPLORATION -> RESOLUTION)
+            // 4. Send Turn 2: Should pass jargon_check (triggers transition EXPLORATION -> RESOLUTION).
+            //    Because the minimum turn count (3) has NOT been reached, the conversation must NOT
+            //    terminate yet. Verify the terminal RESOLUTION is cycled back into EXPLORATION.
             $reply2 = $engine->process_user_turn("This is a simple device with picture symbols.");
             $this->assertNotEmpty($reply2);
 
-            // Verify session state was reset back to START after resolution terminal completion
             $session = $DB->get_record('local_aacuracore_sessions', ['userid' => $student->id, 'scenariocode' => $scenario]);
-            $this->assertEquals('START', $session->current_state);
+            // Minimum turns not met => session should still be active (cycled to EXPLORATION), NOT reset to START.
+            $this->assertNotEquals('START', $session->current_state, "Conversation should not terminate before the minimum turn count");
 
             // Verify user message count is now 2
             $usercount = $DB->count_records('local_aacuracore_messages', ['sessionid' => $session->id, 'sender' => 'user']);
@@ -237,6 +241,14 @@ PHP;
             $analytic2 = $DB->get_record('local_aacuracore_analytics', ['sessionid' => $session->id, 'metric_type' => 'jargon_check']);
             $this->assertNotNull($analytic2);
             $this->assertEquals(1.00, $analytic2->metric_value);
+
+            // 4b. Send Turn 3: Now the minimum turn count (3) is met, so grading should fire
+            //     and the session should be reset back to START.
+            $reply3 = $engine->process_user_turn("This is a simple device with picture symbols.");
+            $this->assertNotEmpty($reply3);
+
+            $session = $DB->get_record('local_aacuracore_sessions', ['userid' => $student->id, 'scenariocode' => $scenario]);
+            $this->assertEquals('START', $session->current_state, "Conversation should terminate after reaching the minimum turn count");
 
             // 5. Verify Moodle Gradebook sync
             $gradeitem = $DB->get_record('grade_items', ['courseid' => $course->id, 'iteminstance' => $record->id, 'itemmodule' => 'aacurachat']);
@@ -282,7 +294,7 @@ PHP;
             $record->scenariocode = $scenario;
             $record->intro = 'Test Intro';
             $record->introformat = FORMAT_HTML;
-            $record->max_turns = 2; // Keep the test fast: minimum 2 turns before grading.
+            $record->max_turns = 3; // Minimum 3 turns before grading; verifies no early termination at a terminal state below the minimum.
             $record->timecreated = time();
             $record->timemodified = time();
             $record->id = $DB->insert_record('aacurachat', $record);
@@ -332,18 +344,28 @@ PHP;
             $this->assertNotNull($analytic1);
             $this->assertEquals(0.00, $analytic1->metric_value);
 
-            // 4. Send Turn 2: Should FAIL de_escalation_check (triggers transition ESCALATION -> FAIL_STATE)
+            // 4. Send Turn 2: Should FAIL de_escalation_check (triggers transition ESCALATION -> FAIL_STATE).
+            //    Because the minimum turn count (3) has NOT been reached, the conversation must NOT
+            //    terminate yet. Verify the session remains active (NOT reset to START).
             $reply2 = $engine->process_user_turn("I don't care, talk to the principal.");
             $this->assertNotEmpty($reply2);
 
-            // Verify session state was reset back to START after terminal completion
             $session = $DB->get_record('local_aacuracore_sessions', ['userid' => $student->id, 'scenariocode' => $scenario]);
-            $this->assertEquals('START', $session->current_state);
+            // Minimum turns not met => session should still be active, NOT reset to START.
+            $this->assertNotEquals('START', $session->current_state, "Conversation should not terminate before the minimum turn count");
 
-            // Verify jargon_check analytics was logged as invalid (0.00)
+            // Verify de_escalation_check analytics was logged as invalid (0.00)
             $analytic2 = $DB->get_record('local_aacuracore_analytics', ['sessionid' => $session->id, 'metric_type' => 'de_escalation_check']);
             $this->assertNotNull($analytic2);
             $this->assertEquals(0.00, $analytic2->metric_value);
+
+            // 4b. Send Turn 3: Now the minimum turn count (3) is met, so grading should fire
+            //     and the session should be reset back to START.
+            $reply3 = $engine->process_user_turn("I don't care, talk to the principal.");
+            $this->assertNotEmpty($reply3);
+
+            $session = $DB->get_record('local_aacuracore_sessions', ['userid' => $student->id, 'scenariocode' => $scenario]);
+            $this->assertEquals('START', $session->current_state, "Conversation should terminate after reaching the minimum turn count");
 
             // 5. Verify Moodle Gradebook sync
             $gradeitem = $DB->get_record('grade_items', ['courseid' => $course->id, 'iteminstance' => $record->id, 'itemmodule' => 'aacurachat']);
@@ -359,5 +381,58 @@ PHP;
             $this->assertEquals(8.00, $eval->score, "Saved evaluation score should be 8.00");
             $this->assertNotEmpty($eval->feedback, "Saved evaluation feedback should not be empty");
         }
+    }
+
+    /**
+     * Test the default 8-turn minimum behavior.
+     *
+     * With no per-activity max_turns override, the conversation should default
+     * to an 8-turn MINIMUM. Reaching a terminal state (RESOLUTION) early must
+     * NOT terminate the conversation before those 8 turns are completed.
+     */
+    public function test_default_minimum_turns_is_eight(): void {
+        global $DB, $CFG;
+        require_once($CFG->dirroot . '/course/modlib.php');
+
+        set_config('engine_strategy', 'regex', 'local_aacuracore');
+        $this->resetAfterTest(true);
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $student = $generator->create_user();
+        $generator->enrol_user($student->id, $course->id, 'student');
+
+        // Insert aacurachat record WITHOUT setting max_turns so the default applies.
+        $record = new \stdClass();
+        $record->course = $course->id;
+        $record->name = 'Chatbot - default turns';
+        $record->scenariocode = 'anna';
+        $record->intro = 'Test Intro';
+        $record->introformat = FORMAT_HTML;
+        $record->timecreated = time();
+        $record->timemodified = time();
+        $record->id = $DB->insert_record('aacurachat', $record);
+
+        $engine = new \local_aacuracore\bot_engine($student->id, $course->id, 0, 'anna');
+
+        // Default minimum turns should be 8.
+        $this->assertEquals(8, $engine->get_max_turns(), "Default minimum turns should be 8 when no activity override is set");
+
+        // Turn 1: empathy pass -> EXPLORATION.
+        $reply1 = $engine->process_user_turn("I understand your concerns and want to help you.");
+        $this->assertNotEmpty($reply1);
+
+        // Turn 2: jargon pass -> would reach RESOLUTION (a terminal state) but must
+        // NOT terminate because the 8-turn minimum has not been met.
+        $reply2 = $engine->process_user_turn("This is a simple device with picture symbols.");
+        $this->assertNotEmpty($reply2);
+
+        $session = $DB->get_record('local_aacuracore_sessions', ['userid' => $student->id, 'scenariocode' => 'anna']);
+        $this->assertNotEquals('START', $session->current_state,
+            "Conversation must NOT terminate early even after reaching a terminal state below the 8-turn minimum");
+
+        // Confirm only 2 user turns have been logged (still below the minimum).
+        $usercount = $DB->count_records('local_aacuracore_messages', ['sessionid' => $session->id, 'sender' => 'user']);
+        $this->assertEquals(2, $usercount);
     }
 }

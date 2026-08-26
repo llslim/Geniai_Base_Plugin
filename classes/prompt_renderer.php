@@ -91,7 +91,7 @@ Under each step, use an HTML list <ul><li>...</li></ul> with list items:
 
 End with:
 <p><strong>Total score: X out of 10</strong></p>
-<p>A warm thank-you message with emojis</p>
+Write a warm, personalized thank-you message (2-3 sentences) addressed to the trainee, using their demonstrated effort in the conversation, and include a couple of encouraging emojis. Output it as a <p> tag.
 <p>Suggest to click <strong>Clear Chat</strong> button to restart if needed</p>
 EOT;
 

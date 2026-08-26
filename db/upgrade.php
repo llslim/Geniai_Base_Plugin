@@ -222,5 +222,25 @@ function xmldb_local_aacuracore_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026082502, 'local', 'aacuracore');
     }
 
+    if ($oldversion < 2026082503) {
+        // Fix the evaluation prompt template leak: the old default contained the
+        // literal instruction "<p>A warm thank-you message with emojis</p>" which the
+        // LLM copied verbatim into the feedback. Migrate any stored value that still
+        // contains this placeholder prose to the corrected default (unless the admin
+        // has meaningfully customized the template beyond that one line).
+        require_once(__DIR__ . '/../classes/prompt_renderer.php');
+        $evaltemplate = get_config('local_aacuracore', 'evaluation_prompt_template');
+        $leaked = 'A warm thank-you message with emojis';
+        if (!empty($evaltemplate) && strpos($evaltemplate, $leaked) !== false) {
+            set_config(
+                'evaluation_prompt_template',
+                \local_aacuracore\prompt_renderer::DEFAULT_EVALUATION_TEMPLATE,
+                'local_aacuracore'
+            );
+        }
+
+        upgrade_plugin_savepoint(true, 2026082503, 'local', 'aacuracore');
+    }
+
     return true;
 }
