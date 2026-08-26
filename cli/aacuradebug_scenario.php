@@ -173,9 +173,17 @@ function run_full_turn_simulation() {
 
     set_config('engine_strategy', 'regex', 'local_aacuracore');
 
+    // Use a distinct sentinel courseid per scenario so each simulation uses its own
+    // isolated session (courseid=0 shared by all would collide and pollute state).
+    $sentinelcourse = 9000000;
+    $idx = 0;
+
     foreach (['anna', 'brianna', 'cathy', 'mary'] as $code) {
         try {
-            $engine = new \local_aacuracore\bot_engine($userid, 0, 0, $code);
+            $simcourse = $sentinelcourse + $idx++;
+            $DB->delete_records('local_aacuracore_sessions', ['userid' => $userid, 'courseid' => $simcourse]);
+
+            $engine = new \local_aacuracore\bot_engine($userid, $simcourse, 0, $code);
             $minturns = $engine->get_max_turns();
             $engine->reset_session();
 
@@ -191,7 +199,7 @@ function run_full_turn_simulation() {
                     $detail = "Empty reply on turn {$turn}.";
                     break;
                 }
-                $session = $DB->get_record('local_aacuracore_sessions', ['userid' => $userid, 'scenariocode' => $code]);
+                $session = $DB->get_record('local_aacuracore_sessions', ['userid' => $userid, 'courseid' => $simcourse]);
                 if ($session && $session->current_state === 'START' && $turn < $minturns) {
                     $status = 'FAIL';
                     $detail = "Terminated early at turn {$turn} (below min {$minturns}).";

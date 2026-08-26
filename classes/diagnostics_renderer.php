@@ -606,13 +606,23 @@ class diagnostics_renderer {
         $rows = '';
         $scenariocodes = ['anna', 'brianna', 'cathy', 'mary'];
 
+        // Use a distinct sentinel courseid per scenario so each simulation uses its
+        // own isolated session (courseid=0 shared by all would collide and pollute
+        // the conversation history/turn count).
+        $sentinelcourse = 9000000;
+        $idx = 0;
+
         foreach ($scenariocodes as $code) {
-            // Use a throwaway user/course so simulation does not touch real data.
+            // Use a throwaway user so simulation does not touch real user data.
             $tempuser = $DB->get_record('user', ['username' => 'debug']) ?: null;
             $userid = $tempuser ? $tempuser->id : 0;
+            $simcourse = $sentinelcourse + $idx++;
+
+            // Clean up any prior simulation session for this synthetic course.
+            $DB->delete_records('local_aacuracore_sessions', ['userid' => $userid, 'courseid' => $simcourse]);
 
             set_config('engine_strategy', 'regex', 'local_aacuracore');
-            $engine = new \local_aacuracore\bot_engine($userid, 0, 0, $code);
+            $engine = new \local_aacuracore\bot_engine($userid, $simcourse, 0, $code);
             $minturns = $engine->get_max_turns();
             $engine->reset_session();
 
@@ -634,7 +644,7 @@ class diagnostics_renderer {
                         break;
                     }
                     // If the session auto-reset to START (grading fired), the conversation ended.
-                    $session = $DB->get_record('local_aacuracore_sessions', ['userid' => $userid, 'scenariocode' => $code]);
+                    $session = $DB->get_record('local_aacuracore_sessions', ['userid' => $userid, 'courseid' => $simcourse]);
                     if ($session && $session->current_state === 'START' && $turn < $minturns) {
                         $detail = "Terminated early at turn {$turn} (below min {$minturns}).";
                         $status = 'FAIL';
